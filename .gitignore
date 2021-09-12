@@ -1,0 +1,21 @@
+auto-save-list
+projectile-bookmarks.eld
+server
+savehist
+recentf
+eshell
+projectile.cache
+meghanada
+# The config.el(c) file is generated
+config.el*
+.emacs.desktop*
+tramp
+bookmarks
+.python-environments
+transient
+network-security.data
+*.elc
+*~
+.#recentf
+elpa
+elpy

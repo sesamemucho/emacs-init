@@ -1,0 +1,2316 @@
+#+OPTIONS: toc:3 h:3
+#+OPTIONS: ^:nil
+#+PROPERTY: header-args :tangle yes
+#+HTML_HEAD: <style>
+#+HTML_HEAD:     table { border: 1px solid black; border-collapse:collapse; margin-left: 2%; }
+#+HTML_HEAD:     th.org-left   { border: 1px solid black; text-align: left; background-color: lightgray  }
+#+HTML_HEAD:     td.org-left   { border: 1px solid black; text-align: left; font-family: monospace; }
+#+HTML_HEAD: </style>
+#+AUTHOR: Bob Forgey
+#+EMAIL: bob@grumpydogconsulting.com
+#+TITLE: A _Literate_ and _Fairly Portable_ Emacs Initialization
+
+#+begin_quote
+  Emacs outshines all other editing software in approximately the same
+  way that the noonday sun does the stars. It is not just bigger and
+  brighter; it simply makes everything else vanish.
+
+  -- Neal Stephenson, "In the Beginning was the Command Line"
+#+end_quote
+
+
+* Overview
+  This is a literate and fairly portable Emacs initialization.
+
+  These configuration files are inspired by Adam Taylor's
+  (mailto:mr.adtaylor@gmail.com) initialization code (git clone
+  https://github.com/Atman50/emacs-config.git)
+
+** Quick start
+
+1. Install Emacs version 24 or greater.
+
+2. clone or checkout this repo (TBD)
+
+3. Move the resulting directory to =~/.emacs.d= [1]
+
+4. Launch Emacs
+
+  One of my constraints for this is that the init directory must be
+   able to be installed and to be run without Internet access. Some of
+   the consequences of this are:
+
+1. All the packages are contained in the elpa/ directory.
+
+2. Packages needed for startup (currently, use-package and bind-key)
+   are kept as static directories under startup/ and must be manually
+   updated occasionally.
+
+** Why a literate configuration
+   The documentation is in the same place as the code.
+
+** The importance of the =init.el= file
+   There's a detailed explanation on how this configuration works WRT to =init.el= at the end of this document.
+
+   The init.el file is there to tangle this document into the
+   configuration to load.
+
+* Implementation
+
+** Emacs first-stage initialization
+
+*** A preamble
+    First make sure that we are doing lexical scoping for speed. See
+    [[https://nullprogram.com/blog/2016/12/22/][Some Performance Advantages of Lexical Scope blog]].
+    #+BEGIN_SRC emacs-lisp
+      ;;; README.el --- a file generated from README.org - do not edit by hand!!!!
+      ;; -*- lexical-binding: t; -*-
+      ;;; Commentary:
+      ;;;     Org tangled from README.org. Edit the org file to chnage this configuration
+      ;;; Code:
+    #+END_SRC
+
+*** Speed up loading
+    This is a little piece of code that I picked up that might make
+    things faster when downloading and installing all the packages.
+    This turns down the garbage collector during the use-package
+    loading when it has to do some compiling. Set it back when done
+    with init.
+    #+BEGIN_SRC emacs-lisp
+      (setq gc-cons-threshold 64000000)
+      (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
+    #+END_SRC
+
+*** Speed up line movement
+    I ran into this little tidbit while reading Sacha Chua's posts
+    from Emacs. It is described [[https://emacs.stackexchange.com/questions/28736/emacs-pointcursor-movement-lag/28746][here]], but to summarize the =next-line=
+    defun triggers =line-move-partial= which leads to excessive
+    processing. By setting the variable here, the speed of using
+    =next-line= gets very cut down.
+    #+BEGIN_SRC emacs-lisp
+      (setq auto-window-vscroll nil)
+    #+END_SRC
+
+*** Setup
+
+This is for values that should be set before anything else.
+#+begin_src emacs-lisp
+      (setq debug-on-error t)
+      ;; UTF-8 as default encoding
+      (set-language-environment "UTF-8")
+      (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
+      ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
+      (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" ))
+    
+    
+      (menu-bar-mode -1)
+      (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+      (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+      (blink-cursor-mode -1)
+      (electric-indent-mode -1)
+      (setq backup-inhibited t
+	    auto-save-default nil
+	    inhibit-startup-message t
+	    initial-scratch-message nil
+	    wdired-allow-to-change-permissions t
+	    dabbrev-case-distinction nil
+	    dabbrev-case-fold-search nil
+	    echo-keystrokes 0.1
+	    delete-active-region nil
+	    vc-follow-symlinks t
+	    disabled-command-function nil
+	    custom-file (make-temp-file "emacs-custom")
+	    truncate-lines t
+	    initial-scratch-message ""
+	    visible-bell t)
+    
+      (when (window-system)
+	(tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+	(when (fboundp 'horizontal-scroll-bar-mode)
+	  (horizontal-scroll-bar-mode -1))
+	(scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+    
+      (add-hook 'dired-mode-hook #'toggle-truncate-lines)
+      (defalias 'yes-or-no-p 'y-or-n-p)
+	     ;;; Packages
+      (require 'package)
+      ;;(require 'package-helper)
+      ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
+      (setq package-archives (list
+		  '("myemacs" . "~/myemacs")
+		  ))
+		  
+    
+      ;; (setq package-archives (list
+      ;;             '("org" . "https://orgmode.org/elpa/")
+      ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
+      ;; (add-to-list 'package-archives
+      ;;              '("myemacs" . "~/myemacs") t)
+    
+      ;; (add-to-list 'package-archives
+      ;;              '("org" . "https://orgmode.org/elpa/") t)
+    
+    ;               '("org" . "http://orgmode.org/elpa/") t)
+      ;; (add-to-list 'package-archives
+      ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+    
+      ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
+      ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
+      ;; ;; (add-to-list 'package-archives
+      ;;              '("marmalade" . "http://marmalade-repo.org/packages/") t)
+      (setq package-enable-at-startup nil)
+      (setq package-blacklist '(batch-mode))
+      (package-initialize)
+#+end_src
+
+#+RESULTS:
+
+#+begin_src emacs-lisp
+#+end_src
+
+*** Basics
+This code should be executed before any customization files are loaded.
+
+- Load path etc.
+  #+begin_src emacs-lisp
+    ;;(add-to-list 'load-path ssmm/cfg-dir)
+    ;; (setq autoload-file (concat ssmm/cfg-dir "loaddefs.el"))
+    (setq package-user-dir (concat ssmm/cfg-dir "elpa"))
+    ;; (setq custom-file (concat ssmm/cfg-dir "custom.el"))
+  #+end_src
+
+- Compile bare elisp files
+#+begin_src emacs-lisp
+(byte-recompile-directory (concat ssmm/cfg-dir "lisp/") 0)
+;;(byte-recompile-directory "~/.emacs.d/etc/" 0)
+#+end_src
+
+*** Basic packages
+#+begin_src emacs-lisp
+(use-package f)
+(use-package s)
+#+end_src
+*** Local emacs package
+#+begin_src emacs-lisp
+  ;; (require 'elpa-mirror)
+  ;; (setq elpamr-default-output-directory "~/myelpa")
+  ;; (add-to-list 'package-archives
+  ;;                '("myelpa" . "~/myelpa/"))
+#+end_src
+** Universal settings
+*** Set variables
+#+begin_src emacs-lisp
+  (setq use-package-verbose t
+         use-package-expand-minimally nil
+         use-package-compute-statistics t)
+         ;; debug-on-error t)
+  (defvar ssmm/true-home (file-truename "~/"))
+#+end_src
+
+*** Align your code in a pretty way.
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x \\") 'align-regexp)
+#+end_src
+
+*** Completion that uses many different methods to find options.
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-/") 'hippie-expand)
+#+end_src
+
+*** Use regex searches by default.
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "\C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "C-M-s") 'isearch-forward)
+(global-set-key (kbd "C-M-r") 'isearch-backward)
+#+end_src
+
+*** Window switching. (C-x o goes to the next window)
+#+begin_src emacs-lisp
+(windmove-default-keybindings) ;; Shift+direction
+(global-set-key (kbd "C-x O") (lambda () (interactive) (other-window -1))) ;; back one
+(global-set-key (kbd "C-x C-o") (lambda () (interactive) (other-window 2))) ;; forward two
+#+end_src
+
+*** Help should search more than just commands
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-h a") 'apropos)
+#+end_src
+
+** UI settings
+*** Terminal setup
+For working in xterm: XTERM=xterm-256color
+
+#+begin_src emacs-lisp
+  (defadvice terminal-init-xterm (after select-shift-up activate)
+    (define-key input-decode-map "\e[1;2A" [S-up])
+    (define-key input-decode-map "\e[1;2B" [S-down])
+    (define-key input-decode-map "\e[1;2C" [S-right])
+    (define-key input-decode-map "\e[1;2D" [S-left])
+    (define-key input-decode-map "\e[1;5A" [C-up])
+    (define-key input-decode-map "\e[1;5B" [C-down])
+    (define-key input-decode-map "\e[1;5C" [C-right])
+    (define-key input-decode-map "\e[1;5D" [C-left])
+    (define-key input-decode-map "\e[1;3A" [M-up])
+    (define-key input-decode-map "\e[1;3B" [M-down])
+
+    (define-key input-decode-map "\e[1;3C" [M-right])
+    (define-key input-decode-map "\e[1;3D" [M-left])
+    )
+#+end_src
+
+*** Free up C-m for use as prefix map
+From https://emacs.stackexchange.com/questions/20240/how-to-distinguish-c-m-from-return
+To distinguish C-m from RET in a GUI Emacs, one could change C-i to C-m in @nispio's answer:
+    #+begin_src emacs-lisp
+      (define-key input-decode-map [?\C-m] [C-m])
+    #+end_src
+*** UI setup
+
+#+begin_src emacs-lisp
+    (use-package zenburn-theme
+    :config
+      (load-theme 'zenburn t)
+      )
+
+      ;; (with-package* smart-mode-line
+      ;;   (setq sml/apply-theme 'dark)
+      ;;   (setq sml/shorten-directory t)
+      ;;   (setq sml/shorten-modes t)
+      ;;   (setq sml/name-width 40)
+      ;;   (setq sml/mode-width 'full)
+      ;;   ;;(add-hook 'after-init-hook 'sml/setup nil)
+      ;;   (add-hook 'after-init-hook (lambda () (message "Goodbye from init-hook")) t)
+      ;;   )
+
+    ;; Go backwards through windows
+    (global-set-key (kbd "C-x p") (lambda () (interactive) (other-window -1)))
+
+    ;; C-x C-c is bad bad bad
+    (global-unset-key (kbd "C-x C-c"))
+    (global-set-key (kbd "C-x C-c C-c") 'save-buffers-kill-terminal)
+    (setq tab-width 3)
+#+end_src
+
+** defuns
+*** refresh packages from network
+Currently using https://github.com/redguardtoo/elpa-mirror, for speed,
+compatibility between emacs versions/architectures, and stability.
+However, we need some way to update from the internet.
+
+After this command, you should probably run M-x
+elpamr-create-mirror-for-installed again, to update ~/myemacs.
+#+begin_src emacs-lisp
+     (defun ssmm-update-packages-from-internet()
+     "Runs package-list-packages with extra repos.
+     "
+     (interactive)
+     ;;(let ((package-archives package-archives))
+        (add-to-list 'package-archives
+                     '("org" . "https://orgmode.org/elpa/") t)
+        (add-to-list 'package-archives
+                     '("melpa" . "https://stable.melpa.org/packages/") t)
+        (package-list-packages)
+       ;;)
+  )
+#+end_src
+*** make-repeatable-command
+From emacs prelude-core.
+#+begin_src emacs-lisp
+
+(require 'repeat)
+
+(defun make-repeatable-command (cmd)
+  "Returns a new command that is a repeatable version of CMD.
+The new command is named CMD-repeat.  CMD should be a quoted
+command.
+
+This allows you to bind the command to a compound keystroke and
+repeat it with just the final key.  For example:
+
+  (global-set-key (kbd \"C-c a\") (make-repeatable-command 'foo))
+
+will create a new command called foo-repeat.  Typing C-c a will
+just invoke foo.  Typing C-c a a a will invoke foo three times,
+and so on."
+  (fset (intern (concat (symbol-name cmd) "-repeat"))
+        `(lambda ,(help-function-arglist cmd) ;; arg list
+           ,(format "A repeatable version of `%s'." (symbol-name cmd)) ;; doc string
+           ,(interactive-form cmd) ;; interactive form
+           ;; see also repeat-message-function
+           (setq last-repeatable-command ',cmd)
+           (repeat nil)))
+  (intern (concat (symbol-name cmd) "-repeat")))
+
+#+end_src
+
+*** ssmm/goto-file-line-other-window
+Given a string in a buffer that looks like "filename:linenumber", go there.
+
+#+begin_src emacs-lisp
+  (defun ssmm/goto-file-line-other-window ()
+    "Given a string in a buffer that looks like 'filename:linenumber', go there."
+    (interactive)
+    (beginning-of-thing 'filename)
+    (and (looking-at "\\([-a-zA-Z._0-9/]+\\):\\([0-9]+\\)")
+     (let ((filename (match-string 1))
+           (line_num (string-to-number (match-string 2))))
+       (find-file-other-window filename)
+       (goto-line line_num)
+       )))
+
+  (global-set-key (kbd "C-<kp-home>") 'ssmm/goto-file-line-other-window)
+
+#+end_src
+
+*** Copy characters from previous line
+From emacswiki
+
+#+begin_src emacs-lisp
+  (autoload 'copy-from-above-command "misc"
+    "Copy characters from previous nonblank line, starting just above point.
+
+    \(fn &optional arg)"
+    'interactive)
+
+  (global-set-key [f6] (lambda ()
+                         (interactive)
+                         (copy-from-above-command 1)))
+#+end_src
+
+*** Default buffer
+
+#+begin_src emacs-lisp
+;;(setq ssmm-default-buffer "iff_config.c")
+(defun ssmm-goto-default-buffer ()
+  (interactive)
+  (switch-to-buffer ssmm-default-buffer))
+(global-set-key (kbd "C-'") 'ssmm-goto-default-buffer)
+#+end_src
+
+*** Working with multiple screens
+
+#+begin_src emacs-lisp
+  (defun ssmm-setup-frames ()
+   (interactive)
+   ;;(make-frame-on-display ":0.1")
+   (make-frame)
+   ;(make-frame-on-display "rforgey-windows:0.0")
+   ;(make-frame-on-display "rforgey-windows:0.1")
+   )
+  ;;(defun ssmm-a-setup-frames ()
+  ;; (interactive)
+  ;; (pop-to-buffer "*scratch*")
+  ;; (delete-other-windows)
+  ;; (setq frame0 (selected-frame))
+  ;; (make-frame-on-display ":0.1")
+  ;; (pop-to-buffer "*scratch*")
+  ;; (setq frame1 (selected-frame))
+  ;; (frame-configuration-to-register ?0)
+  ;; (frame-configuration-to-register ?1)
+  ;; (frame-configuration-to-register ?2)
+  ;; (frame-configuration-to-register ?3)
+  ;; (frame-configuration-to-register ?4)
+  ;; (frame-configuration-to-register ?5)
+  ;; )
+
+#+end_src
+
+*** XML
+Defuns to work with XML files, as some operations in nXML mode cause
+Emacs to spin at 100% CPU.
+#+begin_src emacs-lisp
+  (defun ssmm-comment-xml-item ()
+    "Puts a comment around an XML tag, and fixes double-hyphens."
+    (interactive)
+    (search-backward "<")
+    (er/expand-region 1)
+    (replace-string "--" "- -" nil (region-beginning) (region-end))
+    (search-backward "<")
+    (er/expand-region 1)
+    (kill-region (region-beginning) (region-end))
+    (insert-string "<!-- ")
+    (yank)
+    (insert-string " -->")
+    )
+#+end_src
+*** CamelCase
+
+#+begin_src emacs-lisp
+  ;; These three defuns started out from http://www.emacswiki.org/CamelCase
+  (defun mapcar-head (fn-head fn-rest list)
+    "Like MAPCAR, but applies a different function to the first element."
+    (if list
+        (cons (funcall fn-head (car list)) (mapcar fn-rest (cdr list)))))
+
+  (defun camelize (s)
+    "Convert string S (with spaces or _) to CamelCase string."
+    (mapconcat 'identity (mapcar
+                          '(lambda (word) (capitalize (downcase word)))
+                          (split-string s "[ _]+")) ""))
+
+  (defun camelize-method (s)
+    "Convert string S (with spaces or _) to camelCase string."
+    (mapconcat 'identity (mapcar-head
+                          '(lambda (word) (downcase word))
+                          '(lambda (word) (capitalize (downcase word)))
+                          (split-string s "[ _]+")) ""))
+
+  (defun camelCase (start end)
+    "Coverts region to camelCase."
+    (interactive "r")
+    (let* ((str (buffer-substring-no-properties start end))
+           (ccstr (camelize-method str))
+           )
+      (delete-region start end)
+      (insert ccstr)
+      )
+    )
+
+  (defun CamelCase (start end)
+    "Coverts region to CamelCase."
+    (interactive "r")
+    (let* ((str (buffer-substring-no-properties start end))
+           (ccstr (camelize str))
+           )
+      (delete-region start end)
+      (insert ccstr)
+      )
+    )
+
+  ;; From http://stackoverflow.com/questions/9288181/converting-from-camel-case-to-in-emacs
+  (defun un-camelcase (start end)
+    "Converts CamelCase region to underscores."
+    (interactive "r")
+    (replace-regexp "\\([A-Z]\\)" "_\\1" nil start end)
+    (downcase-region start end)
+  )
+
+  (defun un-camelcase-word-at-point ()
+    "un-camelcase word at point."
+    (interactive)
+    (save-excursion
+      (let ((bounds (bounds-of-thing-at-point 'word)))
+        (replace-regexp "\\([A-Z]\\)" "_\\1" nil (1+ (car bounds)) (cdr bounds))
+        (downcase-region (car bounds) (cdr bounds))
+        )
+      )
+    )
+#+end_src
+
+*** Center rectangle
+#+begin_src emacs-lisp
+;;; from http://stackoverflow.com/questions/11651604/how-to-center-text-in-emacs
+;;; 'select your interesting rectangle and run':
+(defun center-rectangle (beg end)
+  (interactive "*r")
+  (kill-rectangle beg end)
+  (with-temp-buffer
+    (yank-rectangle)
+    (setq fill-column (current-column))
+    (center-region (point-min) (point-max))
+    (goto-char (point-max))
+    (move-to-column fill-column t)
+    (kill-rectangle (point-min) (point-max)))
+  (goto-char beg)
+  (yank-rectangle))
+#+end_src
+
+*** C++ defuns
+Find the name of the next member function in a C++ source file.
+Used in yasnippet 'fblock'
+#+begin_src emacs-lisp
+  (defun ssmm-which-member-function ()
+    (interactive)
+    (save-excursion
+      (re-search-forward "::\\([^()]+\\)")
+      )
+    (match-string 1)
+    )
+#+end_src
+*** Python
+**** Mark a word to refactor to self.word
+You will probably want to be in the superword minor mode for this.
+#+begin_src emacs-lisp
+    (defun ssmm-refactor-to-member ()
+    "With point somewhere in a word, start a replace to self.word"
+    (interactive)
+  (let ((foo))
+    (subword-right)
+    (subword-left)
+    (subword-mark 1)
+    (setq foo (buffer-substring-no-properties (region-beginning) (region-end)))
+  (query-replace-regexp (concat "\\b" foo "\\b") (concat "self." foo))
+))
+
+#+end_src
+** Registers
+Registers allow you to jump to a file or other location quickly. Use
+=C-x r j= followed by the letter of the register (i for =init.el=, r
+for this file) to jump to it.
+
+You should add registers here for the files you edit most often.
+
+#+begin_src emacs-lisp :results silent
+  (dolist
+      (r `((?i (file . ,(concat ssmm/cfg-dir "init.el")))
+           (?I (file . ,(let* ((user user-login-name)
+                               (org (expand-file-name (concat user ".org") ssmm/cfg-dir))
+                               (el  (expand-file-name (concat user ".el") ssmm/cfg-dir))
+                               (dir (expand-file-name user ssmm/cfg-dir)))
+                          (cond
+                           ((file-exists-p org) org)
+                           ((file-exists-p el)  el)
+                           (t dir)))))
+           (?s (file . ,(concat ssmm/cfg-dir "config.org")))
+           ))
+    (set-register (car r) (cadr r)))
+#+end_src
+** Miscellaneous
+
+*** Transparently open compressed files
+#+begin_src emacs-lisp
+(auto-compression-mode t)
+#+end_src
+
+*** Save a list of recent files visited.
+#+begin_src emacs-lisp
+(recentf-mode 0)
+#+end_src emacs-lisp
+
+*** Highlight matching parentheses when the point is on them.
+#+begin_src emacs-lisp
+(show-paren-mode 1)
+#+end_src
+
+*** Other, spell checking, tabs, imenu and a coding hook
+#+begin_src emacs-lisp
+  (set-default 'indent-tabs-mode nil)
+  (set-default 'indicate-empty-lines t)
+  (set-default 'imenu-auto-rescan t)
+
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  (add-hook 'text-mode-hook 'turn-on-flyspell)
+
+  (defvar starter-kit-coding-hook nil
+    "Hook that gets run on activation of any programming mode.")
+
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  ;; Seed the random-number generator
+  (random t)
+#+end_src
+
+*** Don't clutter up directories with files~
+Rather than saving backup files scattered all over the file system,
+let them live in the =backups/= directory inside of the starter kit.
+Nope; put them in /tmp... Use 'em or lose 'em. If it's important, use
+git.
+#+begin_src emacs-lisp
+(setq backup-directory-alist `(("/tmp")))
+#+end_src
+
+** Keymaps
+
+#+begin_src emacs-lisp
+(define-key input-decode-map [?\C-m] [C-m])
+
+(eval-and-compile
+  (mapc #'(lambda (entry)
+            (define-prefix-command (cdr entry))
+            (bind-key (car entry) (cdr entry)))
+        '(("C-,"   . my-ctrl-comma-map)
+          ("<C-m>" . my-ctrl-m-map)
+
+          ("C-h e" . my-ctrl-h-e-map)
+          ("C-h x" . my-ctrl-h-x-map)
+
+          ("C-c b" . my-ctrl-c-b-map)
+          ("C-c e" . my-ctrl-c-e-map)
+          ("C-c m" . my-ctrl-c-m-map)
+          ("C-c w" . my-ctrl-c-w-map)
+          ("C-c y" . my-ctrl-c-y-map)
+          ("C-c H" . my-ctrl-c-H-map)
+          ("C-c N" . my-ctrl-c-N-map)
+          ("C-c (" . my-ctrl-c-open-paren-map)
+          ("C-c -" . my-ctrl-c-minus-map)
+          ("C-c =" . my-ctrl-c-equals-map)
+          ("C-c ." . my-ctrl-c-r-map)
+          )))
+#+end_src
+
+** Packages
+*** Avy
+#+BEGIN_SRC emacs-lisp
+(use-package avy
+  :bind* ("C-." . avy-goto-char-timer)
+  :config
+  (avy-setup-default))
+
+#+END_SRC
+*** Multiple Cursors
+#+begin_src emacs-lisp
+  (use-package mc-extras
+    :after multiple-cursors
+    :bind (("<C-m> M-C-f" . mc/mark-next-sexps)
+           ("<C-m> M-C-b" . mc/mark-previous-sexps)
+           ("<C-m> <"     . mc/mark-all-above)
+           ("<C-m> >"     . mc/mark-all-below)
+           ("<C-m> C-d"   . mc/remove-current-cursor)
+           ("<C-m> C-k"   . mc/remove-cursors-at-eol)
+           ("<C-m> M-d"   . mc/remove-duplicated-cursors)
+           ("<C-m> |"     . mc/move-to-column)
+           ("<C-m> ~"     . mc/compare-chars)))
+
+  ;; (use-package mc-freeze
+  ;;   :after multiple-cursors
+  ;;   :bind ("<C-m> f" . mc/freeze-fake-cursors-dwim))
+
+  ;; (use-package mc-rect
+  ;;   :after multiple-cursors
+  ;;   :bind ("<C-m> ]" . mc/rect-rectangle-to-multiple-cursors))
+
+  (use-package multiple-cursors
+    :after phi-search
+    :defer 1
+
+    ;; - Sometimes you end up with cursors outside of your view. You can scroll
+    ;;   the screen to center on each cursor with `C-v` and `M-v`.
+    ;;
+    ;; - If you get out of multiple-cursors-mode and yank - it will yank only
+    ;;   from the kill-ring of main cursor. To yank from the kill-rings of every
+    ;;   cursor use yank-rectangle, normally found at C-x r y.
+
+    :bind (("<C-m> ^"     . mc/edit-beginnings-of-lines)
+           ("<C-m> `"     . mc/edit-beginnings-of-lines)
+           ("<C-m> $"     . mc/edit-ends-of-lines)
+           ("<C-m> '"     . mc/edit-ends-of-lines)
+           ("<C-m> R"     . mc/reverse-regions)
+           ("<C-m> S"     . mc/sort-regions)
+           ("<C-m> +"     . mc/mark-next-like-this)
+           ("<C-m> -"     . mc/mark-previous-like-this)
+           ("<C-m> W"     . mc/mark-all-words-like-this)
+           ("<C-m> Y"     . mc/mark-all-symbols-like-this)
+           ("<C-m> a"     . mc/mark-all-like-this-dwim)
+           ("<C-m> c"     . mc/mark-all-dwim)
+           ("<C-m> l"     . mc/insert-letters)
+           ("<C-m> n"     . mc/insert-numbers)
+           ("<C-m> r"     . mc/mark-all-in-region)
+           ("<C-m> s"     . set-rectangular-region-anchor)
+           ("<C-m> %"     . mc/mark-all-in-region-regexp)
+           ("<C-m> t"     . mc/mark-sgml-tag-pair)
+           ("<C-m> w"     . mc/mark-next-like-this-word)
+           ("<C-m> x"     . mc/mark-more-like-this-extended)
+           ("<C-m> y"     . mc/mark-next-like-this-symbol)
+           ("<C-m> C-x"   . reactivate-mark)
+           ("<C-m> C-SPC" . mc/mark-pop)
+           ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
+           ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
+           ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
+           ("<C-m> ["     . mc/vertical-align-with-space)
+           ("<C-m> {"     . mc/vertical-align)
+
+           ("S-<down-mouse-1>")
+           ("S-<mouse-1>" . mc/add-cursor-on-click))
+
+    :bind (:map selected-keymap
+                ("c"   . mc/edit-lines)
+                ("."   . mc/mark-next-like-this)
+                ("<"   . mc/unmark-next-like-this)
+                ("C->" . mc/skip-to-next-like-this)
+                (","   . mc/mark-previous-like-this)
+                (">"   . mc/unmark-previous-like-this)
+                ("C-<" . mc/skip-to-previous-like-this)
+                ("y"   . mc/mark-next-symbol-like-this)
+                ("Y"   . mc/mark-previous-symbol-like-this)
+                ("w"   . mc/mark-next-word-like-this)
+                ("W"   . mc/mark-previous-word-like-this))
+
+    :preface
+    (defun reactivate-mark ()
+      (interactive)
+      (activate-mark)))
+
+  (use-package phi-search
+    :defer 1)
+
+  (use-package phi-search-mc
+    :after (phi-search multiple-cursors)
+    :config
+    (phi-search-mc/setup-keys)
+    (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package selected
+  :demand t
+  :bind (:map selected-keymap
+              ("[" . align-code)
+              ("f" . fill-region)
+              ("U" . unfill-region)
+              ("d" . downcase-region)
+              ("u" . upcase-region)
+              ("r" . reverse-region)
+              ("s" . sort-lines))
+  :config
+  (selected-global-mode 1))
+#+end_src
+
+*** Elpa-mirror
+#+begin_src emacs-lisp
+  (use-package elpa-mirror
+  )
+#+end_src
+** Hydra
+#+BEGIN_SRC emacs-lisp
+(use-package hydra
+  :defer t
+  :config
+  (defhydra hydra-zoom (global-map "<f2>")
+    "zoom"
+    ("g" text-scale-increase "in")
+    ("l" text-scale-decrease "out")))
+
+
+#+END_SRC
+** Org mode
+#+begin_src emacs-lisp
+      (assq-delete-all 'org package--builtins)
+      (use-package org
+      :ensure org-plus-contrib
+      :demand
+      :config
+      (load-library "org")
+      (load-library "org-contacts")
+      (load-library "org-macs")
+      (load-library "org-src")
+      (load-library "org-compat")
+      ;; (require 'org-contacts)
+      ;; (require 'org-macs)
+      ;; (require 'org-src)
+      )
+  
+  ;;  (load-library "org")
+  ;;  (load-library "org-contacts")
+  ;;  (load-library "org-macs")
+  ;;  (load-library "org-src")
+  ;;
+   ;; A default name to give context to some of the elisp farther down.
+   ;; It generally gets changed in a system or user file.
+   (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
+  
+   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
+   (defvar ssmm-org-index-file (concat ssmm-orgfiles-dir "index.org") "Path to GTD org-mode file")
+   (defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
+   (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
+   (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
+  
+   (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
+   (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
+   (setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt")) 
+  
+  (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
+#+end_src
+
+Configuration for the eminently useful [[http://orgmode.org/][Org Mode]].
+
+Org-mode is for keeping notes, maintaining ToDo lists, doing project
+planning, and authoring with a fast and effective plain-text system.
+Org Mode can be used as a very simple folding outliner or as a complex
+GTD system or tool for reproducible research and literate programming.
+
+For more information on org-mode check out [[http://orgmode.org/worg/][worg]], a large Org-mode wiki
+which is also *implemented using* Org-mode and [[http://git-scm.com/][git]].
+
+#+begin_src emacs-lisp
+    ;;   (use-package org
+    ;;     :ensure org-plus-contrib
+    ;;     :demand
+    ;;     )
+    ;; (require 'org)
+#+end_src
+The [[http://orgmode.org/manual/Agenda-Views.html#Agenda-Views][Org-mode agenda]] is good to have close at hand
+#+begin_src emacs-lisp
+  (define-key global-map "\C-ca" 'org-agenda)
+#+end_src
+
+Org-mode supports [[http://orgmode.org/manual/Hyperlinks.html#Hyperlinks][links]], this command allows you to store links
+globally for later insertion into an Org-mode buffer.  See
+[[http://orgmode.org/manual/Handling-links.html#Handling-links][Handling-links]] in the Org-mode manual.
+#+begin_src emacs-lisp
+  (define-key global-map "\C-cl" 'org-store-link)
+#+end_src
+
+For convenience, inside code blocks indent according to the block mode:
+#+begin_src emacs-lisp
+  (setq org-src-tab-acts-natively t)
+#+end_src
+
+*** Note taking
+From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosystem/
+
+**** org-roam
+     #+begin_src emacs-lisp
+       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
+       (use-package emacsql-sqlite3
+       )
+     #+end_src
+     #+begin_src emacs-lisp
+       (use-package org-roam
+         :after org
+         :config
+         (setq org-roam-directory ssmm-org-roam-dir)
+         (setq org-roam-file-extensions '("org"))
+         (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
+         (org-roam-setup)
+       
+         (setq org-roam-capture-templates
+               '(("d" "default" plain "%?"
+                :if-new
+                (file+head "${slug}.org"
+                           "#+title: ${title}\n")
+                :immediate-finish t
+                :jump-to-captured t
+                :unnarrowed t)))
+            :bind (;("C-c n f" . org-roam-find-file)
+                   ;:map org-roam-mode-map
+                    ("C-c n /" . org-roam-node-find)
+                     ("C-c n c" . org-roam-capture)
+                     ("C-c n i" . org-roam-node-insert)
+                     ("C-c n r" . org-roam-buffer-toggle)))
+         (require 'org-roam-macs)
+                    ;; (("C-c n l" . org-roam)
+                    ;;  ("C-c n f" . org-roam-find-file)
+                    ;;  ("C-c n b" . org-roam-switch-to-buffer)
+                    ;;  ("C-c n g" . org-roam-show-graph))
+       
+              ;; (load-library "org-roam")
+              ;; I have trouble with Ripgrep on Windows
+              ;; Commit 0163461f adds default user option for
+              ;; sections. You no longer need to set the variable explicitly
+              ;; (setq org-roam-mode-sections
+              ;;      (list #'org-roam-backlinks-insert-section
+              ;;            #'org-roam-reflinks-insert-section))
+              ;;#'org-roam-unlinked-references-insert-section))
+       
+     #+end_src
+     #+begin_src emacs-lisp
+;       (use-package org-roam                   ;
+;             :hook 
+;             (after-init . org-roam-mode)
+;             (make-directory ssmm-org-roam-dir t)
+;             ;;:straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
+;             :custom
+;             (org-id-link-to-org-use-id t)
+;             (org-roam-directory ssmm-org-roam-dir)
+;             :bind (:map org-roam-mode-map
+;                     (("C-c n l" . org-roam)
+;                      ("C-c n f" . org-roam-find-file)
+;                      ("C-c n b" . org-roam-switch-to-buffer)
+;                      ("C-c n g" . org-roam-show-graph))
+;                     :map org-mode-map
+;                     (("C-c n i" . org-roam-insert))))
+
+     #+end_src
+     #+begin_src emacs-lisp
+       (require 'org-roam-protocol)            ;
+           ;;   (setq org-roam-capture-ref-templates
+           ;;         '(("r" "ref" plain (function org-roam-capture--get-point)
+           ;;            "%?"
+           ;;            :file-name "websites/${slug}"
+           ;;            :head "#+TITLE: ${title}
+           ;; #+ROAM_KEY: ${ref}
+           ;; - source :: ${ref}"
+           ;;            :unnarrowed t)))
+           ;;   (setq org-roam-capture-ref-templates
+           ;;         '(("r" "ref" plain (function org-roam-capture--get-point)
+           ;;            "%?"
+           ;;            :file-name "websites/${slug}"
+           ;;            :head "#+TITLE: ${title}
+           ;; #+ROAM_KEY: ${ref}
+           ;; - source :: ${ref}"
+           ;;            :unnarrowed t)))
+     #+end_src
+**** Deft
+
+[[https://jblevins.org/projects/deft/][Deft]] provides a nice interface for browsing and filtering org-roam notes.
+
+#+begin_export emacs-lisp
+(use-package deft
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-directory ssmm-org-roam-dir))
+#+end_export
+
+**** Org-journal
+
+[[https://github.com/bastibe/org-journal][Org-journal]] is a more powerful alternative to the simple function org-roam-today. It provides better journaling capabilities, and a nice calendar interface to see all dated entries.
+
+#+begin_export emacs-lisp
+(use-package org-journal
+  :bind
+  ("C-c n j" . org-journal-new-entry)
+  :custom
+  (org-journal-date-prefix "#+TITLE: ")
+  (org-journal-file-format "%Y-%m-%d.org")
+  (org-journal-dir ssmm-org-roam-dir)
+  (org-journal-date-format "%A, %d %B %Y"))
+#+end_export
+
+**** Org-download
+
+[[https://github.com/abo-abo/org-download][Org-download]] lets you screenshot and yank images from the web into your notes:
+
+#+begin_src emacs-lisp
+(use-package org-download
+  :after org
+  :bind
+  (:map org-mode-map
+        (("s-Y" . org-download-screenshot)
+         ("s-y" . org-download-yank))))
+#+end_src
+
+**** mathpix.el
+
+[[https://github.com/jethrokuan/mathpix.el][mathpix.el]] uses [[https://mathpix.com/][Mathpix's]] API to convert clips into latex equations:
+
+#+begin_src emacs-lisp
+  ;; (use-package mathpix.el
+  ;;   :straight (:host github :repo "jethrokuan/mathpix.el")
+  ;;   :custom ((mathpix-app-id "app-id")
+  ;;            (mathpix-app-key "app-key"))
+  ;;   :bind
+  ;;   ("C-x m" . mathpix-screenshot))
+#+end_src
+
+**** Org-noter / Interleave
+
+[[https://github.com/weirdNox/org-noter][Org-noter]] and Interleave are both projects that allow synchronised
+annotation of documents (PDF, EPUB etc.) within Org-mode.
+
+#+begin_src emacs-lisp
+  (use-package org-noter
+  :after org
+  :config
+  (setq org-noter-default-notes-file-names '("noter.org"))
+  (setq org-noter-notes-search-path '(concat ssmm-orgfiles-dir "notes"))
+)
+
+#+end_src
+
+**** Spaced Repetition
+
+[[https://github.com/l3kn/org-fc/][Org-fc]] is a spaced repetition system that scales well with a large
+number of files. Other alternatives include org-drill, and pamparam.
+
+#+begin_src emacs-lisp
+  ;; (use-package org-fc
+  ;;   :straight (org-fc :type git :host github :repo "l3kn/org-fc")
+  ;;   :custom
+  ;;   (org-fc-directories '("~/org/fc/"))
+  ;;   :config
+  ;;   (require 'org-fc-hydra))
+#+end_src
+
+*** General org-y stuff
+
+Enable misc org modules:
+#+BEGIN_SRC emacs-lisp
+(setq org-modules (quote
+                   (org-bbdb
+                        org-bibtex
+                    org-crypt
+                    org-gnus
+                    org-id
+                    org-info
+                    org-habit
+                    org-inlinetask
+                    org-irc
+                    org-mew
+                    org-mhe
+                    org-protocol
+                    org-rmail
+                    org-vm
+                    org-wl
+                    org-w3m
+                    )
+                   )
+      )
+#+END_SRC
+Common org tags.
+#+begin_src emacs-lisp
+    (setq org-tag-alist '(("project" . ?p)
+                          (:startgroup)
+                          ("GTD")
+                          (:grouptags)
+                          ("@work" . ?w)
+                          ("@home" . ?h)
+                          ("@yard" . ?y)
+                          ("@computer" . ?c)
+                          (:endgroup)))
+#+end_src
+*** habits
+
+«Org has the ability to track the consistency of a special category of
+TODOs, called “habits”.»
+
+- http://orgmode.org/manual/Tracking-your-habits.html
+- http://orgmode.org/worg/org-tutorials/tracking-habits.html
+
+- global STYLE property values for completion
+#+BEGIN_SRC emacs-lisp
+  (setq org-global-properties (quote (("STYLE_ALL" . "habit"))))
+#+END_SRC
+
+- position the habit graph on the agenda to the right of the default
+#+BEGIN_SRC emacs-lisp
+  (setq org-habit-graph-column 50)
+#+END_SRC
+
+#+begin_src emacs-lisp
+
+   ;; Automatically tracks when TODO items are DONEd.
+   (setq org-log-done 'time)
+
+  (defun ssmm-org-make-checkbox ()
+    "Make this line into a checkbox"
+    (interactive)
+    (beginning-of-line)
+    (insert " - [ ] "))
+
+  (defun ssmm-org-auto-fill ()
+    (if (string-match-p "^[0-9]+\.org" (buffer-name)) (auto-fill-mode 1))
+    )
+
+  (defun my-org-mode-hook ()
+    (local-set-key (kbd "C-c C-<f9>") 'ssmm-org-make-checkbox)
+    (local-set-key (kbd "C-<f9>") 'org-metaright)
+    (ssmm-org-auto-fill)
+    )
+
+  (add-hook 'org-mode-hook 'my-org-mode-hook t)
+  ;(setq prelude-org-mode-hook nil)
+
+     (defun ssmm-org-make-checkbox ()
+       "Make this line into a checkbox"
+       (interactive)
+       (beginning-of-line)
+       (insert " - [ ] "))
+
+     (defun ssmm-org-auto-fill ()
+       (if (string-match-p "^[0-9]+\.org" (buffer-name)) (auto-fill-mode 1))
+       )
+
+     (defun my-org-mode-hook ()
+       (local-set-key (kbd "C-c C-<f9>") 'ssmm-org-make-checkbox)
+       (local-set-key (kbd "C-<f9>") 'org-metaright)
+       (ssmm-org-auto-fill)
+       )
+
+     (add-hook 'org-mode-hook 'my-org-mode-hook t)
+     ;(setq prelude-org-mode-hook nil)
+
+     (defun ssmm/org-open-other-frame ()
+       "Jump to bookmark in another frame. See `bookmark-jump' for more."
+       (interactive)
+       (let ((org-link-frame-setup (acons 'file 'find-file-other-frame org-link-frame-setup)))
+         (org-open-at-point)))
+
+#+end_src
+
+*** Org agenda
+org agenda stuff is from
+[[https://raw.githubusercontent.com/novoid/dot-emacs/master/config.org][Karl Voit's config file]] and
+[[https://github.com/alphapapa/org-super-agenda][Supercharge your Org daily/weekly agenda by grouping items]]
+
+#+begin_src emacs-lisp
+;  (with-package* org-super-agenda
+;  )
+#+end_src
+<2017-10-07 Sat>
+Definition of =my-super-agenda-groups=, my central configuration of super-agenda:
+
+#+BEGIN_SRC emacs-lisp
+;  (setq my-super-agenda-groups
+;        '(;; Each group has an implicit boolean OR operator between its selectors.
+;          (:name "Today"  ; Optionally specify section name
+;                 :time-grid t  ; Items that appear on the time grid
+;                 )
+;          (:name "Important" :priority "A")
+;          (:priority<= "B"
+;                       ;; Show this section after "Today" and "Important", because
+;                       ;; their order is unspecified, defaulting to 0. Sections
+;                       ;; are displayed lowest-number-first.
+;                       :order 1)
+;          ;; no habits yet? (:name "Habits" :habit t :order 2)
+;          (:name "Shopping" :tag "Shopping" :order 3)
+;                 ;; Boolean AND group matches items that match all subgroups
+;                 ;;  :and (:tag "shopping" :tag "@town")
+;                 ;; Multiple args given in list with implicit OR
+;                 ;;  :tag ("food" "dinner"))
+;                 ;;  :habit t
+;                 ;;  :tag "personal")
+;          (:name "Started" :todo "STARTED" :order 5)
+;          ;;(:name "Space-related (non-moon-or-planet-related)"
+;          ;;       ;; Regexps match case-insensitively on the entire entry
+;          ;;       :and (:regexp ("space" "NASA")
+;          ;;                     ;; Boolean NOT also has implicit OR between selectors
+;          ;;                     :not (:regexp "moon" :tag "planet")))
+;          (:todo "WAITING" :order 9)  ; Set order of this section
+;          (:name "read" :tag "2read" :order 15)
+;          ;; Groups supply their own section names when none are given
+;          (:todo ("SOMEDAY" "WATCHING")
+;                 ;; Show this group at the end of the agenda (since it has the
+;                 ;; highest number). If you specified this group last, items
+;                 ;; with these todo keywords that e.g. have priority A would be
+;                 ;; displayed in that group instead, because items are grouped
+;                 ;; out in the order the groups are listed.
+;                 :order 25)
+;          (:name "reward"
+;                 :tag ("reward" "lp")
+;                 :order 100
+;                 )
+;
+;          ;; After the last group, the agenda will display items that didn't
+;          ;; match any of these groups, with the default order position of 99
+;
+;        )
+;      )
+#+END_SRC
+
+=my-super-agenda()= is a function so that I am able to call the agenda
+interactively or within =my-org-agenda()= which is defined further
+down below.
+
+#+BEGIN_SRC emacs-lisp
+;;  (defun my-super-agenda()
+ ;   "generates my super-agenda"
+;    (interactive)
+;    (org-super-agenda-mode)
+;    (let
+;        ((org-super-agenda-groups my-super-agenda-groups))
+;      (org-agenda nil "a")
+;      )
+;    )
+#+END_SRC
+
+*** org-agenda-custom-commands → long list of agenda definitions
+
+#+BEGIN_SRC emacs-lisp
+;  (setq org-agenda-custom-commands
+;        (quote (
+;
+;                ("b" "Super Agenda" agenda ""
+;                 (org-super-agenda-mode)
+;                 ((org-super-agenda-groups my-super-agenda-groups))
+;                 (org-agenda nil "a"))
+;
+;                ("A" "Agenda" agenda ""
+;                 (org-agenda nil "a"))
+;
+;                ("n" "no TODO events +180d"
+;                 ((agenda "no TODO events +180d"
+;                          ((org-agenda-span 180)
+;                           (org-agenda-time-grid nil)
+;                           (org-agenda-entry-types '(:timestamp :sexp))
+;                           (org-agenda-skip-function
+;                            '(or
+;                              (org-agenda-skip-entry-if 'todo 'any);; skip if any TODO state is found
+;                              (org-agenda-skip-entry-if 'category "infonova");; skip if any TODO state is found
+;                              (my-skip-tag "lp")
+;                              )
+;                            )
+;                           ;;(org-agenda-skip-function '(my-skip-tag "lp"))
+;                          )))
+;                 nil ("~/org/agenda_180d_filtered.html"))
+;
+;                ("D" "detail agenda"
+;                 ((agenda "detail agenda"
+;                          ((org-agenda-span 31)
+;                           (org-agenda-time-grid nil)
+;                          )))
+;                 nil ("~/org/agenda_details.html"))
+;
+;                ("r" "reward tasks" (
+;                                     (tags-todo "reward/!STARTED"
+;                                                (
+;                                                 (org-agenda-overriding-header "rewards: STARTED")
+;                                                 ))
+;                                     (tags-todo "reward/!NEXT"
+;                                                (
+;                                                 (org-agenda-overriding-header "rewards: NEXT")
+;                                                 ))
+;                                     (tags-todo "reward/!TODO"
+;                                                (
+;                                                 (org-agenda-overriding-header "rewards: TODO")
+;                                                 ))
+;                                     (tags-todo "reward/!SOMEDAY"
+;                                                (
+;                                                 (org-agenda-overriding-header "rewards: SOMEDAY")
+;                                                 ))
+;                                     ))
+;                ("i" "issues" (
+;                                     (tags-todo "issue/!STARTED"
+;                                                (
+;                                                 (org-agenda-overriding-header "issues: STARTED")
+;                                                 ))
+;                                     (tags-todo "issue/!NEXT"
+;                                                (
+;                                                 (org-agenda-overriding-header "issues: NEXT")
+;                                                 ))
+;                                     (tags-todo "issue/!TODO"
+;                                                (
+;                                                 (org-agenda-overriding-header "issues: TODO")
+;                                                 ))
+;                                     (tags-todo "issue/!SOMEDAY"
+;                                                (
+;                                                 (org-agenda-overriding-header "issues: SOMEDAY")
+;                                                 ))
+;                                     ))
+;
+;                ("$" "Shopping" tags "+Shopping"
+;                 (
+;                  (org-agenda-overriding-header "Shopping")
+;                  (org-agenda-skip-function 'tag-without-done-or-canceled)
+;                  ))
+;
+;                )))
+#+END_SRC
+
+#+RESULTS:
+| a | Super Agenda         | agenda                                                                                                                                                                                                                                                                                                        |            | (org-super-agenda-mode)                                                                                           | ((org-super-agenda-groups my-super-agenda-groups)) | (org-agenda nil a) |
+| A | Agenda               | agenda                                                                                                                                                                                                                                                                                                        |            | (org-agenda nil a)                                                                                                |                                                    |                    |
+| n | no TODO events +180d | ((agenda no TODO events +180d ((org-agenda-span 180) (org-agenda-time-grid nil) (org-agenda-entry-types (quote (:timestamp :sexp))) (org-agenda-skip-function (quote (or (org-agenda-skip-entry-if (quote todo) (quote any)) (org-agenda-skip-entry-if (quote category) infonova) (my-skip-tag lp)))))))      | nil        | (~/org/agenda_180d_filtered.html)                                                                                 |                                                    |                    |
+| D | detail agenda        | ((agenda detail agenda ((org-agenda-span 31) (org-agenda-time-grid nil))))                                                                                                                                                                                                                                    | nil        | (~/org/agenda_details.html)                                                                                       |                                                    |                    |
+| r | reward tasks         | ((tags-todo reward/!STARTED ((org-agenda-overriding-header rewards: STARTED))) (tags-todo reward/!NEXT ((org-agenda-overriding-header rewards: NEXT))) (tags-todo reward/!TODO ((org-agenda-overriding-header rewards: TODO))) (tags-todo reward/!SOMEDAY ((org-agenda-overriding-header rewards: SOMEDAY)))) |            |                                                                                                                   |                                                    |                    |
+| i | issues               | ((tags-todo issue/!STARTED ((org-agenda-overriding-header issues: STARTED))) (tags-todo issue/!NEXT ((org-agenda-overriding-header issues: NEXT))) (tags-todo issue/!TODO ((org-agenda-overriding-header issues: TODO))) (tags-todo issue/!SOMEDAY ((org-agenda-overriding-header issues: SOMEDAY))))         |            |                                                                                                                   |                                                    |                    |
+| B | borrowed             | tags                                                                                                                                                                                                                                                                                                          | +borrowed  | ((org-agenda-overriding-header borrowed or lend) (org-agenda-skip-function (quote tag-without-done-or-canceled))) |                                                    |                    |
+| $ | Besorgungen          | tags                                                                                                                                                                                                                                                                                                          | +Besorgung | ((org-agenda-overriding-header Besorgungen) (org-agenda-skip-function (quote tag-without-done-or-canceled)))      |                                                    |                    |
+
+*** Agenda settings
+
+start Agenda in follow-mode:
+#+BEGIN_SRC emacs-lisp
+  ;(setq org-agenda-start-with-follow-mode t)
+#+END_SRC
+
+- t = do not initialize agenda Org files when generating (only) agenda
+- nil = initialize normal
+- performance issue when not "t": https://punchagan.muse-amuse.in/posts/how-i-learnt-to-use-emacs-profiler.html
+#+BEGIN_SRC emacs-lisp
+  ;;(setq org-agenda-inhibit-startup nil);; slower but visibility of buffers is correctly shown
+  (setq org-agenda-inhibit-startup t);; faster with no hidden headings (agenda performance)
+#+END_SRC
+
+Compact the block agenda view
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-compact-blocks t)
+#+END_SRC
+
+- Changed in v7.9.3
+- http://orgmode.org/worg/doc.html#org-use-tag-inheritance
+- performance issue when not nil: https://punchagan.muse-amuse.in/posts/how-i-learnt-to-use-emacs-profiler.html
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-use-tag-inheritance (quote (agenda)));; agenda performance
+#+END_SRC
+
+http://orgmode.org/org.html#Weekly_002fdaily-agenda
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-span 'week)
+#+END_SRC
+
+For tag searches ignore tasks with scheduled and deadline dates
+#+BEGIN_SRC emacs-lisp :tangle no
+(setq org-agenda-tags-todo-honor-ignore-options t)
+#+END_SRC
+
+Always hilight the current agenda line
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-agenda-mode-hook '(lambda () (hl-line-mode 1)))
+#+END_SRC
+
+The following custom-set-faces create the highlights
+#+BEGIN_SRC emacs-lisp :tangle no
+ (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+  '(highlight ((t (:background "cyan"))))
+  '(hl-line ((t (:inherit highlight :background "darkseagreen2"))))
+  '(org-mode-line-clock ((t (:background "grey75" :foreground "red" :box (:line-width -1 :style released-button)))) t))
+#+END_SRC
+
+Keep tasks with dates off the global todo lists:
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-todo-ignore-with-date nil)
+#+END_SRC
+
+Allow deadlines which are due soon to appear on the global todo lists:
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-todo-ignore-deadlines (quote far))
+#+END_SRC
+
+Keep tasks scheduled in the future off the global todo lists
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-todo-ignore-scheduled (quote future))
+#+END_SRC
+
+Remove completed deadline tasks from the agenda view
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-skip-deadline-if-done t)
+#+END_SRC
+
+Remove completed scheduled tasks from the agenda view
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-skip-scheduled-if-done t)
+#+END_SRC
+
+Remove completed items from search results
+#+BEGIN_SRC emacs-lisp :tangle no
+(setq org-agenda-skip-timestamp-if-done t)
+#+END_SRC
+
+Include agenda archive files when searching for things
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-text-search-extra-files (quote (agenda-archives)))
+#+END_SRC
+
+show state changes in log-mode of agenda
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-log-mode-items (quote (state)))
+#+END_SRC
+
+http://orgmode.org/worg/org-faq.html
+#+BEGIN_SRC emacs-lisp
+;(setq org-agenda-skip-additional-timestamps-same-entry t)
+(setq org-agenda-skip-additional-timestamps-same-entry nil)
+#+END_SRC
+
+do not search for time in heading when displaying a date-stamp
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-search-headline-for-time nil)
+#+END_SRC
+
+open agenda in same buffer, full size
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-window-setup 'current-window)
+#+END_SRC
+
+add diary entries in agenda view
+http://orgmode.org/org.html#Weekly_002fdaily-agenda
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-include-diary t)
+#+END_SRC
+
+Show all future entries for repeating tasks
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-repeating-timestamp-show-all t)
+#+END_SRC
+
+Show all agenda dates - even if they are empty
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-show-all-dates t)
+#+END_SRC
+
+Sorting order for tasks on the agenda
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-sorting-strategy
+        (quote ((agenda habit-down time-up user-defined-up priority-down category-keep)
+                (todo priority-down category-keep)
+                (tags priority-down category-keep)
+                (search category-keep))))
+#+END_SRC
+
+Start the weekly agenda today
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-start-on-weekday nil)
+#+END_SRC
+
+Non-nil means skip timestamp line if same entry shows because of deadline.
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-skip-timestamp-if-deadline-is-shown t)
+#+END_SRC
+
+Agenda sorting functions
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-cmp-user-defined 'bh/agenda-sort)
+#+END_SRC
+
+Enable display of the time grid so we can see the marker for the current time
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; (setq org-agenda-time-grid
+  ;;       ((daily today remove-match)
+  ;;        #("----------------" 0 16
+  ;;          (org-heading t))
+  ;;        (800 1000 1200 1400 1600 1800 2000)))
+#+END_SRC
+
+Display tags farther right
+#+BEGIN_SRC emacs-lisp
+  ;;(setq org-agenda-tags-column -102)
+  (setq org-tags-column -101); for powerplantwin 23" TFT turned 90
+                                        ; degrees; should *not* differ between
+                                        ; systems! Otherwise Org-files gets
+                                        ; re-formatted after switching
+                                        ; system
+  ;;(when (my-system-type-is-windows)
+  ;;    ;;(setq org-agenda-tags-column -103);; for 23" TFT turned 90 degrees
+  ;;      (setq org-agenda-tags-column -117);; for 24" TFT turned 90 degrees
+  ;;      )
+  ;;(when (my-system-is-sherri)
+  ;;    (setq org-agenda-tags-column -117);; -117 for 23" TFT sherri, rotated 90°
+  ;;    )
+  (setq org-agenda-tags-column (- (- (window-total-width) 3))) ;; total width minus 3
+#+END_SRC
+
+Sticky agendas remain opened in the background so that you don't
+need to regenerate them each time you hit the corresponding
+keystroke. This is a big time saver.
+#+BEGIN_SRC emacs-lisp :tangle no
+(setq org-agenda-sticky t)
+#+END_SRC
+
+*** Agenda category icons
+
+There is the possibility of adding icons to categories:
+http://julien.danjou.info/blog/2010/icon-category-support-in-org-mode
+
+This is a neat way of beautifying the agenda.
+
+Unfortunately, the clean way of defining the data directory relatively
+to the path stored in =my-user-emacs-directory= does not work:
+: (concat my-user-emacs-directory "bin/R6-logo_18x12.jpg") nil nil :ascent center)
+
+I don't know how to fix this and so I stick with the hard coded path
+and with a bleeding heart.
+
+#+BEGIN_SRC emacs-lisp
+    (setq org-agenda-category-icon-alist nil)
+    ;(when (my-system-type-is-windows)
+      (add-to-list 'org-agenda-category-icon-alist
+                   '(".*" '(space . (:width (16))))
+                   )
+  ;;    (add-to-list 'org-agenda-category-icon-alist
+  ;;                '("r6" "~/.emacs.d/bin/R6-logo_18x12.jpg" nil nil :ascent center)
+  ;;                )
+  ;;    (add-to-list 'org-agenda-category-icon-alist
+  ;;                '("infonova" "~/.emacs.d/bin/R6-logo_18x12.jpg" nil nil :ascent center)
+  ;;                )
+      (add-to-list 'org-agenda-category-icon-alist
+                    '("detego" "~/.emacs.d/bin/detego-inwarehouse-logo-D_only_16x16.png" nil nil :ascent center)
+                    )
+      (add-to-list 'org-agenda-category-icon-alist
+                    '("outlook" "~/.emacs.d/bin/detego-inwarehouse-logo-D_only_16x16.png" nil nil :ascent center)
+                    )
+      ;;(add-to-list 'org-agenda-category-icon-alist
+      ;;           '("misc" '(space . (:width (18))))
+      ;;           )
+    ;  )
+
+    ;; (when (and (not (my-system-type-is-windows)) (not (my-system-is-karl-voit-at)))
+      (add-to-list 'org-agenda-category-icon-alist
+                   '(".*" '(space . (:width (16))))
+                   )
+      (add-to-list 'org-agenda-category-icon-alist
+                   '("contacts" "~/.emacs.d/bin/user-identity.png" nil nil :ascent center)
+                       ;; /usr/share/icons/gnome/16x16/emotes/face-smile.png
+                    )
+      (add-to-list 'org-agenda-category-icon-alist
+                   '("public_voit" "~/.emacs.d/bin/application-rss+xml.png" nil nil :ascent center)
+                   ;; /usr/share/icons/oxygen/16x16/mimetypes/application-rss+xml.png
+                    )
+  ;;    (add-to-list 'org-agenda-category-icon-alist
+  ;;               '("misc" "~/.emacs.d/bin/emblem-new.png" nil nil :ascent center)
+  ;;                 ;; /usr/share/icons/oxygen/16x16/emblems/emblem-new.png
+  ;;                )
+      (add-to-list 'org-agenda-category-icon-alist
+                   '("hardware" "~/.emacs.d/bin/camera-photo.png" nil nil :ascent center)
+                   ;; /usr/share/icons/oxygen/16x16/devices/camera-photo.png
+                    )
+      (add-to-list 'org-agenda-category-icon-alist
+                   '("bwg" "~/.emacs.d/bin/go-home.png" nil nil :ascent center)
+                   ;; /usr/share/icons/oxygen/16x16/actions/go-home.png
+                    )
+  ;;   )
+#+END_SRC
+
+*** my-org-agenda() → my-map a
+
+switch to open Agenda or open new one:
+#+BEGIN_SRC emacs-lisp
+  (defun my-org-agenda ()
+    "Opens the already opened agenda or opens new one instead"
+    (interactive)
+
+    (setq my-org-agenda-tags-column (- (- (window-total-width) 3)))
+    (setq org-agenda-tags-column my-org-agenda-tags-column) ;; total width minus 3
+
+    (if (my-buffer-exists "*Org Agenda*")
+        (switch-to-buffer "*Org Agenda*")
+      ;;;(my-super-agenda)
+      )
+    )
+  ;;(bind-key "a" 'my-org-agenda my-map)
+#+END_SRC
+
+*** my-memacs-org-agenda() → my-map m     C-cm
+
+Memacs org-agenda shortcut
+#+BEGIN_SRC emacs-lisp
+  (defun my-memacs-org-agenda ()
+    "Opens an org-agenda with activated archive"
+    (interactive)
+    ;;(setq org-agenda-files (append (quote ("~/org/issues.org"))));; for testing purposes
+    (org-agenda-list)
+    ;;(call-interactively 'org-agenda-log-mode)
+    (org-agenda-log-mode '(4))
+    (call-interactively 'org-agenda-archives-mode)
+    (org-agenda-archives-mode 'files)
+    )
+  ;;disabled because I needed "m";; (bind-key "m" 'my-memacs-org-agenda my-map)
+  (global-set-key "\C-cm" 'my-memacs-org-agenda)
+#+END_SRC
+
+My org-agenda files are set in the various customization files.
+
+*** Projects
+From 
+#+BEGIN_SRC emacs-lisp
+(defun my-mark-as-project ()
+"This function makes sure that the current heading has
+(1) the tag :project:
+(2) has property COOKIE_DATA set to \"todo recursive\"
+(3) has any TODO keyword and
+(4) a leading progress indicator"
+    (interactive)
+    (org-toggle-tag "project" 'on)
+    (org-set-property "COOKIE_DATA" "todo recursive")
+    (org-back-to-heading t)
+    (let* ((title (nth 4 (org-heading-components)))
+           (keyword (nth 2 (org-heading-components))))
+       (when (and (bound-and-true-p keyword) (string-prefix-p "[" title))
+           (message "TODO keyword and progress indicator found")
+           )
+       (when (and (not (bound-and-true-p keyword)) (string-prefix-p "[" title))
+           (message "no TODO keyword but progress indicator found")
+           (forward-whitespace 1)
+           (insert "NEXT ")
+           )
+       (when (and (not (bound-and-true-p keyword)) (not (string-prefix-p "[" title)))
+           (message "no TODO keyword and no progress indicator found")
+           (forward-whitespace 1)
+           (insert "NEXT [/] ")
+           )
+       (when (and (bound-and-true-p keyword) (not (string-prefix-p "[" title)))
+           (message "TODO keyword but no progress indicator found")
+           (forward-whitespace 2)
+           (insert "[/] ")
+           )
+       )
+)
+#+END_SRC
+*** Capturing
+
+#+begin_src emacs-lisp
+          (setq org-capture-templates '(("t" "Todo [inbox]" entry
+                                         (file+headline ssmm-org-index-file "Tasks")
+                                         "* TODO %i%?")
+                                        ("T" "Tickler" entry
+                                         (file+headline ssmm-org-tickler-file "Tickler")
+                                         "* %i%? \n %U")
+                                        ("j" "Journal" entry (file+datetree ssmm-org-main-file)
+                                         "* %?\nEntered on %T\n  %i\n" :clock-keep t)
+                                        ("J" "JournalJJ" entry (file+olp+datetree ssmm-org-main-file)
+                                         "* %?\nEntered on %T\nurl %:link  %i\n" :clock-keep t)
+                                        ("p" "New project entry" entry (file+olp ssmm-org-main-file "Projects")
+                                         "* %?\nEntered on %T\n" :unnarrowed t)
+                                        ("Q" "quote org capture" entry
+                                         (file+headline ssmm-org-clippings-file "Unsorted")
+                                         "* %?%:description Added %U
+    ,#+BEGIN_QUOTE
+    %x
+    ,#+END_QUOTE" :immediate-finish t)
+    )
+    )
+
+              (global-set-key "\C-cl" 'org-store-link)
+              (global-set-key "\C-cc" 'org-capture)
+              (global-set-key "\C-ca" 'org-agenda)
+              (global-set-key "\C-cb" 'org-iswitchb)
+
+        (setq org-refile-targets '((ssmm-org-main-file :maxlevel . 3)
+                                   (ssmm-org-tickler-file :maxlevel . 2)))
+
+        (defun ssmm-get-project-org-file ()
+        "If the .dir-locals.el file (or other) has defined project-org-file, use it,
+         otherwise, look up the directory tree for the first one."
+          (or (and (boundp 'project-org-file)
+                   (symbol-value 'project-org-file))
+              (concat (locate-dominating-file (buffer-file-name) "project.org") "project.org")
+              ))
+
+          (add-to-list 'org-capture-templates `("c" "Command" entry
+                                                (file+olp+datetree ssmm-get-project-org-file
+                                                                   "Commands")
+                                                "* %?\n#+begin_src sh\n%i\n#+end_src\n"))
+
+          (add-to-list 'org-capture-templates `("p" "Project Notes" entry
+                                                (file+olp+datetree ssmm-get-project-org-file
+                                                                   "Notes")
+                                                "* %?\n"))
+          (put 'project-org-file 'safe-local-variable #'stringp)
+
+
+            (defun ssmm-get-projects ()
+            "Get a list of current projects.
+             This will be a list of the 2nd-level headings under a 1st-level
+             heading named 'Projects', in `ssmm-org-main-file'.
+             "
+              (interactive)
+              (with-current-buffer (file-name-nondirectory ssmm-org-main-file)
+                (org-element-map (org-element-parse-buffer) 'headline
+                  (lambda (headline)
+                    (let* ((parent (org-element-property :parent headline))
+                           (foo1 (org-element-property :title parent)))
+                                                    ;(and foo1 (message (format "Got %s" (substring-no-properties (car foo1)))))
+                      (and (eq (org-element-type parent) 'headline)
+                           (string= (org-element-property :raw-value parent) "Projects")
+                           (= (org-element-property :level parent) 1)
+                           (org-element-property :raw-value headline)
+                           )))))
+              )
+
+
+#+end_src
+
+*** Contacts
+From https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/:
+With 
+#+BEGIN_SRC emacs-lisp
+(use-package org-capture
+  :ensure nil
+  :demand
+  :after org
+  :preface
+  (setq my/org-contacts-template "* %(org-contacts-template-name)
+:PROPERTIES:
+:ADDRESS: %^{14217 Tyler Rd, Valley Center, CA 92082, USA}
+:BIRTHDAY: %^{yyyy-mm-dd}
+:EMAIL: %(org-contacts-template-email)
+:NOTE: %^{NOTE}
+:END:")
+  :config
+(add-to-list 'org-capture-templates
+   `("C" "Contact" entry (file+headline ssmm-org-contacts-file "Friends"),
+      my/org-contacts-template
+      :empty-lines 1))
+
+)
+
+#+END_SRC
+*** Org-Mode Hook -- Keybindings
+   :PROPERTIES:
+   :CUSTOM_ID: keybindings
+   :END:
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (local-set-key "\M-\C-n" 'outline-next-visible-heading)
+              (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
+              (local-set-key "\M-\C-u" 'outline-up-heading)
+              ;; table
+              (local-set-key "\M-\C-w" 'org-table-copy-region)
+              (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
+              (local-set-key "\M-\C-l" 'org-table-sort-lines)
+              ;; display images
+              (local-set-key "\M-I" 'org-toggle-iimage-in-org)))
+#+end_src
+
+*** Speed keys
+   :PROPERTIES:
+   :CUSTOM_ID: speed-keys
+   :END:
+Speed commands enable single-letter commands in Org-mode files when
+the point is at the beginning of a headline, or at the beginning of a
+code block.
+
+See the `=org-speed-commands-default=' variable for a list of the keys
+and commands enabled at the beginning of headlines.  All code blocks
+are available at the beginning of a code block, the following key
+sequence =C-c C-v h= (bound to `=org-babel-describe-bindings=') will
+display a list of the code blocks commands and their related keys.
+
+To use, type (say) "<l<TAB>" on a blank line to get an empty elisp
+code block.
+
+#+begin_src emacs-lisp
+    (use-package org-tempo
+      :defer 1
+      :config
+      (setq org-use-speed-commands t)
+      (add-to-list 'org-structure-template-alist '("S" . "src emacs-lisp"))
+      (add-to-list 'org-structure-template-alist '("b" . "src sh"))
+      (add-to-list 'org-structure-template-alist '("B" . "src sh ? :results output verbatim drawer "))
+
+      ;; (setq org-structure-template-alist
+      ;;       '(
+      ;;         ("S" "#+BEGIN_SRC sh ? :results output verbatim drawer\n\n#+END_SRC" "<src lang=\"?\">\n\n</src>")
+      ;;         ("s" "#+BEGIN_SRC ?\n\n#+END_SRC" "<src lang=\"?\">\n\n</src>")
+      ;;         ("e" "#+BEGIN_EXAMPLE\n?\n#+END_EXAMPLE" "<example>\n?\n</example>")
+      ;;         ("q" "#+BEGIN_QUOTE\n?\n#+END_QUOTE" "<quote>\n?\n</quote>")
+      ;;         ("v" "#+BEGIN_VERSE\n?\n#+END_VERSE" "<verse>\n?\n</verse>")
+      ;;         ("V" "#+BEGIN_VERBATIM\n?\n#+END_VERBATIM" "<verbatim>\n?\n</verbatim>")
+      ;;         ("c" "#+BEGIN_CENTER\n?\n#+END_CENTER" "<center>\n?\n</center>")
+      ;;         ("l" "#+begin_src emacs-lisp\n?\n#+end_src" "<src lang=\"emacs-lisp\">\n?\n</src>")
+      ;;         ("L" "#+LaTeX: " "<literal style=\"latex\">?</literal>")
+      ;;         ("h" "#+BEGIN_HTML\n?\n#+END_HTML" "<literal style=\"html\">\n?\n</literal>")
+      ;;         ("H" "#+HTML: " "<literal style=\"html\">?</literal>")
+      ;;         ("a" "#+BEGIN_ASCII\n?\n#+END_ASCII" "")
+      ;;         ("A" "#+ASCII: " "")
+      ;;         ("i" "#+INDEX: ?" "#+INDEX: ?")
+      ;;         ("I" "#+INCLUDE: %file ?" "<include file=%file markup=\"?\">")))
+    )
+#+end_src
+
+*** Code blocks
+   :PROPERTIES:
+   :CUSTOM_ID: babel
+   :END:
+This activates a number of widely used languages, you are encouraged
+to activate more languages using the customize interface for the
+`=org-babel-load-languages=' variable, or with an elisp form like the
+one below.  The customize interface of `=org-babel-load-languages='
+contains an up to date list of the currently supported languages.
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (C . t)
+     (plantuml . t)
+     (python . t)
+     (dot . t)
+     (shell . t)
+     (screen . t)
+     ))
+  (require 'ob-dot)
+#+end_src
+
+You are encouraged to add the following to your personal configuration
+although it is not added by default as a security precaution.
+#+begin_src emacs-lisp
+  (setq org-confirm-babel-evaluate nil)
+#+end_src
+
+*** Code block fontification
+   :PROPERTIES:
+   :CUSTOM_ID: code-block-fontification
+   :END:
+The following displays the contents of code blocks in Org-mode files
+using the major-mode of the code.  It also changes the behavior of
+=TAB= to as if it were used in the appropriate major mode.  This means
+that reading and editing code form inside of your Org-mode files is
+much more like reading and editing of code using its major mode.
+#+begin_src emacs-lisp
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+#+end_src
+
+*** The Library of Babel
+   :PROPERTIES:
+   :CUSTOM_ID: library-of-babel
+   :END:
+The library of babel contains makes many useful functions available
+for use by code blocks in *any* emacs file.  See the actual
+=library-of-babel.org= (located in the Org-mode =contrib/babel=
+directory) file for information on the functions, and see
+[[http://orgmode.org/worg/org-contrib/babel/intro.php#library-of-babel][worg:library-of-babel]] for more usage information.
+
+Code blocks can be loaded into the library of babel from any Org-mode
+file using the `org-babel-lob-ingest' function.
+
+** Compilation mode
+#+begin_src emacs-lisp
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(flint
+               "<\\([^<>:]+\\):\\([0-9]+\\)>" 1 2))
+  (add-to-list 'compilation-error-regexp-alist
+               'flint)
+#+end_src
+
+** Ag
+#+begin_src emacs-lisp
+  (use-package ag
+  :commands ag
+  )
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package iedit
+  :defer t
+    )
+#+end_src
+
+** C mode
+#+begin_src emacs-lisp
+  (use-package cc-mode
+    :preface
+    (defun my-c-mode-hook ()
+      (setq indent-tabs-mode nil)
+      (c-set-style "std-style")
+      (electric-indent-mode t)
+      (setq whitespace-line-column 120)
+      (setq whitespace-style '(face trailing lines space-before-tab indentation space-after-tab))
+      (whitespace-mode t)
+                                          ;(add-hook 'before-save-hook 'whitespace-cleanup) This is still getting into the makefile before-save-hook????
+      )
+
+    :hook (c-mode-common . my-c-mode-hook)
+
+    :config
+    (c-add-style "std-style"
+                 '((c-basic-offset . 4)     ; Guessed value
+                   (c-offsets-alist
+                    (arglist-cont . 0)      ; Guessed value
+                    (arglist-intro . +)     ; Guessed value
+                    (block-close . 0)       ; Guessed value
+                    (brace-list-close . 0)  ; Guessed value
+                    (brace-list-entry . 0)  ; Guessed value
+                    (brace-list-intro . +)  ; Guessed value
+                    (brace-list-open . 0)   ; Guessed value
+                    (case-label . +)        ; Guessed value
+                    (class-close . 0)       ; Guessed value
+                    (class-open . 0)        ; Guessed value
+                    (defun-block-intro . +) ; Guessed value
+                    (defun-close . 0)       ; Guessed value
+                    (defun-open . 0)        ; Guessed value
+                    (else-clause . 0)       ; Guessed value
+                    (inclass . +)           ; Guessed value
+                    (statement . 0)             ; Guessed value
+                    (statement-block-intro . +) ; Guessed value
+                    (statement-case-intro . +) ; Guessed value
+                    (statement-cont . +)    ; Guessed value
+                    (substatement . +)      ; Guessed value
+                    (substatement-open . 0) ; Guessed value
+                    (topmost-intro . 0)     ; Guessed value
+                    (topmost-intro-cont . 0) ; Guessed value
+                    (access-label . -)
+                    (annotation-top-cont . 0)
+                    (annotation-var-cont . +)
+                    (arglist-close . c-lineup-close-paren)
+                    (arglist-cont-nonempty . c-lineup-arglist)
+                    (block-open . 0)
+                    (brace-entry-open . 0)
+                    (c . c-lineup-C-comments)
+                    (catch-clause . 0)
+                    (comment-intro . c-lineup-comment)
+                    (composition-close . 0)
+                    (composition-open . 0)
+                    (cpp-define-intro c-lineup-cpp-define +)
+                    (cpp-macro . -1000)
+                    (cpp-macro-cont . +)
+                    (do-while-closure . 0)
+                    (extern-lang-close . 0)
+                    (extern-lang-open . 0)
+                    (friend . 0)
+                    (func-decl-cont . +)
+                    (incomposition . +)
+                    (inexpr-class . +)
+                    (inexpr-statement . +)
+                    (inextern-lang . +)
+                    (inher-cont . c-lineup-multi-inher)
+                    (inher-intro . +)
+                    (inlambda . c-lineup-inexpr-block)
+                    (inline-close . 0)
+                    (inline-open . +)
+                    (inmodule . +)
+                    (innamespace . +)
+                    (knr-argdecl . 0)
+                    (knr-argdecl-intro . +)
+                    (label . +)
+                    (lambda-intro-cont . +)
+                    (member-init-cont . c-lineup-multi-inher)
+                    (member-init-intro . +)
+                    (module-close . 0)
+                    (module-open . 0)
+                    (namespace-close . 0)
+                    (namespace-open . 0)
+                    (objc-method-args-cont . c-lineup-ObjC-method-args)
+                    (objc-method-call-cont c-lineup-ObjC-method-call-colons c-lineup-ObjC-method-call +)
+                    (objc-method-intro .
+                                       [0])
+                    (statement-case-open . 0)
+                    (stream-op . c-lineup-streamop)
+                    (string . -1000)
+                    (substatement-label . +)
+                    (template-args-cont c-lineup-template-args +))))
+
+
+    )
+#+end_src
+
+** Make modes
+#+begin_src emacs-lisp
+  (use-package make-mode
+  :preface
+    (defun my-makefile-mode-hook()
+      (remove-hook 'before-save-hook 'whitespace-cleanup)
+      )
+  :hook ((makefile-mode makefile-gmake-mode) . my-makefile-mode-hook)
+  :mode ("\\.mak$" . makefile-gmake-mode)
+    )
+#+end_src
+
+** Perl mode
+#+begin_src emacs-lisp
+   (use-package cperl-mode
+   :preface
+     (defun my-perl-mode-hooks ()
+       (setq cperl-indent-level 2)
+       ;; (setq cperl-continued-statement-offset 0)
+       (cperl-set-style "C++")
+       ;; (setq cperl-auto-newline t)
+       (setq font-lock-maximum-decoration 1)
+       (set-face-foreground 'cperl-hash-face "sandy brown")
+       (set-face-foreground 'cperl-array-face "olive drab")
+       ;;RSF: Find ssmm-cleanup-buffer... (add-hook 'before-save-hook 'ssmm-cleanup-buffer)
+       )
+
+   :hook (cperl-mode . my-perl-mode-hooks)
+
+   :bind (("C-h P" . perldoc)
+        :map cperl-mode-map
+          ("RET" . reindent-then-newline-and-indent)
+          ("C-M-h" . backward-kill-word)
+        )
+
+   :mode 
+     (("\\.p[lm]$" . cperl-mode)
+      ("\\.pod$" . pod-mode)
+      ("\\.tt$" . tt-mode))
+
+     )
+#+end_src
+** Python mode
+#+begin_src emacs-lisp
+        (use-package sphinx-doc
+          :defer t)
+
+        (use-package python-mode
+          ;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+          ;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+        :preface
+
+          (defun my-python-mode-hook ()
+            (setq indent-tabs-mode nil)
+            (setq py-indent-offset 4)
+            (setq whitespace-style '(face trailing lines space-before-tab indentation space-after-tab))
+            (whitespace-mode t)
+            (pyenv-mode)
+            )
+
+        :hook (python-mode (my-python-mode-hook . blacken-mode))
+      ;; make sure we have lsp-imenu everywhere we have LSP
+    ;  (require 'lsp-imenu)
+    ;  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)  
+      ;; get lsp-python-enable defined
+      ;; NB: use either projectile-project-root or ffip-get-project-root-directory
+      ;;     or any other function that can be used to find the root directory of a project
+    ;  (lsp-define-stdio-client lsp-python "python"
+    ;                           #'projectile-project-root
+    ;                           '("pyls"))
+
+      ;; make sure this is activated when python-mode is activated
+      ;; lsp-python-enable is created by macro above 
+    ;  (add-hook 'python-mode-hook
+    ;            (lambda ()
+    ;              (lsp-python-enable)))
+      :after sphinx-doc
+    )
+
+  (use-package elpy
+    :init
+    (advice-add 'python-mode :before 'elpy-enable)
+    ;  (add-hook 'python-mode-hook 'jedi:setup)
+    ;  (setq jedi:complete-on-dot t) ; optional
+    :config
+       (setq elpy-rpc-python-command "python3")
+       (put 'pyvenv-activate 'safe-local-variable #'stringp)
+  )
+#+end_src
+
+#+begin_src emacs-lisp
+  ;; (use-package pyvenv
+  ;; :defer t
+  ;; :config
+  ;;   (add-hook 'pyvenv-post-activate-hooks 'pyvenv-restart-python)
+  ;; )
+#+end_src
+#+begin_src emacs-lisp
+;    (with-package elpy
+ ;   (elpy-enable)
+ ;      )
+#+end_src
+
+** Yaml
+#+begin_src emacs-lisp
+  (use-package yaml-mode
+   :mode 
+     ("\\.yml$" . yaml-mode)
+  )
+#+end_src
+
+** Snippets
+#+begin_src emacs-lisp
+  (use-package yasnippet
+  :defer t
+  :config
+    (yas-global-mode)
+    ;(add-to-list 'yas/root-directory "~/.emacs.d/snippets")
+    ;(add-to-list 'yas/root-directory "~/.emacs.d/elpa-snippets")
+    (setq yas-root-directory "~/.emacs.d/snippets")
+    (yas-load-directory yas-root-directory)
+    )
+#+end_src
+** Projectile
+#+begin_src emacs-lisp
+  (use-package projectile
+    :defer t
+    :config
+    (projectile-mode +1)
+    (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
+    (add-to-list 'projectile-project-root-files ".gitignore")
+    (add-to-list 'projectile-project-root-files "PBC.xml")
+    )
+#+end_src
+** undo-tree
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :defer t
+    :config
+     (global-undo-tree-mode 1)
+   )
+#+END_SRC
+
+** Counsel
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :after ivy
+  :demand t
+  :diminish
+  :custom (counsel-find-file-ignore-regexp
+           (concat "\\(\\`\\.[^.]\\|"
+                   (regexp-opt completion-ignored-extensions)
+                   "\\'\\)"))
+  :bind (("C-*"     . counsel-org-agenda-headlines)
+         ("C-x C-f" . counsel-find-file)
+         ("C-c e l" . counsel-find-library)
+         ("C-c e q" . counsel-set-variable)
+         ("C-h e l" . counsel-find-library)
+         ("C-h e u" . counsel-unicode-char)
+         ("C-h f"   . counsel-describe-function)
+         ("C-x r b" . counsel-bookmark)
+         ("M-x"     . counsel-M-x)
+         ;; ("M-y"     . counsel-yank-pop)
+
+         ("M-s f" . counsel-file-jump)
+         ;; ("M-s g" . counsel-rg)
+         ("M-s j" . counsel-dired-jump))
+  :commands counsel-minibuffer-history
+  :init
+  (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
+  :config
+  (add-to-list 'ivy-sort-matches-functions-alist
+               '(counsel-find-file . ivy--sort-files-by-date))
+
+(use-package counsel-projectile
+  :after (counsel projectile)
+  :config
+  (counsel-projectile-mode 1))
+
+(use-package counsel-tramp
+  :commands counsel-tramp)
+
+#+END_SRC
+
+** Ivy
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :diminish
+  :demand t
+
+  :bind (("C-x b" . ivy-switch-buffer)
+         ("C-x B" . ivy-switch-buffer-other-window)
+         ("M-H"   . ivy-resume))
+
+  :bind (:map ivy-minibuffer-map
+              ("<tab>" . ivy-alt-done)
+              ("SPC"   . ivy-alt-done-or-space)
+              ("C-d"   . ivy-done-or-delete-char)
+              ("C-i"   . ivy-partial-or-done)
+              ("C-r"   . ivy-previous-line-or-history)
+              ("M-r"   . ivy-reverse-i-search))
+
+  :bind (:map ivy-switch-buffer-map
+              ("C-k" . ivy-switch-buffer-kill))
+
+  :custom
+  (ivy-dynamic-exhibit-delay-ms 200)
+  (ivy-height 10)
+  (ivy-initial-inputs-alist nil t)
+  (ivy-magic-tilde nil)
+  (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (ivy-use-virtual-buffers t)
+  (ivy-wrap t)
+
+  :preface
+  (defun ivy-done-or-delete-char ()
+    (interactive)
+    (call-interactively
+     (if (eolp)
+         #'ivy-immediate-done
+       #'ivy-delete-char)))
+
+  (defun ivy-alt-done-or-space ()
+    (interactive)
+    (call-interactively
+     (if (= ivy--length 1)
+         #'ivy-alt-done
+       #'self-insert-command)))
+
+  (defun ivy-switch-buffer-kill ()
+    (interactive)
+    (debug)
+    (let ((bn (ivy-state-current ivy-last)))
+      (when (get-buffer bn)
+        (kill-buffer bn))
+      (unless (buffer-live-p (ivy-state-buffer ivy-last))
+        (setf (ivy-state-buffer ivy-last)
+              (with-ivy-window (current-buffer))))
+      (setq ivy--all-candidates (delete bn ivy--all-candidates))
+      (ivy--exhibit)))
+
+  ;; This is the value of `magit-completing-read-function', so that we see
+  ;; Magit's own sorting choices.
+  (defun my-ivy-completing-read (&rest args)
+    (let ((ivy-sort-functions-alist '((t . nil))))
+      (apply 'ivy-completing-read args)))
+
+  :config
+  (ivy-mode 1)
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)))
+
+(use-package ivy-hydra
+  :after (ivy hydra)
+  :defer t)
+
+#+END_SRC
+
+** Magit, etc.
+#+begin_src emacs-lisp
+  (use-package magit
+    :bind ("C-x g" . magit-status)
+    )
+#+end_src
+
+** Key chord
+#+begin_src emacs-lisp
+  (use-package key-chord
+    :defer t
+    :config
+    (key-chord-mode 1)
+
+    ;(key-chord-define-global "hj" 'ace-jump-line-mode)
+    ;(key-chord-define-global "jk" 'ace-jump-mode)
+    (key-chord-define-global "hj" 'avy-goto-word-or-subword-1)
+    (key-chord-define-global "jk" 'ace-window)
+    (key-chord-define-global "ji" (lambda () (interactive) (backward-char) (next-line)))
+    (key-chord-define-global "JI" (lambda () (interactive) (backward-char) (next-line)))
+    ;(key-chord-define-global "fj" 'ido-find-file)
+    ;(key-chord-define-global "fk" 'ido-find-file-other-window)
+    )
+#+end_src
+
+** LSP
+#+BEGIN_SRC emacs-lisp
+(use-package company-lsp
+  :after lsp-mode
+  :config
+  (require 'lsp-clients)
+  (push 'company-lsp company-backends))
+
+(use-package lsp-mode
+  :commands lsp)
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (define-key lsp-ui-mode-map [remap xref-find-definitions]
+    #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references]
+    #'lsp-ui-peek-find-references))
+
+#+END_SRC
+
+** Load user files
+#+begin_src emacs-lisp
+      (cl-flet ((sk-load (base)
+               (let* ((path          (expand-file-name base ssmm/cfg-dir))
+                      (literate      (concat path ".org"))
+                      (encrypted-org (concat path ".org.gpg"))
+                      (plain         (concat path ".el"))
+                      (encrypted-el  (concat path ".el.gpg")))
+                 (cond
+                  ((file-exists-p encrypted-org) (org-babel-load-file encrypted-org))
+                  ((file-exists-p encrypted-el)  (load encrypted-el))
+                  ((file-exists-p literate)      (org-babel-load-file literate))
+                  ((file-exists-p plain)         (load plain)))))
+             (remove-extension (name)
+               (string-match "\\(.*?\\)\.\\(org\\(\\.el\\)?\\|el\\)\\(\\.gpg\\)?$" name)
+               (match-string 1 name)))
+        (let ((elisp-dir (expand-file-name "src" ssmm/cfg-dir))
+              (user-dir (expand-file-name user-login-name ssmm/cfg-dir))
+              (user-local-dir (expand-file-name "~/.emacs-local"))
+              )
+          ;; add the src directory to the load path
+          (add-to-list 'load-path elisp-dir)
+          ;; load specific files
+          (when (file-exists-p elisp-dir)
+            (let ((default-directory elisp-dir))
+              (normal-top-level-add-subdirs-to-load-path)))
+          ;; load system-specific config
+          (sk-load (system-name))
+          ;; load user-specific config
+          (sk-load user-login-name)
+          ;; load any files in the user's directory
+          (when (file-exists-p user-dir)
+            (add-to-list 'load-path user-dir)
+            (mapc #'sk-load
+                  (cl-remove-duplicates
+                   (mapcar #'remove-extension
+                           (directory-files user-dir t ".*\.\\(org\\|el\\)\\(\\.gpg\\)?$"))
+                   :test #'string=)))
+          (when (file-exists-p user-local-dir)
+            (add-to-list 'load-path user-local-dir)
+            (mapc #'sk-load
+                  (cl-remove-duplicates
+                   (mapcar #'remove-extension
+                           (directory-files user-local-dir t ".*\.\\(org\\|el\\)\\(\\.gpg\\)?$"))
+                   :test #'string=)))
+          ))
+#+end_src
+
+** Last words
+This is the last section to be run during startup.
+
+#+begin_src emacs-lisp
+
+  (server-start)
+  (require 'ivy)
+  (require 'counsel)
+
+#+END_SRC
