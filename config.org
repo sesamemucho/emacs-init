@@ -95,72 +95,74 @@
 
 This is for values that should be set before anything else.
 #+begin_src emacs-lisp
-      (setq debug-on-error t)
-      ;; UTF-8 as default encoding
-      (set-language-environment "UTF-8")
-      (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
-      ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
-      (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" ))
-    
-    
-      (menu-bar-mode -1)
-      (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-      (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-      (blink-cursor-mode -1)
-      (electric-indent-mode -1)
-      (setq backup-inhibited t
-	    auto-save-default nil
-	    inhibit-startup-message t
-	    initial-scratch-message nil
-	    wdired-allow-to-change-permissions t
-	    dabbrev-case-distinction nil
-	    dabbrev-case-fold-search nil
-	    echo-keystrokes 0.1
-	    delete-active-region nil
-	    vc-follow-symlinks t
-	    disabled-command-function nil
-	    custom-file (make-temp-file "emacs-custom")
-	    truncate-lines t
-	    initial-scratch-message ""
-	    visible-bell t)
-    
-      (when (window-system)
-	(tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
-	(when (fboundp 'horizontal-scroll-bar-mode)
-	  (horizontal-scroll-bar-mode -1))
-	(scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
-    
-      (add-hook 'dired-mode-hook #'toggle-truncate-lines)
-      (defalias 'yes-or-no-p 'y-or-n-p)
-	     ;;; Packages
-      (require 'package)
-      ;;(require 'package-helper)
-      ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
-      (setq package-archives (list
-		  '("myemacs" . "~/myemacs")
-		  ))
-		  
-    
-      ;; (setq package-archives (list
-      ;;             '("org" . "https://orgmode.org/elpa/")
-      ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
-      ;; (add-to-list 'package-archives
-      ;;              '("myemacs" . "~/myemacs") t)
-    
-      ;; (add-to-list 'package-archives
-      ;;              '("org" . "https://orgmode.org/elpa/") t)
-    
-    ;               '("org" . "http://orgmode.org/elpa/") t)
-      ;; (add-to-list 'package-archives
-      ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-    
-      ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
-      ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
-      ;; ;; (add-to-list 'package-archives
-      ;;              '("marmalade" . "http://marmalade-repo.org/packages/") t)
-      (setq package-enable-at-startup nil)
-      (setq package-blacklist '(batch-mode))
-      (package-initialize)
+    (setq debug-on-error t)
+    ;; UTF-8 as default encoding
+    (set-language-environment "UTF-8")
+    (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
+    ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
+    (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" ))
+  
+  
+    (menu-bar-mode -1)
+    (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+    (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+    (blink-cursor-mode -1)
+    (electric-indent-mode -1)
+    (setq backup-inhibited t
+          auto-save-default nil
+          inhibit-startup-message t
+          initial-scratch-message nil
+          wdired-allow-to-change-permissions t
+          dabbrev-case-distinction nil
+          dabbrev-case-fold-search nil
+          echo-keystrokes 0.1
+          delete-active-region nil
+          vc-follow-symlinks t
+          disabled-command-function nil
+          custom-file (make-temp-file "emacs-custom")
+          truncate-lines t
+          initial-scratch-message ""
+          visible-bell t)
+  
+    (when (window-system)
+      (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+      (when (fboundp 'horizontal-scroll-bar-mode)
+        (horizontal-scroll-bar-mode -1))
+      (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+  
+    (add-hook 'dired-mode-hook #'toggle-truncate-lines)
+    (defalias 'yes-or-no-p 'y-or-n-p)
+           ;;; Packages
+    (require 'package)
+    ;;(require 'package-helper)
+    ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
+    (setq package-archives (list
+                            '("myemacs" . "~/myemacs")
+                ;; '("org" . "https://elpa.gnu.org/packages/")
+                ;; '("melpa" . "https://stable.melpa.org/packages/")
+                ))
+  
+  
+    ;; (setq package-archives (list
+    ;;             '("org" . "https://orgmode.org/elpa/")
+    ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
+    ;; (add-to-list 'package-archives
+    ;;              '("myemacs" . "~/myemacs") t)
+  
+    ;; (add-to-list 'package-archives
+    ;;              '("org" . "https://orgmode.org/elpa/") t)
+  
+  ;               '("org" . "http://orgmode.org/elpa/") t)
+    ;; (add-to-list 'package-archives
+    ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  
+    ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
+    ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
+    ;; ;; (add-to-list 'package-archives
+    ;;              '("marmalade" . "http://marmalade-repo.org/packages/") t)
+    (setq package-enable-at-startup nil)
+    (setq package-blacklist '(batch-mode))
+    (package-initialize)
 #+end_src
 
 #+RESULTS:
@@ -307,13 +309,17 @@ elpamr-create-mirror-for-installed again, to update ~/myemacs.
      (interactive)
      ;;(let ((package-archives package-archives))
         (add-to-list 'package-archives
-                     '("org" . "https://orgmode.org/elpa/") t)
+                     '("org" . "https://elpa.gnu.org/packages/"))
         (add-to-list 'package-archives
-                     '("melpa" . "https://stable.melpa.org/packages/") t)
+                     '("melpa" . "https://stable.melpa.org/packages/"))
         (package-list-packages)
        ;;)
   )
 #+end_src
+
+#+RESULTS:
+: ssmm-update-packages-from-internet
+
 *** make-repeatable-command
 From emacs prelude-core.
 #+begin_src emacs-lisp
@@ -849,19 +855,20 @@ For convenience, inside code blocks indent according to the block mode:
 From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosystem/
 
 **** org-roam
+#     #+begin_src emacs-lisp
+#       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
+#       (use-package emacsql-sqlite3
+#       )
+#     #+end_src
      #+begin_src emacs-lisp
-       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
-       (use-package emacsql-sqlite3
-       )
-     #+end_src
-     #+begin_src emacs-lisp
-       (use-package org-roam
+       (use-package org-roam                   ;
          :after org
          :config
+         (setq org-roam-v2-ack t)
          (setq org-roam-directory ssmm-org-roam-dir)
          (setq org-roam-file-extensions '("org"))
          (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
-         (org-roam-setup)
+         ;;(org-roam-setup)
        
          (setq org-roam-capture-templates
                '(("d" "default" plain "%?"
@@ -877,7 +884,7 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
                      ("C-c n c" . org-roam-capture)
                      ("C-c n i" . org-roam-node-insert)
                      ("C-c n r" . org-roam-buffer-toggle)))
-         (require 'org-roam-macs)
+         ;; (require 'org-roam-emacs)
                     ;; (("C-c n l" . org-roam)
                     ;;  ("C-c n f" . org-roam-find-file)
                     ;;  ("C-c n b" . org-roam-switch-to-buffer)
