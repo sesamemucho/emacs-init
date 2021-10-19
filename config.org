@@ -861,6 +861,7 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
 #       )
 #     #+end_src
      #+begin_src emacs-lisp
+       (setq org-roam-v2-ack t)
        (use-package org-roam                   ;
          :after org
          :config
