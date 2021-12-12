@@ -199,7 +199,7 @@ This code should be executed before any customization files are loaded.
 
 - Compile bare elisp files
 #+begin_src emacs-lisp
-(byte-recompile-directory (concat ssmm/cfg-dir "lisp/") 0)
+(byte-recompile-directory (concat ssmm/cfg-dir "lisp-early/") 0)
 ;;(byte-recompile-directory "~/.emacs.d/etc/" 0)
 #+end_src
 
@@ -784,6 +784,15 @@ git.
   (use-package elpa-mirror
   )
 #+end_src
+
+*** Pinboard api
+#+begin_src emacs-lisp
+  (use-package pinboard-api
+  )
+  (use-package queue
+    )
+#+end_src
+
 ** Hydra
 #+BEGIN_SRC emacs-lisp
 (use-package hydra
@@ -2335,6 +2344,12 @@ file using the `org-babel-lob-ingest' function.
                            (directory-files user-local-dir t ".*\.\\(org\\|el\\)\\(\\.gpg\\)?$"))
                    :test #'string=)))
           ))
+#+end_src
+
+- Compile bare elisp files
+#+begin_src emacs-lisp
+(byte-recompile-directory (concat ssmm/cfg-dir "lisp/") 0)
+;;(byte-recompile-directory "~/.emacs.d/etc/" 0)
 #+end_src
 
 ** Last words
