@@ -15,4 +15,5 @@
 
 (setq mc/cmds-to-run-once
       '(
+        yaml-electric-dash-and-dot
         ))
