@@ -95,95 +95,115 @@
 
 This is for values that should be set before anything else.
 #+begin_src emacs-lisp
-      (setq debug-on-error t)
-      ;; UTF-8 as default encoding
-      (set-language-environment "UTF-8")
-      (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
-      ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
-      (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" ))
-    
-    
-      (menu-bar-mode -1)
-      (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-      (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-      (blink-cursor-mode -1)
-      (electric-indent-mode -1)
-      (setq backup-inhibited t
-            auto-save-default nil
-            inhibit-startup-message t
-            initial-scratch-message nil
-            wdired-allow-to-change-permissions t
-            dabbrev-case-distinction nil
-            dabbrev-case-fold-search nil
-            echo-keystrokes 0.1
-            delete-active-region nil
-            vc-follow-symlinks t
-            disabled-command-function nil
-            custom-file (make-temp-file "emacs-custom")
-            truncate-lines t
-            initial-scratch-message ""
-            visible-bell t)
-    
-      (when (window-system)
-        (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
-        (when (fboundp 'horizontal-scroll-bar-mode)
-          (horizontal-scroll-bar-mode -1))
-        (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
-    
-      (add-hook 'dired-mode-hook #'toggle-truncate-lines)
-      (defalias 'yes-or-no-p 'y-or-n-p)
-  ;; straight bootstrap
-  ;; (defvar bootstrap-version)
-  ;; (let ((bootstrap-file
-  ;;        (expand-file-name
-  ;;         "straight/repos/straight.el/bootstrap.el"
-  ;;         user-emacs-directory))
-  ;;       (bootstrap-version 5))
-  ;;   (unless (file-exists-p bootstrap-file)
-  ;;     (with-current-buffer
-  ;;         (url-retrieve-synchronously
-  ;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-  ;;          'silent 'inhibit-cookies)
-  ;;       (goto-char (point-max))
-  ;;       (eval-print-last-sexp)))
-  ;;   (load bootstrap-file nil 'nomessage))
-  ;; end straight bootstrap
-             ;;; Packages
-      (require 'package)
-      ;;(require 'package-helper)
-      ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
-      (setq package-archives (list
-                              '("myemacs" . "~/myemacs")
-                  ;; '("org" . "https://elpa.gnu.org/packages/")
-                  ;; '("melpa" . "https://stable.melpa.org/packages/")
-                  ))
-    
-    
-      ;; (setq package-archives (list
-      ;;             '("org" . "https://orgmode.org/elpa/")
-      ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
-      ;; (add-to-list 'package-archives
-      ;;              '("myemacs" . "~/myemacs") t)
-    
-      ;; (add-to-list 'package-archives
-      ;;              '("org" . "https://orgmode.org/elpa/") t)
-    
-    ;               '("org" . "http://orgmode.org/elpa/") t)
-      ;; (add-to-list 'package-archives
-      ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-    
-      ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
-      ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
-      ;; ;; (add-to-list 'package-archives
-      ;;              '("marmalade" . "http://marmalade-repo.org/packages/") t)
-      (setq package-enable-at-startup nil)
-      (setq package-blacklist '(batch-mode))
-      (package-initialize)
+        (setq debug-on-error t)
+        ;; UTF-8 as default encoding
+        (set-language-environment "UTF-8")
+        (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
+        ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
+        (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" ))
+  
+  
+        (menu-bar-mode -1)
+        (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+        (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+        (blink-cursor-mode -1)
+        (electric-indent-mode -1)
+        (setq backup-inhibited t
+              auto-save-default nil
+              inhibit-startup-message t
+              initial-scratch-message nil
+              wdired-allow-to-change-permissions t
+              dabbrev-case-distinction nil
+              dabbrev-case-fold-search nil
+              echo-keystrokes 0.1
+              delete-active-region nil
+              vc-follow-symlinks t
+              disabled-command-function nil
+              custom-file (make-temp-file "emacs-custom")
+              truncate-lines t
+              initial-scratch-message ""
+              visible-bell t)
+  
+        (when (window-system)
+          (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+          (when (fboundp 'horizontal-scroll-bar-mode)
+            (horizontal-scroll-bar-mode -1))
+          (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+  
+        (add-hook 'dired-mode-hook #'toggle-truncate-lines)
+        (defalias 'yes-or-no-p 'y-or-n-p)
+    ;; straight bootstrap
+    ;; (defvar bootstrap-version)
+    ;; (let ((bootstrap-file
+    ;;        (expand-file-name
+    ;;         "straight/repos/straight.el/bootstrap.el"
+    ;;         user-emacs-directory))
+    ;;       (bootstrap-version 5))
+    ;;   (unless (file-exists-p bootstrap-file)
+    ;;     (with-current-buffer
+    ;;         (url-retrieve-synchronously
+    ;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+    ;;          'silent 'inhibit-cookies)
+    ;;       (goto-char (point-max))
+    ;;       (eval-print-last-sexp)))
+    ;;   (load bootstrap-file nil 'nomessage))
+    ;; end straight bootstrap
+               ;;; Packages
+        (require 'package)
+        ;;(require 'package-helper)
+        ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
+  
+        (setq package-archives (list
+                    ;; '("org" . "https://elpa.gnu.org/packages/")
+                    '("elpa" . "https://elpa.gnu.org/packages/")
+                    '("melpa" . "https://melpa.org/packages/")
+                    '("melpa-stable" . "https://stable.melpa.org/packages/")
+  ;;                              '("myemacs" . "~/myemacs")
+                    ))
+  
+  
+        ;; (setq package-archives (list
+        ;;             '("org" . "https://orgmode.org/elpa/")
+        ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
+        ;; (add-to-list 'package-archives
+        ;;              '("myemacs" . "~/myemacs") t)
+  
+        ;; (add-to-list 'package-archives
+        ;;              '("org" . "https://orgmode.org/elpa/") t)
+  
+      ;               '("org" . "http://orgmode.org/elpa/") t)
+        ;; (add-to-list 'package-archives
+        ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  
+        ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
+        ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
+        ;; ;; (add-to-list 'package-archives
+        ;;              '("marmalade" . "http://marmalade-repo.org/packages/") t)
+        (setq package-enable-at-startup nil)
+        (setq package-blacklist '(batch-mode))
+        (package-initialize)
+  
+  (package-refresh-contents)
 #+end_src
 
 #+RESULTS:
 
+*** Set up straight
 #+begin_src emacs-lisp
+(defvar bootstrap-version)
+(unless (boundp 'straight-use-package)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+  (straight-use-package 'use-package))
 #+end_src
 
 *** Basics
@@ -313,30 +333,30 @@ To distinguish C-m from RET in a GUI Emacs, one could change C-i to C-m in @nisp
 #+end_src
 
 ** defuns
-*** refresh packages from network
-Currently using https://github.com/redguardtoo/elpa-mirror, for speed,
-compatibility between emacs versions/architectures, and stability.
-However, we need some way to update from the internet.
+# *** refresh packages from network
+# Currently using https://github.com/redguardtoo/elpa-mirror, for speed,
+# compatibility between emacs versions/architectures, and stability.
+# However, we need some way to update from the internet.
 
-After this command, you should probably run M-x
-elpamr-create-mirror-for-installed again, to update ~/myemacs.
-#+begin_src emacs-lisp
-     (defun ssmm-update-packages-from-internet()
-     "Runs package-list-packages with extra repos.
-     "
-     (interactive)
-     ;;(let ((package-archives package-archives))
-        (add-to-list 'package-archives
-                     '("org" . "https://elpa.gnu.org/packages/"))
-        (add-to-list 'package-archives
-                     '("melpa" . "https://stable.melpa.org/packages/"))
-        (package-list-packages)
-       ;;)
-  )
-#+end_src
+# After this command, you should probably run M-x
+# elpamr-create-mirror-for-installed again, to update ~/myemacs.
+# #+begin_src emacs-lisp
+#      (defun ssmm-update-packages-from-internet()
+#      "Runs package-list-packages with extra repos.
+#      "
+#      (interactive)
+#      ;;(let ((package-archives package-archives))
+#         (add-to-list 'package-archives
+#                      '("org" . "https://elpa.gnu.org/packages/"))
+#         (add-to-list 'package-archives
+#                      '("melpa" . "https://stable.melpa.org/packages/"))
+#         (package-list-packages)
+#        ;;)
+#   )
+# #+end_src
 
-#+RESULTS:
-: ssmm-update-packages-from-internet
+# #+RESULTS:
+# : ssmm-update-packages-from-internet
 
 *** make-repeatable-command
 From emacs prelude-core.
@@ -786,11 +806,11 @@ git.
   (selected-global-mode 1))
 #+end_src
 
-*** Elpa-mirror
-#+begin_src emacs-lisp
-  (use-package elpa-mirror
-  )
-#+end_src
+# *** Elpa-mirror
+# #+begin_src emacs-lisp
+#   (use-package elpa-mirror
+#   )
+# #+end_src
 
 *** Pinboard api
 #+begin_src emacs-lisp
@@ -889,13 +909,12 @@ For convenience, inside code blocks indent according to the block mode:
 From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosystem/
 
 **** org-roam
-#     #+begin_src emacs-lisp
-#       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
-#       (use-package emacsql-sqlite3
-#       )
-#     #+end_src
+    #+begin_src emacs-lisp
+;;       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
+;;       (use-package emacsql-sqlite3)
+     #+end_src
      #+begin_src emacs-lisp
-       (setq org-roam-v2-ack t)
+       (setq org-roam-v2-ack t)                ;
        (use-package org-roam                   ;
          ;; :straight (:local-repo "/home/bob/Projects/readonly-repos/org-roam"
          ;;     :files (:defaults "extensions/*")
@@ -975,6 +994,181 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
            ;; - source :: ${ref}"
            ;;            :unnarrowed t)))
      #+end_src
+**** Capture documents
+
+    Capture targets:
+        E-books
+        Documents
+        Videos
+        Audios
+        Images
+
+To capture we use Pandoc and org-pandoc-import
+
+#+begin_src emacs-lisp
+(use-package org-pandoc-import
+  :straight (:host github
+                   :repo "tecosaur/org-pandoc-import"
+                   :files ("*.el" "filters" "preprocessors"))
+
+  :bind (("C-c n o" . org-pandoc-import-as-org)))
+#+end_src
+
+Pandoc can convert almost any text format to org-mode
+representation. One of the current drawbacks - it cannot import online
+web pages.
+
+**** Capture web-pages
+https://github.com/renatgalimov/org-basb-code#emacs-config=
+***** org-web-tools
+
+org-web-tools offers org-web-tools-read-url-as-org function, which can download an URL to an org buffer.
+
+#+begin_src emacs-lisp
+(use-package org-web-tools
+  :ensure t
+  :pin "melpa-stable"
+  :bind (("C-c n u" . org-web-tools-read-url-as-org)))
+#+end_src
+
+Often, downloaded files need manual cleanup.
+Firefox web-clipper and Pandoc
+
+An alternative approach is to use a web-clipper and Pandoc.
+
+    Open the web article in your browser and activate a web-clipper. I use Firefoxes built-in one.
+    Save entire HTML into a file.
+    Convert the HTML with Pandoc
+
+    pandoc -f html -t org <source-file>.html -o <target-file>.org
+        
+
+    The resulting file might require some cleanup, but the quality of the output is the best among other methods.
+
+***** Capture templates
+
+<<Please, contribute your capture templates>>
+Finding your own records
+
+Crawling over your own notes is a key part of the project workflow.
+
+Below I summarized information about all full-text search engines I found for org-mode.
+
+Depending on your own need you might select one or multiple of them.
+
+Unfortunately, I didn’t find any ideal solution for a full-text search yet. Packages that make better sorting are slower than packages that give results fast but in a random order.
+Org full-text search
+
+    Requested features:
+        helm or counsel integration.
+        live search.
+        result previewing support.
+        a key-binding to capture results into currently clocked org file.
+        results ordering support
+            Headlines
+            Summary
+            Hightlight
+        large file-sets support
+        ITEM	FRONTEND	SPEED	SORT
+        Org-roam Full-text search			
+        \_ ripgrep (helm-rg)	helm ivy	fast	nil
+        \_ helm-org-rifle	helm	slow	t
+        \_ deft	helm	fast	nil
+        \_ org-ql	helm	slow	
+        \_ recoll	helm ivy	fast	nil
+        \_ org-fts	ivy	fast	
+        \_ org-agenda search			
+
+ripgrep (helm-rg)
+
+GitHub - cosmicexplorer/helm-rg: ripgrep is nice Now I use it as a default text search engine.
+
+brew install ripgrep
+  
+
+# (use-package helm-rg
+#   :ensure t
+#   :after org-roam
+#   :pin "melpa-stable"
+#   :config
+#   (defun helm-rg-roam-directory (&optional query)
+#     "Search with rg in your roam directory, QUERY."
+#     (interactive)
+#     (let ((helm-rg-default-directory org-roam-directory)
+#           (helm-rg--current-dir org-roam-directory))
+#       (helm-rg query nil)))
+#   :bind (("C-c n R" . helm-rg-roam-directory)))
+  
+
+helm-org-rifle
+
+GitHub - alphapapa/org-rifle: Rifle through your Org-mode buffers and acquire your target
+
+This one is good. It gives you an idea about the context. But it’s not ordering the data by the highlights.
+
+I find org-rifle too slow at the moment. But its output is exacly what I want.
+
+# (use-package helm-org-rifle :ensure t
+#   :after org-roam
+#   :pin "melpa-stable"
+#   :config
+#   (defun org-rifle-roam-directory ()
+#     (interactive)
+#     (helm-org-rifle-directories org-roam-directory))
+#   :bind (("C-c n s" . org-rifle-roam-directory)))
+  
+
+deftGitHub - dfeich/helm-deft: A helm based Emacs module to help search in a predetermined list of directories. Inspired by the deft module.
+
+Helm implementation didn’t work for me. So I set a default version here.
+
+One of the drawbacks here is that you can’t see the text you matched. From my point of view - helm-rg gives more precise information about the context.
+
+# (use-package deft :ensure t
+#   :after org-roam
+#   :config (setq deft-directory org-roam-directory
+#                 deft-recursive t)
+#   :bind (("C-c n d" . deft)))
+# ;; (use-package helm-deft
+# ;;   :ensure t
+# ;;   :straight (:host github
+# ;;                    :repo "dfeich/helm-deft"
+# ;;                    :files ("*.el"))
+# ;;   :config
+# ;;   (setq helm-deft-dir-list `(,org-roam-directory)
+# ;;         helm-deft-extension '("org"))
+# ;;   :bind (("C-c n d" . helm-deft)))
+
+  
+
+org-qlGitHub - alphapapa/org-ql: An Org-mode query language, including search commands and saved views
+
+Doesn’t look suitable for large filesets, but helm implementation is good for medium-sized collections.
+
+(use-package org-ql :ensure t
+  :after org
+  :config
+  (setq org-ql-search-directories-files-recursive t
+        org-ql-search-directories-files-regexp ".org\\(_archive\\)?$"))
+
+# (use-package helm-org-ql :ensure t
+#   :after org-ql
+#   :config
+#   (setq helm-org-ql-recursive-paths t)x#   :bind (("C-c n q" . helm-org-ql-org-directory)))
+  
+
+recollGitHub - emacs-helm/helm-recoll: helm interface for the recoll desktop search tool. I found recoll being to hard to set up. I wasn’t able to get it working on MacOS.org-ftsmicrofts/elisp at main · zot/microfts · GitHub
+
+    It didn’t work on MacOS from scratch.
+    I tried to compile its binary manually but that didn’t work either.
+    This one looks promising. Let’s keep an eye on it.
+
+org-agenda search
+
+    Not trying this for now because agenda wants to open all its files for search.
+
+
+
 **** Deft
 
 [[https://jblevins.org/projects/deft/][Deft]] provides a nice interface for browsing and filtering org-roam notes.
@@ -988,8 +1182,167 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
   (deft-recursive t)
   (deft-use-filter-string-for-filename t)
   (deft-default-extension "org")
-  (deft-directory ssmm-org-roam-dir))
+  (deft-directory ssmm-org-roam-dir)
+  (deft-text-mode 'org-mode)
+  )
+
 #+end_export
+**** Org roam UI
+#+begin_src emacs-lisp
+(use-package org-roam-ui
+  :ensure t
+  :after org-roam
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
+#+end_src
+**** Distill
+***** Progressive summarization
+Make org-emphasize multi-linear
+
+To bypass the limit of two lines for org-emphasize marks enable the code below.
+
+;; Make org-emphasis to work on up to 10 lines selection.
+#+begin_src emacs-lisp
+(setcar (nthcdr 4 org-emphasis-regexp-components) 10)
+(org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+#+end_src
+
+***** Highlighting
+
+Highlighting is a key part of progressive summarization. Here I will be highlighting with highlight.el and enriched mode. If you don’t want to put your text file into the enriched text mode, you can use org-emphasize instead of functions provided here.
+highlight.el
+
+When working with plain text buffers, like org-mode or markdown, you can use enriched text mode with the highlight library to mark the text.
+
+#+begin_src emacs-lisp
+;; If you get errors saying somethign about facemenu, try
+;; uncommenting this.
+;; (setq facemenu-menu nil)
+
+(use-package highlight :ensure t
+  :config
+  (defun hlt-general()
+    (interactive)
+    (unless (bound-and-true-p enriched-mode)
+      (enriched-mode t))
+    (hlt-highlight-region (region-beginning) (region-end) 'highlight))
+
+  :bind (("C-c n h" . hlt-general)
+         ("C-c n H" . hlt-unhighlight-region)))
+
+
+;; If you cannot save your enriched files because of the :inherit
+;; error, try uncommenting this function.
+
+;; (defun enriched-face-ans (face)
+;;   "Return annotations specifying FACE.
+;; FACE may be a list of faces instead of a single face;
+;; it can also be anything allowed as an element of a list
+;; which can be the value of the `face' text property."
+;;   (cond ((and (consp face) (eq (car face) 'foreground-color))
+;;          (list (list "x-color" (cdr face))))
+;;         ((and (consp face) (eq (car face) 'background-color))
+;;          (list (list "x-bg-color" (cdr face))))
+;;         ((and (listp face) (eq (car face) :foreground))
+;;          (list (list "x-color" (cadr face))))
+;;         ((and (listp face) (eq (car face) :background))
+;;          (list (list "x-bg-color" (cadr face))))
+;;         ((and (listp face) (eq (car face) :inherit))
+;;          (enriched-face-ans (cdr face)))
+;;         ((listp face)
+;;          (apply 'append (mapcar 'enriched-face-ans face)))
+;;         ((let* ((fg (face-attribute face :foreground))
+;;                 (bg (face-attribute face :background))
+;;                 (props (face-font face t))
+;;                 (ans (cdr (format-annotate-single-property-change
+;;                            'face nil props enriched-translations))))
+;;            (unless (eq fg 'unspecified)
+;;              (setq ans (cons (list "x-color" fg) ans)))
+;;            (unless (eq bg 'unspecified)
+;;              (setq ans (cons (list "x-bg-color" bg) ans)))
+;;            ans))))
+#+end_src
+
+***** org-capture a region
+
+To keep track of highlighted notes we will use org-capture.
+
+;; Use =org-capture f= to put a link to the text you selected.into an
+;; org entry with the current timer enabled.
+
+#+begin_src emacs-lisp
+(defun r/org-capture-get-selected-text ()
+  (with-current-buffer (org-capture-get :original-buffer)
+    (string-trim
+     (replace-regexp-in-string
+      "\n" " "
+      (cond ((eq major-mode 'pdf-view-mode)
+             (pdf-info-gettext (pdf-view-current-page) (car (pdf-view-active-region))))
+            (t (buffer-substring-no-properties (region-beginning) (region-end))))))))
+(defun r/org-capture-get-link (path)
+  (with-current-buffer (org-capture-get :original-buffer)
+    (cond ((eq major-mode 'pdf-view-mode) (switch-to-buffer (org-capture-get :original-buffer)) (org-pdftools-get-link))
+          (t (concat path "::" (r/org-capture-get-selected-text))))))
+
+(with-eval-after-load "org-capture"
+  (add-to-list
+   'org-capture-templates
+   '("f" "Curently watched" item (clock)
+     "%(r/org-capture-get-selected-text) [[%(r/org-capture-get-link \"%F\")][↗]]%?" :unnarrowed t)))
+
+;; The code below automatically highlights the region we captured
+(defun do-highlight-on-capture ()
+  "Highlight selected region of the buffer you were in at capture."
+  (save-excursion
+    (with-current-buffer (plist-get org-capture-plist :original-buffer)
+      (cond ((eq major-mode 'pdf-view-mode) (switch-to-buffer (org-capture-get :original-buffer)) (pdf-annot-add-highlight-markup-annotation (car (pdf-view-active-region))))
+            (t (hlt-general))))))
+(defun highlight-on-capture ()
+  (when (equal (plist-get org-capture-plist :key) "f")
+    (do-highlight-on-capture)))
+
+(add-hook 'org-capture-after-finalize-hook #'highlight-on-capture)
+#+end_src
+
+This is my basic marking mechanism. Whenever I’m reading an article in
+Emacs (transformed to an org-mode or markdown file), I click C-c f to
+insert an entry to the notebook I’m currently on.
+
+attachments/highlighting-with-org-capture.gif
+***** Working with PDF files
+
+Don’t forget to install pdf-tools dependencies.
+
+brew install glib
+
+#+begin_src emacs-lisp
+  ;; (use-package pdf-tools
+  ;;   :ensure t
+  
+  ;;   :straight (:host github
+  ;;                    :repo "matthew-piziak/pdf-tools"
+  ;;                    :files ("lisp/*.el" "server"))
+  ;;   :config
+  ;;   (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+  ;;   (let ((pdf-tools-base-dir (expand-file-name  "straight/repos/pdf-tools/server" straight-base-dir)))
+  ;;     (setq pdf-info-epdfinfo-program (expand-file-name "straight/repos/pdf-tools/server/epdfinfo" straight-base-dir))
+  ;;     (condition-case nil
+  ;;         (pdf-info-check-epdfinfo)
+  ;;       (error (let ((default-directory (file-name-directory pdf-info-epdfinfo-program)))
+  ;;                (pdf-tools-install t t))))))
+  
+  
+  ;; (use-package org-pdftools
+  ;;   :ensure t
+  ;;   :hook (org-mode . org-pdftools-setup-link))
+#+end_src
 
 **** Org-journal
 
@@ -2104,13 +2457,13 @@ file using the `org-babel-lob-ingest' function.
 ** Projectile
 #+begin_src emacs-lisp
   (use-package projectile
-    :defer t
-    :config
+    :init
     (projectile-mode +1)
-    (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
     (add-to-list 'projectile-project-root-files ".gitignore")
     (add-to-list 'projectile-project-root-files "PBC.xml")
-    )
+    :bind (:map projectile-mode-map
+                ("s-p" . projectile-command-map)
+                ("C-c p" . projectile-command-map)))
 #+end_src
 ** undo-tree
 #+BEGIN_SRC emacs-lisp
