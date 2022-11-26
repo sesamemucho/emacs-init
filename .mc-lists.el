@@ -11,6 +11,7 @@
         org-end-of-line
         org-self-insert-command
         phi-search
+        yaml-electric-backspace
         ))
 
 (setq mc/cmds-to-run-once

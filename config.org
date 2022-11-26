@@ -183,7 +183,7 @@ This is for values that should be set before anything else.
         (setq package-blacklist '(batch-mode))
         (package-initialize)
   
-  (package-refresh-contents)
+;;  (package-refresh-contents)
 #+end_src
 
 #+RESULTS:
@@ -275,6 +275,13 @@ This code should be executed before any customization files are loaded.
 *** Help should search more than just commands
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-h a") 'apropos)
+#+end_src
+*** Disable mouse
+#+begin_src emacs-lisp
+  (use-package disable-mouse
+  :config
+    (global-disable-mouse-mode)
+    )
 #+end_src
 
 ** UI settings
@@ -834,41 +841,48 @@ git.
 #+END_SRC
 ** Org mode
 #+begin_src emacs-lisp
-      (assq-delete-all 'org package--builtins)
-      (use-package org
-      :ensure org-plus-contrib
-      :demand
-      :config
-      (load-library "org")
-      (load-library "org-contacts")
-      (load-library "org-macs")
-      (load-library "org-src")
-      (load-library "org-compat")
-      ;; (require 'org-contacts)
-      ;; (require 'org-macs)
-      ;; (require 'org-src)
-      )
+        (assq-delete-all 'org package--builtins)
+        (use-package org
+        :ensure org-plus-contrib
+        :demand
+        :config
+        (load-library "org")
+        (load-library "org-contacts")
+        (load-library "org-macs")
+        (load-library "org-src")
+        (load-library "org-compat")
+        ;; (require 'org-contacts)
+        ;; (require 'org-macs)
+        ;; (require 'org-src)
+        )
   
-  ;;  (load-library "org")
-  ;;  (load-library "org-contacts")
-  ;;  (load-library "org-macs")
-  ;;  (load-library "org-src")
-  ;;
-   ;; A default name to give context to some of the elisp farther down.
-   ;; It generally gets changed in a system or user file.
-   (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
+    ;;  (load-library "org")
+    ;;  (load-library "org-contacts")
+    ;;  (load-library "org-macs")
+    ;;  (load-library "org-src")
+    ;;
+     ;; A default name to give context to some of the elisp farther down.
+     ;; It generally gets changed in a system or user file.
+     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
   
-   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
-   (defvar ssmm-org-index-file (concat ssmm-orgfiles-dir "index.org") "Path to GTD org-mode file")
-   (defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
-   (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
-   (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
+     (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
+     (defvar ssmm-org-index-file (concat ssmm-orgfiles-dir "index.org") "Path to GTD org-mode file")
+     (defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
+     (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
+     (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
   
-   (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
-   (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-   (setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt")) 
+     (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
+     (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
+     (setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt")) 
   
-  (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
+    (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
+  
+  (setq org-todo-keywords
+          '((sequence "INBOX(i)"
+                      "TODO(t)"
+                      "|"
+                      "DONE(d)"
+                      )))
 #+end_src
 
 Configuration for the eminently useful [[http://orgmode.org/][Org Mode]].
@@ -928,13 +942,23 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
          ;;(org-roam-setup)
        
          (setq org-roam-capture-templates
-               '(("d" "default" plain "%?"
+               '(
+                 ("d" "default" plain "%?"
                 :if-new
                 (file+head "${slug}.org"
                            "#+title: ${title}\n")
                 :immediate-finish t
                 :jump-to-captured t
-                :unnarrowed t)))
+                :unnarrowed t)
+                ;; Example of how to add template
+                ;;  ("G" "Guff" plain "%?"
+                ;; :if-new
+                ;; (file+head "${slug}.org"
+                ;;            "#+title: ${title}\n")
+                ;; :immediate-finish t
+                ;; :jump-to-captured t
+                ;; :unnarrowed t)
+                 ))
             :bind (;("C-c n f" . org-roam-find-file)
                    ;:map org-roam-mode-map
                     ("C-c n /" . org-roam-node-find)
@@ -977,6 +1001,7 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
      #+end_src
      #+begin_src emacs-lisp
        (require 'org-roam-protocol)            ;
+           ;; Below is the default
            ;;   (setq org-roam-capture-ref-templates
            ;;         '(("r" "ref" plain (function org-roam-capture--get-point)
            ;;            "%?"
@@ -1173,7 +1198,7 @@ org-agenda search
 
 [[https://jblevins.org/projects/deft/][Deft]] provides a nice interface for browsing and filtering org-roam notes.
 
-#+begin_export emacs-lisp
+#+begin_src emacs-lisp
 (use-package deft
   :after org
   :bind
@@ -1186,7 +1211,7 @@ org-agenda search
   (deft-text-mode 'org-mode)
   )
 
-#+end_export
+#+end_src
 **** Org roam UI
 #+begin_src emacs-lisp
 (use-package org-roam-ui
@@ -2615,23 +2640,23 @@ file using the `org-babel-lob-ingest' function.
 
 ** LSP
 #+BEGIN_SRC emacs-lisp
-(use-package company-lsp
-  :after lsp-mode
-  :config
-  (require 'lsp-clients)
-  (push 'company-lsp company-backends))
-
-(use-package lsp-mode
-  :commands lsp)
-
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :config
-  (define-key lsp-ui-mode-map [remap xref-find-definitions]
-    #'lsp-ui-peek-find-definitions)
-  (define-key lsp-ui-mode-map [remap xref-find-references]
-    #'lsp-ui-peek-find-references))
-
+  ;; (use-package company-lsp
+  ;;   :after lsp-mode
+  ;;   :config
+  ;;   (require 'lsp-clients)
+  ;;   (push 'company-lsp company-backends))
+  
+  ;; (use-package lsp-mode
+  ;;   :commands lsp)
+  
+  ;; (use-package lsp-ui
+  ;;   :hook (lsp-mode . lsp-ui-mode)
+  ;;   :config
+  ;;   (define-key lsp-ui-mode-map [remap xref-find-definitions]
+  ;;     #'lsp-ui-peek-find-definitions)
+  ;;   (define-key lsp-ui-mode-map [remap xref-find-references]
+  ;;     #'lsp-ui-peek-find-references))
+  
 #+END_SRC
 
 ** Load user files
