@@ -4,6 +4,7 @@
 (setq mc/cmds-to-run-for-all
       '(
         counsel-M-x
+        disable-mouse--handle
         ignore
         kill-region
         org-beginning-of-line

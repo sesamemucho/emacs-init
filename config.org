@@ -101,8 +101,8 @@ This is for values that should be set before anything else.
         (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
         ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
         (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" ))
-  
-  
+
+
         (menu-bar-mode -1)
         (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
         (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
@@ -123,13 +123,13 @@ This is for values that should be set before anything else.
               truncate-lines t
               initial-scratch-message ""
               visible-bell t)
-  
+
         (when (window-system)
           (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
           (when (fboundp 'horizontal-scroll-bar-mode)
             (horizontal-scroll-bar-mode -1))
           (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
-  
+
         (add-hook 'dired-mode-hook #'toggle-truncate-lines)
         (defalias 'yes-or-no-p 'y-or-n-p)
     ;; straight bootstrap
@@ -152,7 +152,7 @@ This is for values that should be set before anything else.
         (require 'package)
         ;;(require 'package-helper)
         ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
-  
+
         (setq package-archives (list
                     ;; '("org" . "https://elpa.gnu.org/packages/")
                     '("elpa" . "https://elpa.gnu.org/packages/")
@@ -160,21 +160,21 @@ This is for values that should be set before anything else.
                     '("melpa-stable" . "https://stable.melpa.org/packages/")
   ;;                              '("myemacs" . "~/myemacs")
                     ))
-  
-  
+
+
         ;; (setq package-archives (list
         ;;             '("org" . "https://orgmode.org/elpa/")
         ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
         ;; (add-to-list 'package-archives
         ;;              '("myemacs" . "~/myemacs") t)
-  
+
         ;; (add-to-list 'package-archives
         ;;              '("org" . "https://orgmode.org/elpa/") t)
-  
+
       ;               '("org" . "http://orgmode.org/elpa/") t)
         ;; (add-to-list 'package-archives
         ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  
+
         ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
         ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
         ;; ;; (add-to-list 'package-archives
@@ -182,7 +182,7 @@ This is for values that should be set before anything else.
         (setq package-enable-at-startup nil)
         (setq package-blacklist '(batch-mode))
         (package-initialize)
-  
+
 ;;  (package-refresh-contents)
 #+end_src
 
@@ -267,7 +267,7 @@ This code should be executed before any customization files are loaded.
 
 *** Window switching. (C-x o goes to the next window)
 #+begin_src emacs-lisp
-(windmove-default-keybindings) ;; Shift+direction
+;; eh, I don't use it (windmove-default-keybindings) ;; Shift+direction
 (global-set-key (kbd "C-x O") (lambda () (interactive) (other-window -1))) ;; back one
 (global-set-key (kbd "C-x C-o") (lambda () (interactive) (other-window 2))) ;; forward two
 #+end_src
@@ -310,7 +310,9 @@ For working in xterm: XTERM=xterm-256color
 From https://emacs.stackexchange.com/questions/20240/how-to-distinguish-c-m-from-return
 To distinguish C-m from RET in a GUI Emacs, one could change C-i to C-m in @nispio's answer:
     #+begin_src emacs-lisp
-      (define-key input-decode-map [?\C-m] [C-m])
+      ;;(define-key input-decode-map [?\r] 'newline)
+      (define-key input-decode-map [?\r] [?\C-j])
+      ;; (define-key input-decode-map [?\C-m] [C-m])
     #+end_src
 *** UI setup
 
@@ -663,7 +665,7 @@ git.
 ** Keymaps
 
 #+begin_src emacs-lisp
-(define-key input-decode-map [?\C-m] [C-m])
+;;(define-key input-decode-map [?\C-m] [C-m])
 
 (eval-and-compile
   (mapc #'(lambda (entry)
@@ -843,7 +845,7 @@ git.
 #+begin_src emacs-lisp
         (assq-delete-all 'org package--builtins)
         (use-package org
-        :ensure org-plus-contrib
+        ;; :ensure org-plus-contrib
         :demand
         :config
         (load-library "org")
@@ -854,6 +856,10 @@ git.
         ;; (require 'org-contacts)
         ;; (require 'org-macs)
         ;; (require 'org-src)
+        :bind (:map org-mode-map
+                    (("S-C-M-u" . org-timestamp-up)
+                     ("S-C-M-d" . org-timestamp-down))
+                    )
         )
   
     ;;  (load-library "org")
@@ -870,10 +876,11 @@ git.
      (defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
      (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
      (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
-  
+     (setq org-contacts-files '(ssmm-org-contacts-file))
+
      (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
      (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-     (setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt")) 
+     (setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt"))
   
     (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
   
@@ -919,8 +926,21 @@ For convenience, inside code blocks indent according to the block mode:
   (setq org-src-tab-acts-natively t)
 #+end_src
 
+Org-superstar, for pretty
+#+begin_src emacs-lisp
+  (use-package org-superstar
+    :hook (org-mode . org-superstar-mode))
+#+end_src
 *** Note taking
-From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosystem/
+org-roam and capture stuff taken largely from https://renatgalimov.github.io/org-basb-code/
+
+# someday - #+INCLUDE: "~/.emacs.d/basb.org"
+Looks like I'll have to make an org file that exports included org
+files to another org file. See
+https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522
+
+
+org-roam and capture stuff taken largely from https://renatgalimov.github.io/org-basb-code/
 
 **** org-roam
     #+begin_src emacs-lisp
@@ -928,62 +948,89 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
 ;;       (use-package emacsql-sqlite3)
      #+end_src
      #+begin_src emacs-lisp
-       (setq org-roam-v2-ack t)                ;
-       (use-package org-roam                   ;
-         ;; :straight (:local-repo "/home/bob/Projects/readonly-repos/org-roam"
-         ;;     :files (:defaults "extensions/*")
-         ;;     :build (:not compile))
-         :after org
-         :config
-         (setq org-roam-v2-ack t)
-         (setq org-roam-directory ssmm-org-roam-dir)
-         (setq org-roam-file-extensions '("org"))
-         (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
-         ;;(org-roam-setup)
+              (setq org-roam-v2-ack t)                ;
+              (use-package org-roam                   ;
+                ;; :straight (:local-repo "/home/bob/Projects/readonly-repos/org-roam"
+                ;;     :files (:defaults "extensions/*")
+                ;;     :build (:not compile))
+                :after org
+                :config
+                (setq org-roam-v2-ack t)
+                (setq org-roam-directory ssmm-org-roam-dir)
+                (setq org-roam-file-extensions '("org"))
+                (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
+                ;;(org-roam-setup)
        
-         (setq org-roam-capture-templates
-               '(
-                 ("d" "default" plain "%?"
-                :if-new
-                (file+head "${slug}.org"
-                           "#+title: ${title}\n")
-                :immediate-finish t
-                :jump-to-captured t
-                :unnarrowed t)
-                ;; Example of how to add template
-                ;;  ("G" "Guff" plain "%?"
-                ;; :if-new
-                ;; (file+head "${slug}.org"
-                ;;            "#+title: ${title}\n")
-                ;; :immediate-finish t
-                ;; :jump-to-captured t
-                ;; :unnarrowed t)
-                 ))
-            :bind (;("C-c n f" . org-roam-find-file)
-                   ;:map org-roam-mode-map
-                    ("C-c n /" . org-roam-node-find)
-                     ("C-c n c" . org-roam-capture)
-                     ("C-c n i" . org-roam-node-insert)
-                     ("C-c n r" . org-roam-buffer-toggle)))
-         ;; (require 'org-roam-emacs)
-                    ;; (("C-c n l" . org-roam)
-                    ;;  ("C-c n f" . org-roam-find-file)
-                    ;;  ("C-c n b" . org-roam-switch-to-buffer)
-                    ;;  ("C-c n g" . org-roam-show-graph))
+                (setq org-roam-capture-templates
+                      '(
+                        ("d" "default" plain "%?"
+                       :if-new
+                       (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n")
+                       ;; (file+head "${slug}.org"
+                       ;;            "#+title: ${title}\n")
+                       :immediate-finish t
+                       :jump-to-captured t
+                       :unnarrowed t)
+                        ("l" "default" plain "%?"
+                       :if-new
+                       (file+head "%<%Y%m%d%H%M%S>.org"
+                                   "#+title: ${title}\n#+FILETAGS: :literature:\nSource:"
+                                   )
+                       ;; (file+head "${slug}.org"
+                       ;;            "#+title: ${title}\n")
+                       :immediate-finish t
+                       :jump-to-captured t
+                       :unnarrowed t)
+                        ("e" "email" plain "%?"
+                         :target (file+head "email/%(string-replace \".txt\" \"\" \"%f\").org"
+                                 "#+title: %(string-replace \".txt\" \"\" \"%f\")\n%i")
+                         :empty-lines-before 1
+                         :jump-to-captured t
+                         :unnarrowed t)
+                       ;; Example of how to add template
+                       ;;  ("G" "Guff" plain "%?"
+                       ;; :if-new
+                       ;; (file+head "${slug}.org"
+                       ;;            "#+title: ${title}\n")
+                       ;; :immediate-finish t
+                       ;; :jump-to-captured t
+                       ;; :unnarrowed t)
+                        ))
+                   :bind (;("C-c n f" . org-roam-find-file)
+                          ;:map org-roam-mode-map
+                           ("C-c n /" . org-roam-node-find)
+                            ("C-c n c" . org-roam-capture)
+                            ("C-c n i" . org-roam-node-insert)
+                            ("C-c n t" . org-roam-dailies-capture-today)
+                            ("C-c n T" . org-roam-dailies-capture-tomorrow)
+                            ("C-c n ." . org-roam-dailies-goto-today)
+                            ("C-c n P" . org-roam-dailies-goto-yesterday)
+                            ("C-c n N" . org-roam-dailies-goto-tomorrow)
+                            ("C-c n r" . org-roam-buffer-toggle)
+                            :map org-roam-mode-map
+                            (("S-C-M-u" . org-timestamp-up)
+                             ("S-C-M-d" . org-timestamp-down)
+                             )
+       ))
+                ;; (require 'org-roam-emacs)
+                           ;; (("C-c n l" . org-roam)
+                           ;;  ("C-c n f" . org-roam-find-file)
+                           ;;  ("C-c n b" . org-roam-switch-to-buffer)
+                           ;;  ("C-c n g" . org-roam-show-graph))
        
-              ;; (load-library "org-roam")
-              ;; I have trouble with Ripgrep on Windows
-              ;; Commit 0163461f adds default user option for
-              ;; sections. You no longer need to set the variable explicitly
-              ;; (setq org-roam-mode-sections
-              ;;      (list #'org-roam-backlinks-insert-section
-              ;;            #'org-roam-reflinks-insert-section))
-              ;;#'org-roam-unlinked-references-insert-section))
+                     ;; (load-library "org-roam")
+                     ;; I have trouble with Ripgrep on Windows
+                     ;; Commit 0163461f adds default user option for
+                     ;; sections. You no longer need to set the variable explicitly
+                     ;; (setq org-roam-mode-sections
+                     ;;      (list #'org-roam-backlinks-insert-section
+                     ;;            #'org-roam-reflinks-insert-section))
+                     ;;#'org-roam-unlinked-references-insert-section))
        
      #+end_src
      #+begin_src emacs-lisp
 ;       (use-package org-roam                   ;
-;             :hook 
+;             :hook
 ;             (after-init . org-roam-mode)
 ;             (make-directory ssmm-org-roam-dir t)
 ;             ;;:straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
@@ -1019,6 +1066,7 @@ From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosyste
            ;; - source :: ${ref}"
            ;;            :unnarrowed t)))
      #+end_src
+
 **** Capture documents
 
     Capture targets:
@@ -1066,7 +1114,7 @@ An alternative approach is to use a web-clipper and Pandoc.
     Convert the HTML with Pandoc
 
     pandoc -f html -t org <source-file>.html -o <target-file>.org
-        
+
 
     The resulting file might require some cleanup, but the quality of the output is the best among other methods.
 
@@ -1095,21 +1143,21 @@ Org full-text search
             Hightlight
         large file-sets support
         ITEM	FRONTEND	SPEED	SORT
-        Org-roam Full-text search			
+        Org-roam Full-text search
         \_ ripgrep (helm-rg)	helm ivy	fast	nil
         \_ helm-org-rifle	helm	slow	t
         \_ deft	helm	fast	nil
-        \_ org-ql	helm	slow	
+        \_ org-ql	helm	slow
         \_ recoll	helm ivy	fast	nil
-        \_ org-fts	ivy	fast	
-        \_ org-agenda search			
+        \_ org-fts	ivy	fast
+        \_ org-agenda search
 
 ripgrep (helm-rg)
 
 GitHub - cosmicexplorer/helm-rg: ripgrep is nice Now I use it as a default text search engine.
 
 brew install ripgrep
-  
+
 
 # (use-package helm-rg
 #   :ensure t
@@ -1123,7 +1171,7 @@ brew install ripgrep
 #           (helm-rg--current-dir org-roam-directory))
 #       (helm-rg query nil)))
 #   :bind (("C-c n R" . helm-rg-roam-directory)))
-  
+
 
 helm-org-rifle
 
@@ -1141,7 +1189,7 @@ I find org-rifle too slow at the moment. But its output is exacly what I want.
 #     (interactive)
 #     (helm-org-rifle-directories org-roam-directory))
 #   :bind (("C-c n s" . org-rifle-roam-directory)))
-  
+
 
 deftGitHub - dfeich/helm-deft: A helm based Emacs module to help search in a predetermined list of directories. Inspired by the deft module.
 
@@ -1164,7 +1212,7 @@ One of the drawbacks here is that you can’t see the text you matched. From my 
 # ;;         helm-deft-extension '("org"))
 # ;;   :bind (("C-c n d" . helm-deft)))
 
-  
+
 
 org-qlGitHub - alphapapa/org-ql: An Org-mode query language, including search commands and saved views
 
@@ -1180,7 +1228,7 @@ Doesn’t look suitable for large filesets, but helm implementation is good for 
 #   :after org-ql
 #   :config
 #   (setq helm-org-ql-recursive-paths t)x#   :bind (("C-c n q" . helm-org-ql-org-directory)))
-  
+
 
 recollGitHub - emacs-helm/helm-recoll: helm interface for the recoll desktop search tool. I found recoll being to hard to set up. I wasn’t able to get it working on MacOS.org-ftsmicrofts/elisp at main · zot/microfts · GitHub
 
@@ -1350,7 +1398,7 @@ brew install glib
 #+begin_src emacs-lisp
   ;; (use-package pdf-tools
   ;;   :ensure t
-  
+
   ;;   :straight (:host github
   ;;                    :repo "matthew-piziak/pdf-tools"
   ;;                    :files ("lisp/*.el" "server"))
@@ -1362,8 +1410,8 @@ brew install glib
   ;;         (pdf-info-check-epdfinfo)
   ;;       (error (let ((default-directory (file-name-directory pdf-info-epdfinfo-program)))
   ;;                (pdf-tools-install t t))))))
-  
-  
+
+
   ;; (use-package org-pdftools
   ;;   :ensure t
   ;;   :hook (org-mode . org-pdftools-setup-link))
@@ -1424,6 +1472,7 @@ annotation of documents (PDF, EPUB etc.) within Org-mode.
 )
 
 #+end_src
+
 
 **** Spaced Repetition
 
@@ -2002,7 +2051,7 @@ Memacs org-agenda shortcut
 My org-agenda files are set in the various customization files.
 
 *** Projects
-From 
+From
 #+BEGIN_SRC emacs-lisp
 (defun my-mark-as-project ()
 "This function makes sure that the current heading has
@@ -2113,7 +2162,7 @@ From
 
 *** Contacts
 From https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/:
-With 
+With
 #+BEGIN_SRC emacs-lisp
 (use-package org-capture
   :ensure nil
@@ -2151,7 +2200,7 @@ With
               (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
               (local-set-key "\M-\C-l" 'org-table-sort-lines)
               ;; display images
-              (local-set-key "\M-I" 'org-toggle-iimage-in-org)))
+              (local-set-key "\M-I" 'org-toggle-inline-images)))
 #+end_src
 
 
@@ -2391,7 +2440,7 @@ file using the `org-babel-lob-ingest' function.
           ("C-M-h" . backward-kill-word)
         )
 
-   :mode 
+   :mode
      (("\\.p[lm]$" . cperl-mode)
       ("\\.pod$" . pod-mode)
       ("\\.tt$" . tt-mode))
@@ -2419,7 +2468,7 @@ file using the `org-babel-lob-ingest' function.
         :hook (python-mode (my-python-mode-hook . blacken-mode))
       ;; make sure we have lsp-imenu everywhere we have LSP
     ;  (require 'lsp-imenu)
-    ;  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)  
+    ;  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
       ;; get lsp-python-enable defined
       ;; NB: use either projectile-project-root or ffip-get-project-root-directory
       ;;     or any other function that can be used to find the root directory of a project
@@ -2428,7 +2477,7 @@ file using the `org-babel-lob-ingest' function.
     ;                           '("pyls"))
 
       ;; make sure this is activated when python-mode is activated
-      ;; lsp-python-enable is created by macro above 
+      ;; lsp-python-enable is created by macro above
     ;  (add-hook 'python-mode-hook
     ;            (lambda ()
     ;              (lsp-python-enable)))
@@ -2462,7 +2511,7 @@ file using the `org-babel-lob-ingest' function.
 ** Yaml
 #+begin_src emacs-lisp
   (use-package yaml-mode
-   :mode 
+   :mode
      ("\\.yml$" . yaml-mode)
   )
 #+end_src
@@ -2645,10 +2694,10 @@ file using the `org-babel-lob-ingest' function.
   ;;   :config
   ;;   (require 'lsp-clients)
   ;;   (push 'company-lsp company-backends))
-  
+
   ;; (use-package lsp-mode
   ;;   :commands lsp)
-  
+
   ;; (use-package lsp-ui
   ;;   :hook (lsp-mode . lsp-ui-mode)
   ;;   :config
@@ -2656,7 +2705,7 @@ file using the `org-babel-lob-ingest' function.
   ;;     #'lsp-ui-peek-find-definitions)
   ;;   (define-key lsp-ui-mode-map [remap xref-find-references]
   ;;     #'lsp-ui-peek-find-references))
-  
+
 #+END_SRC
 
 ** Load user files
