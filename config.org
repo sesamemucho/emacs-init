@@ -95,95 +95,100 @@
 
 This is for values that should be set before anything else.
 #+begin_src emacs-lisp
-        (setq debug-on-error t)
-        ;; UTF-8 as default encoding
-        (set-language-environment "UTF-8")
-        (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
-        ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
-        (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" ))
-
-
-        (menu-bar-mode -1)
-        (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-        (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-        (blink-cursor-mode -1)
-        (electric-indent-mode -1)
-        (setq backup-inhibited t
-              auto-save-default nil
-              inhibit-startup-message t
-              initial-scratch-message nil
-              wdired-allow-to-change-permissions t
-              dabbrev-case-distinction nil
-              dabbrev-case-fold-search nil
-              echo-keystrokes 0.1
-              delete-active-region nil
-              vc-follow-symlinks t
-              disabled-command-function nil
-              custom-file (make-temp-file "emacs-custom")
-              truncate-lines t
-              initial-scratch-message ""
-              visible-bell t)
-
-        (when (window-system)
-          (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
-          (when (fboundp 'horizontal-scroll-bar-mode)
-            (horizontal-scroll-bar-mode -1))
-          (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
-
-        (add-hook 'dired-mode-hook #'toggle-truncate-lines)
-        (defalias 'yes-or-no-p 'y-or-n-p)
-    ;; straight bootstrap
-    ;; (defvar bootstrap-version)
-    ;; (let ((bootstrap-file
-    ;;        (expand-file-name
-    ;;         "straight/repos/straight.el/bootstrap.el"
-    ;;         user-emacs-directory))
-    ;;       (bootstrap-version 5))
-    ;;   (unless (file-exists-p bootstrap-file)
-    ;;     (with-current-buffer
-    ;;         (url-retrieve-synchronously
-    ;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-    ;;          'silent 'inhibit-cookies)
-    ;;       (goto-char (point-max))
-    ;;       (eval-print-last-sexp)))
-    ;;   (load bootstrap-file nil 'nomessage))
-    ;; end straight bootstrap
-               ;;; Packages
-        (require 'package)
-        ;;(require 'package-helper)
-        ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
-
-        (setq package-archives (list
-                    ;; '("org" . "https://elpa.gnu.org/packages/")
-                    '("elpa" . "https://elpa.gnu.org/packages/")
-                    '("melpa" . "https://melpa.org/packages/")
-                    '("melpa-stable" . "https://stable.melpa.org/packages/")
-  ;;                              '("myemacs" . "~/myemacs")
-                    ))
-
-
-        ;; (setq package-archives (list
-        ;;             '("org" . "https://orgmode.org/elpa/")
-        ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
-        ;; (add-to-list 'package-archives
-        ;;              '("myemacs" . "~/myemacs") t)
-
-        ;; (add-to-list 'package-archives
-        ;;              '("org" . "https://orgmode.org/elpa/") t)
-
-      ;               '("org" . "http://orgmode.org/elpa/") t)
-        ;; (add-to-list 'package-archives
-        ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-
-        ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
-        ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
-        ;; ;; (add-to-list 'package-archives
-        ;;              '("marmalade" . "http://marmalade-repo.org/packages/") t)
-        (setq package-enable-at-startup nil)
-        (setq package-blacklist '(batch-mode))
-        (package-initialize)
-
-;;  (package-refresh-contents)
+          (setq debug-on-error t)
+          ;; UTF-8 as default encoding
+          (set-language-environment "UTF-8")
+          (add-to-list 'load-path (concat ssmm/cfg-dir "lisp"))
+          (cond
+           ((string-equal system-type "gnu/linux")
+          ;;(add-to-list 'default-frame-alist '(font . "Inconsolata-14" ))
+            (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Variable-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1" )))
+           ((string-equal system-type "cygwin")
+            (set-frame-font "Consolas-14" t t ))
+           )
+  
+  
+          (menu-bar-mode -1)
+          (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+          (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+          (blink-cursor-mode -1)
+          (electric-indent-mode -1)
+          (setq backup-inhibited t
+                auto-save-default nil
+                inhibit-startup-message t
+                initial-scratch-message nil
+                wdired-allow-to-change-permissions t
+                dabbrev-case-distinction nil
+                dabbrev-case-fold-search nil
+                echo-keystrokes 0.1
+                delete-active-region nil
+                vc-follow-symlinks t
+                disabled-command-function nil
+                custom-file (make-temp-file "emacs-custom")
+                truncate-lines t
+                initial-scratch-message ""
+                visible-bell t)
+  
+          (when (window-system)
+            (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+            (when (fboundp 'horizontal-scroll-bar-mode)
+              (horizontal-scroll-bar-mode -1))
+            (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+  
+          (add-hook 'dired-mode-hook #'toggle-truncate-lines)
+          (defalias 'yes-or-no-p 'y-or-n-p)
+      ;; straight bootstrap
+      ;; (defvar bootstrap-version)
+      ;; (let ((bootstrap-file
+      ;;        (expand-file-name
+      ;;         "straight/repos/straight.el/bootstrap.el"
+      ;;         user-emacs-directory))
+      ;;       (bootstrap-version 5))
+      ;;   (unless (file-exists-p bootstrap-file)
+      ;;     (with-current-buffer
+      ;;         (url-retrieve-synchronously
+      ;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+      ;;          'silent 'inhibit-cookies)
+      ;;       (goto-char (point-max))
+      ;;       (eval-print-last-sexp)))
+      ;;   (load bootstrap-file nil 'nomessage))
+      ;; end straight bootstrap
+                 ;;; Packages
+          (require 'package)
+          ;;(require 'package-helper)
+          ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
+  
+          (setq package-archives (list
+                      ;; '("org" . "https://elpa.gnu.org/packages/")
+                      '("elpa" . "https://elpa.gnu.org/packages/")
+                      '("melpa" . "https://melpa.org/packages/")
+                      '("melpa-stable" . "https://stable.melpa.org/packages/")
+    ;;                              '("myemacs" . "~/myemacs")
+                      ))
+  
+  
+          ;; (setq package-archives (list
+          ;;             '("org" . "https://orgmode.org/elpa/")
+          ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
+          ;; (add-to-list 'package-archives
+          ;;              '("myemacs" . "~/myemacs") t)
+  
+          ;; (add-to-list 'package-archives
+          ;;              '("org" . "https://orgmode.org/elpa/") t)
+  
+        ;               '("org" . "http://orgmode.org/elpa/") t)
+          ;; (add-to-list 'package-archives
+          ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  
+          ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
+          ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
+          ;; ;; (add-to-list 'package-archives
+          ;;              '("marmalade" . "http://marmalade-repo.org/packages/") t)
+          (setq package-enable-at-startup nil)
+          (setq package-blacklist '(batch-mode))
+          (package-initialize)
+  
+  ;;  (package-refresh-contents)
 #+end_src
 
 #+RESULTS:
@@ -877,7 +882,7 @@ git.
      (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
      (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
      (setq org-contacts-files '(ssmm-org-contacts-file))
-
+  
      (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
      (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
      (setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt"))
@@ -887,8 +892,13 @@ git.
   (setq org-todo-keywords
           '((sequence "INBOX(i)"
                       "TODO(t)"
+                      "STARTED(s)"
+                      "WAITING(w)"
+                      "APPT(a)"
                       "|"
                       "DONE(d)"
+                      "CANCELLED(c)"
+                      "DEFERRED(D)"
                       )))
 #+end_src
 
@@ -948,85 +958,98 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
 ;;       (use-package emacsql-sqlite3)
      #+end_src
      #+begin_src emacs-lisp
-              (setq org-roam-v2-ack t)                ;
-              (use-package org-roam                   ;
-                ;; :straight (:local-repo "/home/bob/Projects/readonly-repos/org-roam"
-                ;;     :files (:defaults "extensions/*")
-                ;;     :build (:not compile))
-                :after org
-                :config
-                (setq org-roam-v2-ack t)
-                (setq org-roam-directory ssmm-org-roam-dir)
-                (setq org-roam-file-extensions '("org"))
-                (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
-                ;;(org-roam-setup)
-       
-                (setq org-roam-capture-templates
-                      '(
-                        ("d" "default" plain "%?"
-                       :if-new
-                       (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n")
-                       ;; (file+head "${slug}.org"
-                       ;;            "#+title: ${title}\n")
-                       :immediate-finish t
-                       :jump-to-captured t
-                       :unnarrowed t)
-                        ("l" "default" plain "%?"
-                       :if-new
-                       (file+head "%<%Y%m%d%H%M%S>.org"
-                                   "#+title: ${title}\n#+FILETAGS: :literature:\nSource:"
-                                   )
-                       ;; (file+head "${slug}.org"
-                       ;;            "#+title: ${title}\n")
-                       :immediate-finish t
-                       :jump-to-captured t
-                       :unnarrowed t)
-                        ("e" "email" plain "%?"
-                         :target (file+head "email/%(string-replace \".txt\" \"\" \"%f\").org"
-                                 "#+title: %(string-replace \".txt\" \"\" \"%f\")\n%i")
-                         :empty-lines-before 1
-                         :jump-to-captured t
-                         :unnarrowed t)
-                       ;; Example of how to add template
-                       ;;  ("G" "Guff" plain "%?"
-                       ;; :if-new
-                       ;; (file+head "${slug}.org"
-                       ;;            "#+title: ${title}\n")
-                       ;; :immediate-finish t
-                       ;; :jump-to-captured t
-                       ;; :unnarrowed t)
-                        ))
-                   :bind (;("C-c n f" . org-roam-find-file)
-                          ;:map org-roam-mode-map
-                           ("C-c n /" . org-roam-node-find)
-                            ("C-c n c" . org-roam-capture)
-                            ("C-c n i" . org-roam-node-insert)
-                            ("C-c n t" . org-roam-dailies-capture-today)
-                            ("C-c n T" . org-roam-dailies-capture-tomorrow)
-                            ("C-c n ." . org-roam-dailies-goto-today)
-                            ("C-c n P" . org-roam-dailies-goto-yesterday)
-                            ("C-c n N" . org-roam-dailies-goto-tomorrow)
-                            ("C-c n r" . org-roam-buffer-toggle)
-                            :map org-roam-mode-map
-                            (("S-C-M-u" . org-timestamp-up)
-                             ("S-C-M-d" . org-timestamp-down)
-                             )
-       ))
-                ;; (require 'org-roam-emacs)
-                           ;; (("C-c n l" . org-roam)
-                           ;;  ("C-c n f" . org-roam-find-file)
-                           ;;  ("C-c n b" . org-roam-switch-to-buffer)
-                           ;;  ("C-c n g" . org-roam-show-graph))
-       
-                     ;; (load-library "org-roam")
-                     ;; I have trouble with Ripgrep on Windows
-                     ;; Commit 0163461f adds default user option for
-                     ;; sections. You no longer need to set the variable explicitly
-                     ;; (setq org-roam-mode-sections
-                     ;;      (list #'org-roam-backlinks-insert-section
-                     ;;            #'org-roam-reflinks-insert-section))
-                     ;;#'org-roam-unlinked-references-insert-section))
-       
+                     (setq org-roam-v2-ack t)                ;
+                     (use-package org-roam                   ;
+                       ;; :straight (:local-repo "/home/bob/Projects/readonly-repos/org-roam"
+                       ;;     :files (:defaults "extensions/*")
+                       ;;     :build (:not compile))
+                       :after org
+                       :config
+                       (setq org-roam-v2-ack t)
+                       (setq org-roam-directory ssmm-org-roam-dir)
+                       (setq org-roam-file-extensions '("org"))
+                       (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
+                       ;;(org-roam-setup)
+              
+                       (setq org-roam-capture-templates
+                             '(
+                               ("d" "default" plain "%?"
+                              :if-new
+                              (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n")
+                              ;; (file+head "${slug}.org"
+                              ;;            "#+title: ${title}\n")
+                              :immediate-finish t
+                              :jump-to-captured t
+                              :unnarrowed t)
+                               ("l" "literature" plain "%?"
+                              :if-new
+                              (file+head "%<%Y%m%d%H%M%S>.org"
+                                          "#+title: ${title}\n#+filetags: :literature:\nSource:"
+                                          )
+                              ;; (file+head "${slug}.org"
+                              ;;            "#+title: ${title}\n")
+                              :immediate-finish t
+                              :jump-to-captured t
+                              :unnarrowed t)
+                               ("a" "area" plain "%?"
+                              :if-new
+                              (file+head "%<%Y%m%d%H%M%S>.org"
+                                          "#+title: ${title}\n#+filetags: :area:\n\n"
+                                          )
+                              :immediate-finish t
+                              :jump-to-captured t
+                              :unnarrowed t)
+                               ("w" "org-import-capture" plain "%?"
+                                :target (file+head "library/${slug}.org"
+                                         "#+title: ${title}\n")
+                                :jump-to-captured t
+                                :unnarrowed t)
+                               ("e" "email" plain "%?"
+                                :target (file+head "email/%(string-replace \".txt\" \"\" \"%f\").org"
+                                        "#+title: %(string-replace \".txt\" \"\" \"%f\")\n%i")
+                                :empty-lines-before 1
+                                :jump-to-captured t
+                                :unnarrowed t)
+                              ;; Example of how to add template
+                              ;;  ("G" "Guff" plain "%?"
+                              ;; :if-new
+                              ;; (file+head "${slug}.org"
+                              ;;            "#+title: ${title}\n")
+                              ;; :immediate-finish t
+                              ;; :jump-to-captured t
+                              ;; :unnarrowed t)
+                               ))
+                          :bind (;("C-c n f" . org-roam-find-file)
+                                 ;:map org-roam-mode-map
+                                  ("C-c n /" . org-roam-node-find)
+                                   ("C-c n c" . org-roam-capture)
+                                   ("C-c n i" . org-roam-node-insert)
+                                   ("C-c n t" . org-roam-dailies-capture-today)
+                                   ("C-c n T" . org-roam-dailies-capture-tomorrow)
+                                   ("C-c n ." . org-roam-dailies-goto-today)
+                                   ("C-c n P" . org-roam-dailies-goto-yesterday)
+                                   ("C-c n N" . org-roam-dailies-goto-tomorrow)
+                                   ("C-c n r" . org-roam-buffer-toggle)
+                                   :map org-roam-mode-map
+                                   (("S-C-M-u" . org-timestamp-up)
+                                    ("S-C-M-d" . org-timestamp-down)
+                                    )
+              ))
+                       ;; (require 'org-roam-emacs)
+                                  ;; (("C-c n l" . org-roam)
+                                  ;;  ("C-c n f" . org-roam-find-file)
+                                  ;;  ("C-c n b" . org-roam-switch-to-buffer)
+                                  ;;  ("C-c n g" . org-roam-show-graph))
+              
+                            ;; (load-library "org-roam")
+                            ;; I have trouble with Ripgrep on Windows
+                            ;; Commit 0163461f adds default user option for
+                            ;; sections. You no longer need to set the variable explicitly
+                            ;; (setq org-roam-mode-sections
+                            ;;      (list #'org-roam-backlinks-insert-section
+                            ;;            #'org-roam-reflinks-insert-section))
+                            ;;#'org-roam-unlinked-references-insert-section))
+              
      #+end_src
      #+begin_src emacs-lisp
 ;       (use-package org-roam                   ;
@@ -2089,75 +2112,76 @@ From
 *** Capturing
 
 #+begin_src emacs-lisp
-          (setq org-capture-templates '(("t" "Todo [inbox]" entry
-                                         (file+headline ssmm-org-index-file "Tasks")
-                                         "* TODO %i%?")
-                                        ("T" "Tickler" entry
-                                         (file+headline ssmm-org-tickler-file "Tickler")
-                                         "* %i%? \n %U")
-                                        ("j" "Journal" entry (file+datetree ssmm-org-main-file)
-                                         "* %?\nEntered on %T\n  %i\n" :clock-keep t)
-                                        ("J" "JournalJJ" entry (file+olp+datetree ssmm-org-main-file)
-                                         "* %?\nEntered on %T\nurl %:link  %i\n" :clock-keep t)
-                                        ("p" "New project entry" entry (file+olp ssmm-org-main-file "Projects")
-                                         "* %?\nEntered on %T\n" :unnarrowed t)
-                                        ("Q" "quote org capture" entry
-                                         (file+headline ssmm-org-clippings-file "Unsorted")
-                                         "* %?%:description Added %U
-    ,#+BEGIN_QUOTE
-    %x
-    ,#+END_QUOTE" :immediate-finish t)
-    )
-    )
-
-              (global-set-key "\C-cl" 'org-store-link)
-              (global-set-key "\C-cc" 'org-capture)
-              (global-set-key "\C-ca" 'org-agenda)
-              (global-set-key "\C-cb" 'org-iswitchb)
-
-        (setq org-refile-targets '((ssmm-org-main-file :maxlevel . 3)
-                                   (ssmm-org-tickler-file :maxlevel . 2)))
-
-        (defun ssmm-get-project-org-file ()
-        "If the .dir-locals.el file (or other) has defined project-org-file, use it,
-         otherwise, look up the directory tree for the first one."
-          (or (and (boundp 'project-org-file)
-                   (symbol-value 'project-org-file))
-              (concat (locate-dominating-file (buffer-file-name) "project.org") "project.org")
-              ))
-
-          (add-to-list 'org-capture-templates `("c" "Command" entry
-                                                (file+olp+datetree ssmm-get-project-org-file
-                                                                   "Commands")
-                                                "* %?\n#+begin_src sh\n%i\n#+end_src\n"))
-
-          (add-to-list 'org-capture-templates `("p" "Project Notes" entry
-                                                (file+olp+datetree ssmm-get-project-org-file
-                                                                   "Notes")
-                                                "* %?\n"))
-          (put 'project-org-file 'safe-local-variable #'stringp)
-
-
-            (defun ssmm-get-projects ()
-            "Get a list of current projects.
-             This will be a list of the 2nd-level headings under a 1st-level
-             heading named 'Projects', in `ssmm-org-main-file'.
-             "
-              (interactive)
-              (with-current-buffer (file-name-nondirectory ssmm-org-main-file)
-                (org-element-map (org-element-parse-buffer) 'headline
-                  (lambda (headline)
-                    (let* ((parent (org-element-property :parent headline))
-                           (foo1 (org-element-property :title parent)))
-                                                    ;(and foo1 (message (format "Got %s" (substring-no-properties (car foo1)))))
-                      (and (eq (org-element-type parent) 'headline)
-                           (string= (org-element-property :raw-value parent) "Projects")
-                           (= (org-element-property :level parent) 1)
-                           (org-element-property :raw-value headline)
-                           )))))
-              )
-
-
+        (setq org-capture-templates '(("t" "Todo [inbox]" entry
+                                       (file+headline ssmm-org-index-file "Tasks")
+                                       "* TODO %i%?")
+                                      ("T" "Tickler" entry
+                                       (file+headline ssmm-org-tickler-file "Tickler")
+                                       "* %i%? \n %U")
+                                      ("j" "Journal" entry (file+datetree ssmm-org-main-file)
+                                       "* %?\nEntered on %T\n  %i\n" :clock-keep t)
+                                      ("J" "JournalJJ" entry (file+olp+datetree ssmm-org-main-file)
+                                       "* %?\nEntered on %T\nurl %:link  %i\n" :clock-keep t)
+                                      ("p" "New project entry" entry (file+olp ssmm-org-main-file "Projects")
+                                       "* %?\nEntered on %T\n" :unnarrowed t)
+                                      ("Q" "quote org capture" entry
+                                       (file+headline ssmm-org-clippings-file "Unsorted")
+                                       "* %?%:description Added %U
+  ,#+BEGIN_QUOTE
+  %x
+  ,#+END_QUOTE" :immediate-finish t)
+  )
+  )
+  
+            (global-set-key "\C-cl" 'org-store-link)
+            (global-set-key "\C-cc" 'org-capture)
+            (global-set-key "\C-ca" 'org-agenda)
+            (global-set-key "\C-cb" 'org-iswitchb)
+  
+      (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+      ;; (setq org-refile-targets '((ssmm-org-main-file :maxlevel . 3)
+      ;;                            (ssmm-org-tickler-file :maxlevel . 2)))
+  
+      (defun ssmm-get-project-org-file ()
+      "If the .dir-locals.el file (or other) has defined project-org-file, use it,
+       otherwise, look up the directory tree for the first one."
+        (or (and (boundp 'project-org-file)
+                 (symbol-value 'project-org-file))
+            (concat (locate-dominating-file (buffer-file-name) "project.org") "project.org")
+            ))
+  
+        (add-to-list 'org-capture-templates `("c" "Command" entry
+                                              (file+olp+datetree ssmm-get-project-org-file
+                                                                 "Commands")
+                                              "* %?\n#+begin_src sh\n%i\n#+end_src\n"))
+  
+        (add-to-list 'org-capture-templates `("p" "Project Notes" entry
+                                              (file+olp+datetree ssmm-get-project-org-file
+                                                                 "Notes")
+                                              "* %?\n"))
+        (put 'project-org-file 'safe-local-variable #'stringp)
+  
+  
+          (defun ssmm-get-projects ()
+          "Get a list of current projects.
+           This will be a list of the 2nd-level headings under a 1st-level
+           heading named 'Projects', in `ssmm-org-main-file'.
+           "
+            (interactive)
+            (with-current-buffer (file-name-nondirectory ssmm-org-main-file)
+              (org-element-map (org-element-parse-buffer) 'headline
+                (lambda (headline)
+                  (let* ((parent (org-element-property :parent headline))
+                         (foo1 (org-element-property :title parent)))
+                                                  ;(and foo1 (message (format "Got %s" (substring-no-properties (car foo1)))))
+                    (and (eq (org-element-type parent) 'headline)
+                         (string= (org-element-property :raw-value parent) "Projects")
+                         (= (org-element-property :level parent) 1)
+                         (org-element-property :raw-value headline)
+                         )))))
+            )
+  
+  
 #+end_src
 
 *** Contacts
@@ -2550,43 +2574,44 @@ file using the `org-babel-lob-ingest' function.
 
 ** Counsel
 #+BEGIN_SRC emacs-lisp
-(use-package counsel
-  :after ivy
-  :demand t
-  :diminish
-  :custom (counsel-find-file-ignore-regexp
-           (concat "\\(\\`\\.[^.]\\|"
-                   (regexp-opt completion-ignored-extensions)
-                   "\\'\\)"))
-  :bind (("C-*"     . counsel-org-agenda-headlines)
-         ("C-x C-f" . counsel-find-file)
-         ("C-c e l" . counsel-find-library)
-         ("C-c e q" . counsel-set-variable)
-         ("C-h e l" . counsel-find-library)
-         ("C-h e u" . counsel-unicode-char)
-         ("C-h f"   . counsel-describe-function)
-         ("C-x r b" . counsel-bookmark)
-         ("M-x"     . counsel-M-x)
-         ;; ("M-y"     . counsel-yank-pop)
-
-         ("M-s f" . counsel-file-jump)
-         ;; ("M-s g" . counsel-rg)
-         ("M-s j" . counsel-dired-jump))
-  :commands counsel-minibuffer-history
-  :init
-  (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
-  :config
-  (add-to-list 'ivy-sort-matches-functions-alist
-               '(counsel-find-file . ivy--sort-files-by-date))
-
-(use-package counsel-projectile
-  :after (counsel projectile)
-  :config
-  (counsel-projectile-mode 1))
-
-(use-package counsel-tramp
-  :commands counsel-tramp)
-
+  (use-package counsel
+    :after ivy
+    :demand t
+    :diminish
+    :custom (counsel-find-file-ignore-regexp
+             (concat "\\(\\`\\.[^.]\\|"
+                     (regexp-opt completion-ignored-extensions)
+                     "\\'\\)"))
+    :bind (("C-*"     . counsel-org-agenda-headlines)
+           ("C-x C-f" . counsel-find-file)
+           ("C-c e l" . counsel-find-library)
+           ("C-c e q" . counsel-set-variable)
+           ("C-h e l" . counsel-find-library)
+           ("C-h e u" . counsel-unicode-char)
+           ("C-h f"   . counsel-describe-function)
+           ("C-x r b" . counsel-bookmark)
+           ("M-x"     . counsel-M-x)
+           ("C-s"     . swiper-isearch)
+           ;; ("M-y"     . counsel-yank-pop)
+  
+           ("M-s f" . counsel-file-jump)
+           ;; ("M-s g" . counsel-rg)
+           ("M-s j" . counsel-dired-jump))
+    :commands counsel-minibuffer-history
+    :init
+    (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
+    :config
+    (add-to-list 'ivy-sort-matches-functions-alist
+                 '(counsel-find-file . ivy--sort-files-by-date))
+  
+  (use-package counsel-projectile
+    :after (counsel projectile)
+    :config
+    (counsel-projectile-mode 1))
+  
+  (use-package counsel-tramp
+    :commands counsel-tramp)
+  
 #+END_SRC
 
 ** Ivy
