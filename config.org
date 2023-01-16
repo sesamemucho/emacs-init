@@ -848,58 +848,59 @@ git.
 #+END_SRC
 ** Org mode
 #+begin_src emacs-lisp
-        (assq-delete-all 'org package--builtins)
-        (use-package org
-        ;; :ensure org-plus-contrib
-        :demand
-        :config
-        (load-library "org")
-        (load-library "org-contacts")
-        (load-library "org-macs")
-        (load-library "org-src")
-        (load-library "org-compat")
-        ;; (require 'org-contacts)
-        ;; (require 'org-macs)
-        ;; (require 'org-src)
-        :bind (:map org-mode-map
-                    (("S-C-M-u" . org-timestamp-up)
-                     ("S-C-M-d" . org-timestamp-down))
-                    )
-        )
-  
-    ;;  (load-library "org")
-    ;;  (load-library "org-contacts")
-    ;;  (load-library "org-macs")
-    ;;  (load-library "org-src")
-    ;;
-     ;; A default name to give context to some of the elisp farther down.
-     ;; It generally gets changed in a system or user file.
-     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
-  
-     (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
-     (defvar ssmm-org-index-file (concat ssmm-orgfiles-dir "index.org") "Path to GTD org-mode file")
-     (defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
-     (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
-     (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
-     (setq org-contacts-files '(ssmm-org-contacts-file))
-  
-     (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
-     (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-     (setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt"))
-  
-    (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
-  
-  (setq org-todo-keywords
-          '((sequence "INBOX(i)"
-                      "TODO(t)"
-                      "STARTED(s)"
-                      "WAITING(w)"
-                      "APPT(a)"
-                      "|"
-                      "DONE(d)"
-                      "CANCELLED(c)"
-                      "DEFERRED(D)"
-                      )))
+(assq-delete-all 'org package--builtins)
+(use-package org
+  ;; :ensure org-plus-contrib
+  :demand
+  :config
+  (load-library "org")
+  (load-library "org-contacts")
+  (load-library "org-macs")
+  (load-library "org-src")
+  (load-library "org-compat")
+  ;; (require 'org-contacts)
+  ;; (require 'org-macs)
+  ;; (require 'org-src)
+  :bind (:map org-mode-map
+              (("S-C-M-u" . org-timestamp-up)
+               ("S-C-M-d" . org-timestamp-down))
+              )
+  )
+
+;;  (load-library "org")
+;;  (load-library "org-contacts")
+;;  (load-library "org-macs")
+;;  (load-library "org-src")
+;;
+;; A default name to give context to some of the elisp farther down.
+;; It generally gets changed in a system or user file.
+(setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
+
+(defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
+(defvar ssmm-org-index-file (concat ssmm-orgfiles-dir "index.org") "Path to GTD org-mode file")
+(defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
+(defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
+(defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
+(setq org-contacts-files '(ssmm-org-contacts-file))
+
+(defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
+(defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
+(setq org-agenda-files (concat ssmm-orgfiles-dir "org-agenda-files.txt"))
+
+(setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
+(setq org-src-preserve-indentation nil
+      org-edit-src-content-indentation 0)
+(setq org-todo-keywords
+      '((sequence "INBOX(i)"
+                  "TODO(t)"
+                  "STARTED(s)"
+                  "WAITING(w)"
+                  "APPT(a)"
+                  "|"
+                  "DONE(d)"
+                  "CANCELLED(c)"
+                  "DEFERRED(D)"
+                  )))
 #+end_src
 
 Configuration for the eminently useful [[http://orgmode.org/][Org Mode]].
