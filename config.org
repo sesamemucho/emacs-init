@@ -2559,6 +2559,16 @@ Vulpea: [[https://github.com/d12frosted/vulpea]]
                                            ;      )
    #+end_src
 
+** Mastodon
+#+begin_src emacs-lisp
+(when (not (version< emacs-version "27.1"))
+  (use-package mastodon
+    :ensure t
+    :config
+    (setq mastodon-instance-url "https://emacs.ch"
+          mastodon-active-user "sesamemucho")
+    ))
+#+end_src
 ** Yaml
    #+begin_src emacs-lisp
    (use-package yaml-mode
