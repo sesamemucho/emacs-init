@@ -22,3 +22,6 @@ elpy
 /emms/cache
 /emms/.#history
 /straight/
+/mastodon.plstore
+/persist/
+/request/
