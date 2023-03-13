@@ -882,8 +882,10 @@ brighter; it simply makes everything else vanish.
      ;;
      ;; A default name to give context to some of the elisp farther down.
      ;; It generally gets changed in a system or user file.
-     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
-     
+     (if (ssmm/is-termux-p)
+         (setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
+       (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
+       )
      (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
      (defvar ssmm-org-index-file (concat ssmm-orgfiles-dir "index.org") "Path to GTD org-mode file")
      (defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
