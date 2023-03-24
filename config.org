@@ -874,7 +874,7 @@ git.
                  ("S-C-M-d" . org-timestamp-down))
                 )
     )
-
+  
   ;;  (load-library "org")
   ;;  (load-library "org-contacts")
   ;;  (load-library "org-macs")
@@ -894,18 +894,15 @@ git.
   (setq org-contacts-files nil)
   ;; (setq org-contacts-files '(ssmm-org-contacts-file))
   ;; (setq org-contacts-files '("/home/org/contacts.org")))
-
+  
   (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
   (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-  (setq ssmm-org-af '(""))
-  (setq ssmm-org-af (append ssmm-org-af (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt")))))
-  (setq ssmm-org-agenda-files (mapcar (lambda (f) (concat ssmm-orgfiles-dir f)) ssmm-org-af))
-  ;; (setq ssmm-org-agenda-files (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt"))))
+  (setq ssmm-org-agenda-files (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt"))))
   (setq org-agenda-files ssmm-org-agenda-files)
   (setq org-src-preserve-indentation nil
         org-edit-src-content-indentation 2)
   (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
-
+  
   (setq org-todo-keywords
         '((sequence "INBOX(i)"
                     "TODO(t)"
@@ -967,7 +964,7 @@ Looks like I'll have to make an org file that exports included org
 files to another org file. See
 https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522
 
-From the org-roam Ecosystem: 
+From the org-roam Ecosystem: https://org-roam.readthedocs.io/en/develop/ecosystem
 org-roam and capture stuff taken largely from https://renatgalimov.github.io/org-basb-code/
 
 **** org-roam
@@ -980,108 +977,145 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     )
 #+end_src
 #+begin_src emacs-lisp
-  (setq org-roam-v2-ack t)                ;
-  (use-package org-roam                   ;
-    ;; :straight (:local-repo "/home/bob/Projects/readonly-repos/org-roam"
-    ;;     :files (:defaults "extensions/*")
-    ;;     :build (:not compile))
-    :after org
-    :config
-    (setq org-roam-v2-ack t)
-    (setq org-roam-directory ssmm-org-roam-dir)
-    (setq org-roam-file-extensions '("org"))
-    (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
-    (when (ssmm/is-termux-p)
-      (setq org-roam-database-connector 'sqlite3)
+    (defun ssmm/days-back-to-last-friday ()
+      (let ((num 1)
+            (potfri))
+        (while (progn
+                 (setq potfri (decode-time (- (float-time) (* 3600.0 24.0 num))))
+                 (setq num (+ num 1))
+                 (not (eq (elt potfri 6) 5))
+                 ))
+        (- num 1)
+        )
       )
-    ;;(org-roam-setup)
-
-    (setq org-roam-capture-templates
-          '(
-            ("d" "default" plain "%?"
-             :if-new
-             (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n")
-             ;; (file+head "${slug}.org"
-             ;;            "#+title: ${title}\n")
-             :immediate-finish t
-             :jump-to-captured t
-             :unnarrowed t)
-            ("l" "literature" plain "%?"
-             :if-new
-             (file+head "%<%Y%m%d%H%M%S>.org"
-                        "#+title: ${title}\n#+filetags: :literature:\nSource:"
-                        )
-             ;; (file+head "${slug}.org"
-             ;;            "#+title: ${title}\n")
-             :immediate-finish t
-             :jump-to-captured t
-             :unnarrowed t)
-            ("a" "area" plain "%?"
-             :if-new
-             (file+head "%<%Y%m%d%H%M%S>.org"
-                        "#+title: ${title}\n#+filetags: :area:\n\n"
-                        )
-             :immediate-finish t
-             :jump-to-captured t
-             :unnarrowed t)
-            ("w" "org-import-capture" plain "%?"
-             :target (file+head "library/${slug}.org"
-                                "#+title: ${title}\n")
-             :jump-to-captured t
-             :unnarrowed t)
-            ("e" "email" plain "%?"
-             :target (file+head "email/%(string-replace \".txt\" \"\" \"%f\").org"
-                                "#+title: %(string-replace \".txt\" \"\" \"%f\")\n%i")
-             :empty-lines-before 1
-             :jump-to-captured t
-             :unnarrowed t)
-            ;; Example of how to add template
-            ;;  ("G" "Guff" plain "%?"
-            ;; :if-new
-            ;; (file+head "${slug}.org"
-            ;;            "#+title: ${title}\n")
-            ;; :immediate-finish t
-            ;; :jump-to-captured t
-            ;; :unnarrowed t)
-            ))
-    (setq org-roam-dailies-capture-templates
-          '(
-            ("D" "default" plain
-             "* Tasks\n\n* Happenings\n%?"
-             :target (file+head "%<%Y-%m-%d>.org"
-                                "#+title: %<%Y-%m-%d>\n"))
-            ))
-    :bind (;("C-c n f" . org-roam-find-file)
-                                          ;:map org-roam-mode-map
-           ("C-c n /" . org-roam-node-find)
-           ("C-c n c" . org-roam-capture)
-           ("C-c n i" . org-roam-node-insert)
-           ("C-c n t" . org-roam-dailies-capture-today)
-           ("C-c n T" . org-roam-dailies-capture-tomorrow)
-           ("C-c n ." . org-roam-dailies-goto-today)
-           ("C-c n P" . org-roam-dailies-goto-yesterday)
-           ("C-c n N" . org-roam-dailies-goto-tomorrow)
-           ("C-c n r" . org-roam-buffer-toggle)
-           :map org-roam-mode-map
-           (("S-C-M-u" . org-timestamp-up)
-            ("S-C-M-d" . org-timestamp-down)
-            )
-           ))
-  ;; (require 'org-roam-emacs)
-  ;; (("C-c n l" . org-roam)
-  ;;  ("C-c n f" . org-roam-find-file)
-  ;;  ("C-c n b" . org-roam-switch-to-buffer)
-  ;;  ("C-c n g" . org-roam-show-graph))
-
-  ;; (load-library "org-roam")
-  ;; I have trouble with Ripgrep on Windows
-  ;; Commit 0163461f adds default user option for
-  ;; sections. You no longer need to set the variable explicitly
-  ;; (setq org-roam-mode-sections
-  ;;      (list #'org-roam-backlinks-insert-section
-  ;;            #'org-roam-reflinks-insert-section))
-  ;;#'org-roam-unlinked-references-insert-section))
-
+    
+    (defun ssmm/days-forward-to-next-monday ()
+      (let ((num 0)
+            (potmon))
+        (while (progn
+                 (setq potmon (decode-time (+ (float-time) (* 3600.0 24.0 num))))
+                 (setq num (+ num 1))
+                 (not (eq (elt potmon 6) 1))
+                 ))
+        (- num 1)
+        )
+      )
+    
+    (defun ssmm/org-roam-dailies-goto-last-friday ()
+      (interactive)
+      (org-roam-dailies-goto-yesterday (ssmm/days-back-to-last-friday))
+      )
+    
+    (defun ssmm/org-roam-dailies-capture-next-monday ()
+      (interactive)
+      (org-roam-dailies-capture-tomorrow (ssmm/days-forward-to-next-monday))
+      )
+    
+    (setq org-roam-v2-ack t)                ;
+    (use-package org-roam                   ;
+      ;; :straight (:local-repo "/home/bob/Projects/readonly-repos/org-roam"
+      ;;     :files (:defaults "extensions/*")
+      ;;     :build (:not compile))
+      :after org
+      :config
+      (require 'org-roam-dailies) ;; ensure keymap is available
+      (setq org-roam-v2-ack t)
+      (setq org-roam-directory ssmm-org-roam-dir)
+      (setq org-roam-file-extensions '("org"))
+      (setq org-roam-db-location (expand-file-name "org-roam.db" ssmm-org-roam-dir))
+      (when (ssmm/is-termux-p)
+        (setq org-roam-database-connector 'sqlite3)
+        )
+      ;;(org-roam-setup)
+    
+      (setq org-roam-capture-templates
+            '(
+              ("d" "default" plain "%?"
+               :if-new
+               (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n#+TAGS:\n#+TAGS: SMT(s) DAAS(d) MISC(m)")
+               ;; (file+head "${slug}.org"
+               ;;            "#+title: ${title}\n")
+               :immediate-finish t
+               :jump-to-captured t
+               :unnarrowed t)
+              ("l" "literature" plain "%?"
+               :if-new
+               (file+head "%<%Y%m%d%H%M%S>.org"
+                          "#+title: ${title}\n#+filetags: :literature:\nSource:"
+                          )
+               ;; (file+head "${slug}.org"
+               ;;            "#+title: ${title}\n")
+               :immediate-finish t
+               :jump-to-captured t
+               :unnarrowed t)
+              ("e" "email" plain "%?"
+               :target (file+head "email/%(string-replace \".txt\" \"\" \"%f\").org"
+                                  "#+title: %(string-replace \".txt\" \"\" \"%f\")\n%i")
+               :empty-lines-before 1
+               :jump-to-captured t
+               :unnarrowed t)
+              ("a" "area" plain "%?"
+               :if-new
+               (file+head "%<%Y%m%d%H%M%S>.org"
+                          "#+title: ${title}\n#+filetags: :area:\n\n"
+                          )
+               :immediate-finish t
+               :jump-to-captured t
+               :unnarrowed t)
+              ("w" "org-import-capture" plain "%?"
+               :target (file+head "library/${slug}.org"
+                                  "#+title: ${title}\n")
+               :jump-to-captured t
+               :unnarrowed t)
+              ;; Example of how to add template
+              ;;  ("G" "Guff" plain "%?"
+              ;; :if-new
+              ;; (file+head "${slug}.org"
+              ;;            "#+title: ${title}\n")
+              ;; :immediate-finish t
+              ;; :jump-to-captured t
+              ;; :unnarrowed t)
+              ))
+      (setq org-roam-dailies-capture-templates
+            '(
+              ("D" "default" plain
+               "* Tasks\n\n* Happenings\n%?"
+               :target (file+head "%<%Y-%m-%d>.org"
+                                  "#+title: %<%Y-%m-%d>\n#+TAGS:\n#+TAGS: SMT(s) DAAS(d) MISC(m)"))
+              ))
+      :bind (;("C-c n f" . org-roam-find-file)
+                                            ;:map org-roam-mode-map
+             ("C-c n /" . org-roam-node-find)
+             ("C-c n c" . org-roam-capture)
+             ("C-c n i" . org-roam-node-insert)
+             :map org-roam-mode-map
+             (("S-C-M-u" . org-timestamp-up)
+              ("S-C-M-d" . org-timestamp-down)
+              )
+             :map org-roam-dailies-map
+             ("." . org-roam-dailies-goto-today)
+             ("N" . org-roam-dailies-goto-tomorrow)
+             ("P" . org-roam-dailies-goto-yesterday)
+             ("T" . org-roam-dailies-capture-tomorrow)
+             ("Y" . org-roam-dailies-capture-yesterday)
+             ("r" . org-roam-buffer-toggle)
+             ("t" . org-roam-dailies-capture-today)
+             ))
+    ;; (require 'org-roam-emacs)
+    ;; (("C-c n l" . org-roam)
+    ;;  ("C-c n f" . org-roam-find-file)
+    ;;  ("C-c n b" . org-roam-switch-to-buffer)
+    ;;  ("C-c n g" . org-roam-show-graph))
+    
+    ;; (load-library "org-roam")
+    ;; I have trouble with Ripgrep on Windows
+    ;; Commit 0163461f adds default user option for
+    ;; sections. You no longer need to set the variable explicitly
+    ;; (setq org-roam-mode-sections
+    ;;      (list #'org-roam-backlinks-insert-section
+    ;;            #'org-roam-reflinks-insert-section))
+    ;;#'org-roam-unlinked-references-insert-section))
+    
 #+end_src
 #+begin_src emacs-lisp
                                           ;       (use-package org-roam                   ;
@@ -1375,7 +1409,7 @@ Not trying this for now because agenda wants to open all its files for search.
   (use-package deft
     :after org
     :bind
-    ("C-c n d" . deft)
+    ("C-c n D" . deft)
     :custom
     (deft-recursive t)
     (deft-use-filter-string-for-filename t)
@@ -1645,14 +1679,14 @@ Enable misc org modules:
 Common org tags.
 #+begin_src emacs-lisp
   (setq org-tag-alist '(("project" . ?p)
-                        (:startgroup)
+                        (:startgrouptag)
                         ("GTD")
                         (:grouptags)
                         ("@work" . ?w)
                         ("@home" . ?h)
                         ("@yard" . ?y)
                         ("@computer" . ?c)
-                        (:endgroup)))
+                        (:endgrouptag)))
 #+end_src
 *** habits
 
@@ -2018,7 +2052,7 @@ start Agenda in follow-mode:
         #+END_SRC
 
         Increase the size of the filename column for org-agenda so org-roam
-        filenames aren't outrageously big.
+        files aren't wierd looking.
         #+begin_src emacs-lisp
           (setq org-agenda-prefix-format '((agenda . " %i %-20:c%?-12t% s")
                                            (todo . " %i %-12:c")
