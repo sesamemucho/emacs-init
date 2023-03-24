@@ -2599,12 +2599,12 @@ file using the `org-babel-lob-ingest' function.
 #+begin_src emacs-lisp
   (use-package sphinx-doc
     :defer t)
-
+  
   (use-package python-mode
     ;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
     ;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
     :preface
-
+  
     (defun my-python-mode-hook ()
       (setq indent-tabs-mode nil)
       (setq py-indent-offset 4)
@@ -2612,7 +2612,7 @@ file using the `org-babel-lob-ingest' function.
       (whitespace-mode t)
       (pyenv-mode)
       )
-
+  
     :hook (python-mode (my-python-mode-hook . blacken-mode))
     ;; make sure we have lsp-imenu everywhere we have LSP
                                           ;  (require 'lsp-imenu)
@@ -2623,7 +2623,7 @@ file using the `org-babel-lob-ingest' function.
                                           ;  (lsp-define-stdio-client lsp-python "python"
                                           ;                           #'projectile-project-root
                                           ;                           '("pyls"))
-
+  
     ;; make sure this is activated when python-mode is activated
     ;; lsp-python-enable is created by macro above
                                           ;  (add-hook 'python-mode-hook
@@ -2631,14 +2631,15 @@ file using the `org-babel-lob-ingest' function.
                                           ;              (lsp-python-enable)))
     :after sphinx-doc
     )
-
+  
   (use-package elpy
+    :ensure t
     :init
     (advice-add 'python-mode :before 'elpy-enable)
-                                          ;  (add-hook 'python-mode-hook 'jedi:setup)
-                                          ;  (setq jedi:complete-on-dot t) ; optional
+    ;; (add-hook 'python-mode-hook 'jedi:setup)
+    ;; (setq jedi:complete-on-dot t) ; optional
     :config
-    (setq elpy-rpc-python-command "python3")
+    (setq elpy-rpc-python-command "/usr/bin/python3")
     (put 'pyvenv-activate 'safe-local-variable #'stringp)
     )
 #+end_src
