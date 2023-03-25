@@ -876,7 +876,7 @@ brighter; it simply makes everything else vanish.
        )
      
      ;;  (load-library "org")
-     nnnn  ;;  (load-library "org-contacts")
+     ;;  (load-library "org-contacts")
      ;;  (load-library "org-macs")
      ;;  (load-library "org-src")
      ;;
@@ -887,20 +887,16 @@ brighter; it simply makes everything else vanish.
        (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
        )
      (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
-     (defvar ssmm-org-index-file (concat ssmm-orgfiles-dir "index.org") "Path to GTD org-mode file")
-     (defvar ssmm-org-tickler-file (concat ssmm-orgfiles-dir "tickler.org") "Path to Tickler org-mode file")
      (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
      (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
-     (setq org-contacts-files nil)
+     ;;(setq org-contacts-files nil)
      ;; (setq org-contacts-files '(ssmm-org-contacts-file))
      ;; (setq org-contacts-files '("/home/org/contacts.org")))
      
      (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
      (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-     (setq ssmm-org-af '(""))
-     (setq ssmm-org-af (append ssmm-org-af (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt")))))
-     (setq ssmm-org-agenda-files (mapcar (lambda (f) (concat ssmm-orgfiles-dir f)) ssmm-org-af))
-     ;; (setq ssmm-org-agenda-files (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt"))))
+     (defvar ssmm-org-inbox-file (concat ssmm-org-roam-dir "inbox.org") "Path to GTD org-mode file")
+     (setq ssmm-org-agenda-files (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt"))))
      (setq org-agenda-files ssmm-org-agenda-files)
      (setq org-src-preserve-indentation nil
            org-edit-src-content-indentation 2)
@@ -1035,7 +1031,7 @@ brighter; it simply makes everything else vanish.
                '(
                  ("d" "default" plain "%?"
                   :if-new
-                  (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n#+TAGS:\n#+TAGS: SMT(s) DAAS(d) MISC(m)")
+                  (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n")
                   ;; (file+head "${slug}.org"
                   ;;            "#+title: ${title}\n")
                   :immediate-finish t
@@ -1084,26 +1080,34 @@ brighter; it simply makes everything else vanish.
                  ("D" "default" plain
                   "* Tasks\n\n* Happenings\n%?"
                   :target (file+head "%<%Y-%m-%d>.org"
-                                     "#+title: %<%Y-%m-%d>\n#+TAGS:\n#+TAGS: SMT(s) DAAS(d) MISC(m)"))
+                                     "#+title: %<%Y-%m-%d>\n"))
                  ))
+         (org-roam-db-autosync-mode)
          :bind (;("C-c n f" . org-roam-find-file)
                                                ;:map org-roam-mode-map
                 ("C-c n /" . org-roam-node-find)
                 ("C-c n c" . org-roam-capture)
                 ("C-c n i" . org-roam-node-insert)
+                ("C-c n r" . org-roam-buffer-toggle)
                 :map org-roam-mode-map
                 (("S-C-M-u" . org-timestamp-up)
                  ("S-C-M-d" . org-timestamp-down)
                  )
                 :map org-roam-dailies-map
                 ("." . org-roam-dailies-goto-today)
-                ("N" . org-roam-dailies-goto-tomorrow)
+                ("F" . org-roam-dailies-goto-last-friday)
+                ("M" . org-roam-dailies-capture-next-monday)
+                ("N" . org-roam-dailies-capture-today)
                 ("P" . org-roam-dailies-goto-yesterday)
                 ("T" . org-roam-dailies-capture-tomorrow)
                 ("Y" . org-roam-dailies-capture-yesterday)
                 ("r" . org-roam-buffer-toggle)
                 ("t" . org-roam-dailies-capture-today)
-                ))
+                )
+         :bind-keymap
+         ("C-c n d" . org-roam-dailies-map)
+         )
+       
        ;; (require 'org-roam-emacs)
        ;; (("C-c n l" . org-roam)
        ;;  ("C-c n f" . org-roam-find-file)
@@ -1213,6 +1217,7 @@ brighter; it simply makes everything else vanish.
        
        (defun roam-extra:update-todo-files (&rest _)
          "Update the value of `org-agenda-files'."
+         ;; Change from orig: Always include some non-roam org files
          (setq org-agenda-files (append ssmm-org-agenda-files (roam-extra:todo-files))))
        
        (add-hook 'find-file-hook #'roam-extra:update-todo-tag)
@@ -1630,12 +1635,12 @@ brighter; it simply makes everything else vanish.
      TODO: Is there some problem with pdf-tools (on all
      devices)? It is commented-out [2023-03-20 Mon]
      #+begin_src emacs-lisp
-       ;; (use-package org-noter
-       ;;   :after org
-       ;;   :config
-       ;;   (setq org-noter-default-notes-file-names '("noter.org"))
-       ;;   (setq org-noter-notes-search-path '(concat ssmm-orgfiles-dir "notes"))
-       ;;   )
+       (use-package org-noter
+         :after org
+         :config
+         (setq org-noter-default-notes-file-names '("noter.org"))
+         (setq org-noter-notes-search-path '(concat ssmm-orgfiles-dir "notes"))
+         )
        
      #+end_src
 
@@ -2277,7 +2282,7 @@ brighter; it simply makes everything else vanish.
                                      (file+headline ssmm-org-index-file "Tasks")
                                      "* TODO %i%?")
                                     ("T" "Tickler" entry
-                                     (file+headline ssmm-org-tickler-file "Tickler")
+                                     (file+headline ssmm-org-inbox-file "Tickler")
                                      "* %i%? \n %U")
                                     ("j" "Journal" entry (file+datetree ssmm-org-main-file)
                                      "* %?\nEntered on %T\n  %i\n" :clock-keep t)
@@ -2286,7 +2291,7 @@ brighter; it simply makes everything else vanish.
                                     ("p" "New project entry" entry (file+olp ssmm-org-main-file "Projects")
                                      "* %?\nEntered on %T\n" :unnarrowed t)
                                     ("Q" "quote org capture" entry
-                                     (file+headline ssmm-org-clippings-file "Unsorted")
+                                     (file+headline ssmm-org-inbox-file "Unsorted")
                                      "* %?%:description Added %U
       ,#+BEGIN_QUOTE
       %x
@@ -2908,6 +2913,13 @@ brighter; it simply makes everything else vanish.
    #+END_SRC
 
 ** Load user files
+When you want to make an sk-load to load prelude stuff at the
+beginning of this file:
+(cl-delete-if (lambda (f) (string-match-p "prelude"f)) foo)
+So, load files that have "prelude" in there names there, and don't
+load them here.
+Come to think about it, it would probably be OK to load them here
+also.
    #+begin_src emacs-lisp
      (cl-flet ((sk-load (base)
                         (let* ((path          (expand-file-name base ssmm/cfg-dir))
