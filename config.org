@@ -895,8 +895,9 @@ brighter; it simply makes everything else vanish.
      
      (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
      (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-     (defvar ssmm-org-inbox-file (concat ssmm-org-roam-dir "inbox.org") "Path to GTD org-mode file")
-     (setq ssmm-org-agenda-files (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt"))))
+     (setq ssmm-org-af '(""))
+     (setq ssmm-org-af (append ssmm-org-af (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt")))))
+     (setq ssmm-org-agenda-files (mapcar (lambda (f) (concat ssmm-orgfiles-dir f)) ssmm-org-af))
      (setq org-agenda-files ssmm-org-agenda-files)
      (setq org-src-preserve-indentation nil
            org-edit-src-content-indentation 2)
