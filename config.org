@@ -895,10 +895,11 @@ brighter; it simply makes everything else vanish.
      
      (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
      (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-     (setq ssmm-org-af '(""))
-     (setq ssmm-org-af (append ssmm-org-af (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt")))))
-     (setq ssmm-org-agenda-files (mapcar (lambda (f) (concat ssmm-orgfiles-dir f)) ssmm-org-af))
-     (setq org-agenda-files ssmm-org-agenda-files)
+     ;; (setq ssmm-org-af '(""))
+     ;; (setq ssmm-org-af (append ssmm-org-af (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt")))))
+     ;; (setq ssmm-org-agenda-files (mapcar (lambda (f) (concat ssmm-orgfiles-dir f)) ssmm-org-af))
+     ;; (setq org-agenda-files ssmm-org-agenda-files)
+     (setq org-agenda-files nil)
      (setq org-src-preserve-indentation nil
            org-edit-src-content-indentation 2)
      (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
@@ -1185,9 +1186,9 @@ brighter; it simply makes everything else vanish.
        (defun roam-extra:todo-p ()
          "Return non-nil if current buffer has any TODO entry.
        
-       TODO entries marked as done are ignored, meaning the this
-       function returns nil if current buffer contains only completed
-       tasks."
+              TODO entries marked as done are ignored, meaning the this
+              function returns nil if current buffer contains only completed
+              tasks."
          (org-element-map
              (org-element-parse-buffer 'headline)
              'headline
@@ -1218,8 +1219,7 @@ brighter; it simply makes everything else vanish.
        
        (defun roam-extra:update-todo-files (&rest _)
          "Update the value of `org-agenda-files'."
-         ;; Change from orig: Always include some non-roam org files
-         (setq org-agenda-files (append ssmm-org-agenda-files (roam-extra:todo-files))))
+         (setq org-agenda-files (roam-extra:todo-files)))
        
        (add-hook 'find-file-hook #'roam-extra:update-todo-tag)
        (add-hook 'before-save-hook #'roam-extra:update-todo-tag)
@@ -1429,7 +1429,7 @@ brighter; it simply makes everything else vanish.
        
      #+end_src
 **** Org roam UI
-Can't get 'pdf-tools-install' to work under termux
+     Can't get 'pdf-tools-install' to work under termux
      #+begin_src emacs-lisp
        (unless (ssmm/is-termux-p)
          (use-package org-roam-ui
