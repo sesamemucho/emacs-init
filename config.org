@@ -270,6 +270,7 @@ brighter; it simply makes everything else vanish.
 
 *** Use regex searches by default.
     #+begin_src emacs-lisp
+      (setq isearch-lazy-count t)
       (global-set-key (kbd "C-s") 'isearch-forward-regexp)
       (global-set-key (kbd "\C-r") 'isearch-backward-regexp)
       (global-set-key (kbd "C-M-s") 'isearch-forward)
@@ -889,16 +890,11 @@ brighter; it simply makes everything else vanish.
      (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
      (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
      (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
-     ;;(setq org-contacts-files nil)
-     ;; (setq org-contacts-files '(ssmm-org-contacts-file))
-     ;; (setq org-contacts-files '("/home/org/contacts.org")))
+     (setq org-contacts-files (list ssmm-org-contacts-file))
      
      (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
      (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
-     ;; (setq ssmm-org-af '(""))
-     ;; (setq ssmm-org-af (append ssmm-org-af (split-string (f-read-text (concat ssmm-orgfiles-dir "org-agenda-files.txt")))))
-     ;; (setq ssmm-org-agenda-files (mapcar (lambda (f) (concat ssmm-orgfiles-dir f)) ssmm-org-af))
-     ;; (setq org-agenda-files ssmm-org-agenda-files)
+     (defvar ssmm-org-inbox-file (concat ssmm-org-roam-dir "inbox.org") "Path to GTD org-mode file")
      (setq org-agenda-files nil)
      (setq org-src-preserve-indentation nil
            org-edit-src-content-indentation 2)
@@ -1042,10 +1038,18 @@ brighter; it simply makes everything else vanish.
                  ("l" "literature" plain "%?"
                   :if-new
                   (file+head "%<%Y%m%d%H%M%S>.org"
-                             "#+title: ${title}\n#+filetags: :literature:\nSource:"
+                             "#+title: ${title}\n#+filetags: literature\nSource:"
                              )
                   ;; (file+head "${slug}.org"
                   ;;            "#+title: ${title}\n")
+                  :immediate-finish t
+                  :jump-to-captured t
+                  :unnarrowed t)
+                 ("p" "project" plain "%?"
+                  :if-new
+                  (file+head "%<%Y%m%d%H%M%S>.org"
+                             "#+title: ${title}\n#+filetags: project\nSource:"
+                             )
                   :immediate-finish t
                   :jump-to-captured t
                   :unnarrowed t)
@@ -1058,7 +1062,15 @@ brighter; it simply makes everything else vanish.
                  ("a" "area" plain "%?"
                   :if-new
                   (file+head "%<%Y%m%d%H%M%S>.org"
-                             "#+title: ${title}\n#+filetags: :area:\n\n"
+                             "#+title: ${title}\n#+filetags: area\n\n"
+                             )
+                  :immediate-finish t
+                  :jump-to-captured t
+                  :unnarrowed t)
+                 ("L" "Library" plain "%?"
+                  :if-new
+                  (file+head "%<%Y%m%d%H%M%S>.org"
+                             "#+title: ${title}\n#+filetags: library\n\n"
                              )
                   :immediate-finish t
                   :jump-to-captured t
@@ -1085,8 +1097,8 @@ brighter; it simply makes everything else vanish.
                                      "#+title: %<%Y-%m-%d>\n"))
                  ))
          (org-roam-db-autosync-mode)
-         :bind (;("C-c n f" . org-roam-find-file)
-                                               ;:map org-roam-mode-map
+         :bind (
+                ;; :map org-roam-mode-map
                 ("C-c n /" . org-roam-node-find)
                 ("C-c n c" . org-roam-capture)
                 ("C-c n i" . org-roam-node-insert)
@@ -1103,8 +1115,6 @@ brighter; it simply makes everything else vanish.
                 ("P" . org-roam-dailies-goto-yesterday)
                 ("T" . org-roam-dailies-capture-tomorrow)
                 ("Y" . org-roam-dailies-capture-yesterday)
-                ("r" . org-roam-buffer-toggle)
-                ("t" . org-roam-dailies-capture-today)
                 )
          :bind-keymap
          ("C-c n d" . org-roam-dailies-map)
@@ -1229,6 +1239,7 @@ brighter; it simply makes everything else vanish.
      #+begin_src emacs-lisp
        (use-package vulpea
          :ensure t
+         :commands vulpea-buffer-prop-get
          ;; hook into org-roam-db-autosync-mode you wish to enable
          ;; persistence of meta values (see respective section in README to
          ;; find out what meta means)
@@ -1466,7 +1477,7 @@ brighter; it simply makes everything else vanish.
       When working with plain text buffers, like org-mode or markdown, you can use enriched text mode with the highlight library to mark the text.
 
       #+begin_src emacs-lisp
-        ;; If you get errors saying somethign about facemenu, try
+        ;; If you get errors saying something about facemenu, try
         ;; uncommenting this.
         ;; (setq facemenu-menu nil)
         
@@ -1690,15 +1701,15 @@ brighter; it simply makes everything else vanish.
     #+END_SRC
     Common org tags.
     #+begin_src emacs-lisp
-      (setq org-tag-alist '(("project" . ?p)
-                            (:startgrouptag)
-                            ("GTD")
-                            (:grouptags)
-                            ("@work" . ?w)
-                            ("@home" . ?h)
-                            ("@yard" . ?y)
-                            ("@computer" . ?c)
-                            (:endgrouptag)))
+      ;; (setq org-tag-alist '(("project" . ?p)
+      ;;                       (:startgrouptag)
+      ;;                       ("GTD")
+      ;;                       (:grouptags)
+      ;;                       ("@work" . ?w)
+      ;;                       ("@home" . ?h)
+      ;;                       ("@yard" . ?y)
+      ;;                       ("@computer" . ?c)
+      ;;                       (:endgrouptag)))
     #+end_src
 *** habits
 
@@ -2066,10 +2077,49 @@ brighter; it simply makes everything else vanish.
         Increase the size of the filename column for org-agenda so org-roam
         files aren't wierd looking.
         #+begin_src emacs-lisp
-          (setq org-agenda-prefix-format '((agenda . " %i %-20:c%?-12t% s")
-                                           (todo . " %i %-12:c")
-                                           (tags . " %i %-12:c")
-                                           (search . " %i %-12:c")))
+          (setq org-agenda-prefix-format
+                '((agenda . " %i %(vulpea-agenda-category 12)%?-12t% s")
+                  (todo . " %i %(vulpea-agenda-category 12) ")
+                  (tags . " %i %(vulpea-agenda-category 12) ")
+                  (search . " %i %(vulpea-agenda-category 12) ")))
+          
+          ;; From https://d12frosted.io/posts/2020-06-24-task-management-with-roam-vol2.html
+          
+          (defun vulpea-agenda-category (&optional len)
+            "Get category of item at point for agenda.
+          
+          Category is defined by one of the following items:
+          
+          - CATEGORY property
+          - TITLE keyword
+          - TITLE property
+          - filename without directory and extension
+          
+          When LEN is a number, resulting string is padded right with
+          spaces and then truncated with ... on the right if result is
+          longer than LEN.
+          
+          Usage example:
+          
+            (setq org-agenda-prefix-format
+                  '((agenda . \" %(vulpea-agenda-category) %?-12t %12s\")))
+          
+          Refer to `org-agenda-prefix-format' for more information."
+            (let* ((file-name (when buffer-file-name
+                                (file-name-sans-extension
+                                 (file-name-nondirectory buffer-file-name))))
+                   (title (vulpea-buffer-prop-get "title"))
+                   (category (org-get-category))
+                   (result
+                    (or (if (and
+                             title
+                             (string-equal category file-name))
+                            title
+                          category)
+                        "")))
+              (if (numberp len)
+                  (s-truncate len (s-pad-right len " " result))
+                result)))
         #+end_src
 
         Show all future entries for repeating tasks
@@ -2118,18 +2168,11 @@ brighter; it simply makes everything else vanish.
         Display tags farther right
         #+BEGIN_SRC emacs-lisp
           ;;(setq org-agenda-tags-column -102)
-          (setq org-tags-column -101); for powerplantwin 23" TFT turned 90
+          (setq org-tags-column -80); for powerplantwin 23" TFT turned 90
                                                   ; degrees; should *not* differ between
                                                   ; systems! Otherwise Org-files gets
                                                   ; re-formatted after switching
                                                   ; system
-          ;;(when (my-system-type-is-windows)
-          ;;    ;;(setq org-agenda-tags-column -103);; for 23" TFT turned 90 degrees
-          ;;      (setq org-agenda-tags-column -117);; for 24" TFT turned 90 degrees
-          ;;      )
-          ;;(when (my-system-is-sherri)
-          ;;    (setq org-agenda-tags-column -117);; -117 for 23" TFT sherri, rotated 90°
-          ;;    )
           (setq org-agenda-tags-column (- (- (window-total-width) 3))) ;; total width minus 3
         #+END_SRC
 
@@ -2283,7 +2326,7 @@ brighter; it simply makes everything else vanish.
 
     #+begin_src emacs-lisp
       (setq org-capture-templates '(("t" "Todo [inbox]" entry
-                                     (file+headline ssmm-org-index-file "Tasks")
+                                     (file+headline ssmm-org-inbox-file "Tasks")
                                      "* TODO %i%?")
                                     ("T" "Tickler" entry
                                      (file+headline ssmm-org-inbox-file "Tickler")
@@ -2772,7 +2815,7 @@ brighter; it simply makes everything else vanish.
               ("C-h f"   . counsel-describe-function)
               ("C-x r b" . counsel-bookmark)
               ("M-x"     . counsel-M-x)
-              ("C-s"     . swiper-isearch)
+              ;; ("C-s"     . swiper-isearch)
               ;; ("M-y"     . counsel-yank-pop)
      
               ("M-s f" . counsel-file-jump)
