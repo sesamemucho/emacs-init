@@ -62,13 +62,13 @@ brighter; it simply makes everything else vanish.
 *** A preamble
     First make sure that we are doing lexical scoping for speed. See
     [[https://nullprogram.com/blog/2016/12/22/][Some Performance Advantages of Lexical Scope blog]].
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       ;;; README.el --- a file generated from README.org - do not edit by hand!!!!
       ;; -*- lexical-binding: t; -*-
       ;;; Commentary:
       ;;;     Org tangled from README.org. Edit the org file to chnage this configuration
       ;;; Code:
-    #+END_SRC
+    #+end_src
 
 *** Speed up loading
     This is a little piece of code that I picked up that might make
@@ -76,10 +76,10 @@ brighter; it simply makes everything else vanish.
     This turns down the garbage collector during the use-package
     loading when it has to do some compiling. Set it back when done
     with init.
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (setq gc-cons-threshold 64000000)
       (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
-    #+END_SRC
+    #+end_src
 
 *** Speed up line movement
     I ran into this little tidbit while reading Sacha Chua's posts
@@ -87,9 +87,9 @@ brighter; it simply makes everything else vanish.
     defun triggers =line-move-partial= which leads to excessive
     processing. By setting the variable here, the speed of using
     =next-line= gets very cut down.
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (setq auto-window-vscroll nil)
-    #+END_SRC
+    #+end_src
 
 *** Setup
 
@@ -707,13 +707,13 @@ brighter; it simply makes everything else vanish.
 
 ** Packages
 *** Avy
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (use-package avy
         :bind* ("C-." . avy-goto-char-timer)
         :config
         (avy-setup-default))
       
-    #+END_SRC
+    #+end_src
 *** EMMS
     #+begin_src emacs-lisp
       (use-package emms
@@ -844,7 +844,7 @@ brighter; it simply makes everything else vanish.
     #+end_src
 
 ** Hydra
-   #+BEGIN_SRC emacs-lisp
+   #+begin_src emacs-lisp
      (use-package hydra
        :defer t
        :config
@@ -854,7 +854,7 @@ brighter; it simply makes everything else vanish.
          ("l" text-scale-decrease "out")))
      
      
-   #+END_SRC
+   #+end_src
 ** Org mode
    #+begin_src emacs-lisp
      (assq-delete-all 'org package--builtins)
@@ -1048,7 +1048,7 @@ brighter; it simply makes everything else vanish.
                  ("p" "project" plain "%?"
                   :if-new
                   (file+head "%<%Y%m%d%H%M%S>.org"
-                             "#+title: ${title}\n#+filetags: project\nSource:"
+                             "#+title: ${title}\n#+filetags: project\n"
                              )
                   :immediate-finish t
                   :jump-to-captured t
@@ -1108,13 +1108,8 @@ brighter; it simply makes everything else vanish.
                  ("S-C-M-d" . org-timestamp-down)
                  )
                 :map org-roam-dailies-map
-                ("." . org-roam-dailies-goto-today)
                 ("F" . org-roam-dailies-goto-last-friday)
                 ("M" . org-roam-dailies-capture-next-monday)
-                ("N" . org-roam-dailies-capture-today)
-                ("P" . org-roam-dailies-goto-yesterday)
-                ("T" . org-roam-dailies-capture-tomorrow)
-                ("Y" . org-roam-dailies-capture-yesterday)
                 )
          :bind-keymap
          ("C-c n d" . org-roam-dailies-map)
@@ -1677,7 +1672,7 @@ brighter; it simply makes everything else vanish.
 *** General org-y stuff
 
     Enable misc org modules:
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (setq org-modules (quote
                          (org-bbdb
                           org-bibtex
@@ -1698,7 +1693,7 @@ brighter; it simply makes everything else vanish.
                           )
                          )
             )
-    #+END_SRC
+    #+end_src
     Common org tags.
     #+begin_src emacs-lisp
       ;; (setq org-tag-alist '(("project" . ?p)
@@ -1720,14 +1715,14 @@ brighter; it simply makes everything else vanish.
     - http://orgmode.org/worg/org-tutorials/tracking-habits.html
 
     - global STYLE property values for completion
-      #+BEGIN_SRC emacs-lisp
+      #+begin_src emacs-lisp
         (setq org-global-properties (quote (("STYLE_ALL" . "habit"))))
-      #+END_SRC
+      #+end_src
 
       - position the habit graph on the agenda to the right of the default
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-habit-graph-column 50)
-        #+END_SRC
+        #+end_src
 
         #+begin_src emacs-lisp
           
@@ -1792,7 +1787,7 @@ brighter; it simply makes everything else vanish.
     <2017-10-07 Sat>
     Definition of =my-super-agenda-groups=, my central configuration of super-agenda:
 
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
                                               ;  (setq my-super-agenda-groups
                                               ;        '(;; Each group has an implicit boolean OR operator between its selectors.
                                               ;          (:name "Today"  ; Optionally specify section name
@@ -1838,13 +1833,13 @@ brighter; it simply makes everything else vanish.
                                               ;
                                               ;        )
                                               ;      )
-    #+END_SRC
+    #+end_src
 
     =my-super-agenda()= is a function so that I am able to call the agenda
     interactively or within =my-org-agenda()= which is defined further
     down below.
 
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       ;;  (defun my-super-agenda()
                                               ;   "generates my super-agenda"
                                               ;    (interactive)
@@ -1854,7 +1849,7 @@ brighter; it simply makes everything else vanish.
                                               ;      (org-agenda nil "a")
                                               ;      )
                                               ;    )
-    #+END_SRC
+    #+end_src
 
 *** org-agenda-custom-commands → long list of agenda definitions
     #+begin_src emacs-lisp
@@ -1864,7 +1859,7 @@ brighter; it simply makes everything else vanish.
                ((org-agenda-overriding-header "\nTODOs sorted by state, priority, effort")
                 (org-agenda-sorting-strategy '(todo-state-down time-down))))))
     #+end_src
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
                                               ;  (setq org-agenda-custom-commands
                                               ;        (quote (
                                               ;
@@ -1943,7 +1938,7 @@ brighter; it simply makes everything else vanish.
                                               ;                  ))
                                               ;
                                               ;                )))
-    #+END_SRC
+    #+end_src
 
     #+RESULTS:
     | a | Super Agenda         | agenda                                                                                                                                                                                                                                                                                                        |            | (org-super-agenda-mode)                                                                                           | ((org-super-agenda-groups my-super-agenda-groups)) | (org-agenda nil a) |
@@ -1961,47 +1956,47 @@ brighter; it simply makes everything else vanish.
       (setq org-agenda-start-with-log-mode t)
     #+end_src
     start Agenda in follow-mode:
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
                                               ;(setq org-agenda-start-with-follow-mode t)
-    #+END_SRC
+    #+end_src
 
     - t = do not initialize agenda Org files when generating (only) agenda
     - nil = initialize normal
     - performance issue when not "t": https://punchagan.muse-amuse.in/posts/how-i-learnt-to-use-emacs-profiler.html
-      #+BEGIN_SRC emacs-lisp
+      #+begin_src emacs-lisp
         ;;(setq org-agenda-inhibit-startup nil);; slower but visibility of buffers is correctly shown
         (setq org-agenda-inhibit-startup t);; faster with no hidden headings (agenda performance)
-      #+END_SRC
+      #+end_src
 
       Compact the block agenda view
-      #+BEGIN_SRC emacs-lisp
+      #+begin_src emacs-lisp
         (setq org-agenda-compact-blocks t)
-      #+END_SRC
+      #+end_src
 
       - Changed in v7.9.3
       - http://orgmode.org/worg/doc.html#org-use-tag-inheritance
       - performance issue when not nil: https://punchagan.muse-amuse.in/posts/how-i-learnt-to-use-emacs-profiler.html
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-use-tag-inheritance (quote (agenda)));; agenda performance
-        #+END_SRC
+        #+end_src
 
         http://orgmode.org/org.html#Weekly_002fdaily-agenda
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-span 'week)
-        #+END_SRC
+        #+end_src
 
         For tag searches ignore tasks with scheduled and deadline dates
-        #+BEGIN_SRC emacs-lisp :tangle no
+        #+begin_src emacs-lisp :tangle no
           (setq org-agenda-tags-todo-honor-ignore-options t)
-        #+END_SRC
+        #+end_src
 
         Always hilight the current agenda line
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (add-hook 'org-agenda-mode-hook '(lambda () (hl-line-mode 1)))
-        #+END_SRC
+        #+end_src
 
         The following custom-set-faces create the highlights
-        #+BEGIN_SRC emacs-lisp :tangle no
+        #+begin_src emacs-lisp :tangle no
           (custom-set-faces
            ;; custom-set-faces was added by Custom.
            ;; If you edit it by hand, you could mess it up, so be careful.
@@ -2010,69 +2005,69 @@ brighter; it simply makes everything else vanish.
            '(highlight ((t (:background "cyan"))))
            '(hl-line ((t (:inherit highlight :background "darkseagreen2"))))
            '(org-mode-line-clock ((t (:background "grey75" :foreground "red" :box (:line-width -1 :style released-button)))) t))
-        #+END_SRC
+        #+end_src
 
         Keep tasks with dates off the global todo lists:
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-todo-ignore-with-date nil)
-        #+END_SRC
+        #+end_src
 
         Allow deadlines which are due soon to appear on the global todo lists:
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-todo-ignore-deadlines (quote far))
-        #+END_SRC
+        #+end_src
 
         Keep tasks scheduled in the future off the global todo lists
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-todo-ignore-scheduled (quote future))
-        #+END_SRC
+        #+end_src
 
         Remove completed deadline tasks from the agenda view
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-skip-deadline-if-done t)
-        #+END_SRC
+        #+end_src
 
         Remove completed scheduled tasks from the agenda view
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-skip-scheduled-if-done t)
-        #+END_SRC
+        #+end_src
 
         Remove completed items from search results
-        #+BEGIN_SRC emacs-lisp :tangle no
+        #+begin_src emacs-lisp :tangle no
           (setq org-agenda-skip-timestamp-if-done t)
-        #+END_SRC
+        #+end_src
 
         Include agenda archive files when searching for things
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-text-search-extra-files (quote (agenda-archives)))
-        #+END_SRC
+        #+end_src
 
         show state changes in log-mode of agenda
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-log-mode-items (quote (state)))
-        #+END_SRC
+        #+end_src
 
         http://orgmode.org/worg/org-faq.html
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
                                                   ;(setq org-agenda-skip-additional-timestamps-same-entry t)
           (setq org-agenda-skip-additional-timestamps-same-entry nil)
-        #+END_SRC
+        #+end_src
 
         do not search for time in heading when displaying a date-stamp
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-search-headline-for-time nil)
-        #+END_SRC
+        #+end_src
 
         open agenda in same buffer, full size
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-window-setup 'current-window)
-        #+END_SRC
+        #+end_src
 
         add diary entries in agenda view
         http://orgmode.org/org.html#Weekly_002fdaily-agenda
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-include-diary t)
-        #+END_SRC
+        #+end_src
 
         Increase the size of the filename column for org-agenda so org-roam
         files aren't wierd looking.
@@ -2123,65 +2118,64 @@ brighter; it simply makes everything else vanish.
         #+end_src
 
         Show all future entries for repeating tasks
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-repeating-timestamp-show-all t)
-        #+END_SRC
+        #+end_src
 
         Show all agenda dates - even if they are empty
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-show-all-dates t)
-        #+END_SRC
+        #+end_src
 
         Sorting order for tasks on the agenda
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-sorting-strategy
                 (quote ((agenda habit-down time-up user-defined-up priority-down category-keep)
                         (todo priority-down category-keep)
                         (tags priority-down category-keep)
                         (search category-keep))))
-        #+END_SRC
+        #+end_src
 
         Start the weekly agenda today
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-start-on-weekday nil)
-        #+END_SRC
+        #+end_src
 
         Non-nil means skip timestamp line if same entry shows because of deadline.
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-skip-timestamp-if-deadline-is-shown t)
-        #+END_SRC
+        #+end_src
 
         Agenda sorting functions
-        #+BEGIN_SRC emacs-lisp
+        #+begin_src emacs-lisp
           (setq org-agenda-cmp-user-defined 'bh/agenda-sort)
-        #+END_SRC
+        #+end_src
 
         Enable display of the time grid so we can see the marker for the current time
-        #+BEGIN_SRC emacs-lisp :tangle no
+        #+begin_src emacs-lisp :tangle no
           ;; (setq org-agenda-time-grid
           ;;       ((daily today remove-match)
           ;;        #("----------------" 0 16
           ;;          (org-heading t))
           ;;        (800 1000 1200 1400 1600 1800 2000)))
-        #+END_SRC
+        #+end_src
 
         Display tags farther right
-        #+BEGIN_SRC emacs-lisp
-          ;;(setq org-agenda-tags-column -102)
-          (setq org-tags-column -80); for powerplantwin 23" TFT turned 90
-                                                  ; degrees; should *not* differ between
+        #+begin_src emacs-lisp
+          (setq org-tags-column -80)
+                                                  ; should *not* differ between
                                                   ; systems! Otherwise Org-files gets
                                                   ; re-formatted after switching
                                                   ; system
           (setq org-agenda-tags-column (- (- (window-total-width) 3))) ;; total width minus 3
-        #+END_SRC
+        #+end_src
 
         Sticky agendas remain opened in the background so that you don't
         need to regenerate them each time you hit the corresponding
         keystroke. This is a big time saver.
-        #+BEGIN_SRC emacs-lisp :tangle no
+        #+begin_src emacs-lisp :tangle no
           (setq org-agenda-sticky t)
-        #+END_SRC
+        #+end_src
 
 *** Agenda category icons
 
@@ -2197,7 +2191,7 @@ brighter; it simply makes everything else vanish.
     I don't know how to fix this and so I stick with the hard coded path
     and with a bleeding heart.
 
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (setq org-agenda-category-icon-alist nil)
                                               ;(when (my-system-type-is-windows)
       (add-to-list 'org-agenda-category-icon-alist
@@ -2245,12 +2239,12 @@ brighter; it simply makes everything else vanish.
                    ;; /usr/share/icons/oxygen/16x16/actions/go-home.png
                    )
       ;;   )
-    #+END_SRC
+    #+end_src
 
 *** my-org-agenda() → my-map a
 
     switch to open Agenda or open new one:
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (defun my-org-agenda ()
         "Opens the already opened agenda or opens new one instead"
         (interactive)
@@ -2264,12 +2258,12 @@ brighter; it simply makes everything else vanish.
           )
         )
       ;;(bind-key "a" 'my-org-agenda my-map)
-    #+END_SRC
+    #+end_src
 
 *** my-memacs-org-agenda() → my-map m     C-cm
 
     Memacs org-agenda shortcut
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (defun my-memacs-org-agenda ()
         "Opens an org-agenda with activated archive"
         (interactive)
@@ -2282,13 +2276,13 @@ brighter; it simply makes everything else vanish.
         )
       ;;disabled because I needed "m";; (bind-key "m" 'my-memacs-org-agenda my-map)
       (global-set-key "\C-cm" 'my-memacs-org-agenda)
-    #+END_SRC
+    #+end_src
 
     My org-agenda files are set in the various customization files.
 
 *** Projects
     From
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (defun my-mark-as-project ()
         "This function makes sure that the current heading has
       (1) the tag :project:
@@ -2321,7 +2315,7 @@ brighter; it simply makes everything else vanish.
             )
           )
         )
-    #+END_SRC
+    #+end_src
 *** Capturing
 
     #+begin_src emacs-lisp
@@ -2400,7 +2394,7 @@ brighter; it simply makes everything else vanish.
 *** Contacts
     From https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/:
     With
-    #+BEGIN_SRC emacs-lisp
+    #+begin_src emacs-lisp
       (use-package org-capture
         :ensure nil
         :demand
@@ -2421,7 +2415,7 @@ brighter; it simply makes everything else vanish.
       
         )
       
-    #+END_SRC
+    #+end_src
 *** Org-Mode Hook -- Keybindings
     :PROPERTIES:
     :CUSTOM_ID: keybindings
@@ -2788,16 +2782,16 @@ brighter; it simply makes everything else vanish.
                    ("C-c p" . projectile-command-map)))
    #+end_src
 ** undo-tree
-   #+BEGIN_SRC emacs-lisp
+   #+begin_src emacs-lisp
      (use-package undo-tree
        :defer t
        :config
        (global-undo-tree-mode 1)
        )
-   #+END_SRC
+   #+end_src
 
 ** Counsel
-   #+BEGIN_SRC emacs-lisp
+   #+begin_src emacs-lisp
      (use-package counsel
        :after ivy
        :demand t
@@ -2836,10 +2830,10 @@ brighter; it simply makes everything else vanish.
        (use-package counsel-tramp
          :commands counsel-tramp)
      
-   #+END_SRC
+   #+end_src
 
 ** Ivy
-   #+BEGIN_SRC emacs-lisp
+   #+begin_src emacs-lisp
      (use-package ivy
        :diminish
        :demand t
@@ -2911,7 +2905,7 @@ brighter; it simply makes everything else vanish.
        :after (ivy hydra)
        :defer t)
      
-   #+END_SRC
+   #+end_src
 
 ** Magit, etc.
    #+begin_src emacs-lisp
@@ -2939,7 +2933,7 @@ brighter; it simply makes everything else vanish.
    #+end_src
 
 ** LSP
-   #+BEGIN_SRC emacs-lisp
+   #+begin_src emacs-lisp
      ;; (use-package company-lsp
      ;;   :after lsp-mode
      ;;   :config
@@ -2957,7 +2951,7 @@ brighter; it simply makes everything else vanish.
      ;;   (define-key lsp-ui-mode-map [remap xref-find-references]
      ;;     #'lsp-ui-peek-find-references))
      
-   #+END_SRC
+   #+end_src
 
 ** Load user files
    When you want to make an sk-load to load prelude stuff at the
@@ -3029,4 +3023,4 @@ brighter; it simply makes everything else vanish.
      (require 'ivy)
      (require 'counsel)
      
-   #+END_SRC
+   #+end_src
