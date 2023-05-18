@@ -1643,14 +1643,14 @@ brighter; it simply makes everything else vanish.
      TODO: Is there some problem with pdf-tools (on all
      devices)? It is commented-out [2023-03-20 Mon]
      #+begin_src emacs-lisp
-       (unless (ssmm/is-termux-p)
-         (use-package org-noter
-           :after org
-           :config
-           (setq org-noter-default-notes-file-names '("noter.org"))
-           (setq org-noter-notes-search-path '(concat ssmm-orgfiles-dir "notes"))
-           )
-         )
+       ;; (unless (ssmm/is-termux-p)
+       ;;   (use-package org-noter
+       ;;     :after org
+       ;;     :config
+       ;;     (setq org-noter-default-notes-file-names '("noter.org"))
+       ;;     (setq org-noter-notes-search-path '(concat ssmm-orgfiles-dir "notes"))
+       ;;     )
+       ;;   )
        
      #+end_src
 
