@@ -98,7 +98,7 @@ brighter; it simply makes everything else vanish.
       (defun ssmm/is-termux-p ()
         (getenv "TERMUX_VERSION")
         )
-      
+
       (setq debug-on-error t)
       ;; UTF-8 as default encoding
       (set-language-environment "UTF-8")
@@ -110,10 +110,11 @@ brighter; it simply makes everything else vanish.
        ((string-equal system-type "gnu/linux")
         (add-to-list 'default-frame-alist '(font . "-ADBO-Source Code Pro-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1" )))
        ((string-equal system-type "cygwin")
+        (w32-find-non-USB-fonts)
         (set-frame-font "Consolas-14" t t ))
        )
-      
-      
+
+
       (menu-bar-mode -1)
       (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
       (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
@@ -134,13 +135,13 @@ brighter; it simply makes everything else vanish.
             truncate-lines t
             initial-scratch-message ""
             visible-bell t)
-      
+
       (when (window-system)
         (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
         (when (fboundp 'horizontal-scroll-bar-mode)
           (horizontal-scroll-bar-mode -1))
         (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
-      
+
       (add-hook 'dired-mode-hook #'toggle-truncate-lines)
       (defalias 'yes-or-no-p 'y-or-n-p)
       ;; straight bootstrap
@@ -160,10 +161,10 @@ brighter; it simply makes everything else vanish.
       ;;   (load bootstrap-file nil 'nomessage))
       ;; end straight bootstrap
                      ;;; Packages
-      ;; (require 'package)
-      ;;(require 'package-helper)
+      ;; ;; (require 'package)
+      ;; ;;(require 'package-helper)
       ;; This removes the standard ("gnu" . "https://elpa.gnu.org/packages/")
-      
+
       ;; (setq package-archives (list
       ;;                         ;; '("org" . "https://elpa.gnu.org/packages/")
       ;;                         '("elpa" . "https://elpa.gnu.org/packages/")
@@ -171,22 +172,21 @@ brighter; it simply makes everything else vanish.
       ;;                         '("melpa-stable" . "https://stable.melpa.org/packages/")
       ;;                         ;;                              '("myemacs" . "~/myemacs")
       ;;                         ))
-      
-      
+
+
       ;; ;; (setq package-archives (list
-      ;; ;;             
       ;; '("org" . "https://orgmode.org/elpa/")
       ;;             '("melpa-stable" . "https://stable.melpa.org/packages/")))
       ;; (add-to-list 'package-archives
       ;;              '("myemacs" . "~/myemacs") t)
-      
+
       ;; (add-to-list 'package-archives
       ;;              '("org" . "https://orgmode.org/elpa/") t)
-      
+
                                               ;               '("org" . "http://orgmode.org/elpa/") t)
       ;; (add-to-list 'package-archives
       ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-      
+
       ;;              ;;'("melpa" . "https://melpa.org/packages/") t)
       ;;              ;;'("melpa" . "https://stable.melpa.org/packages/") t)
       ;; ;; (add-to-list 'package-archives
@@ -194,7 +194,7 @@ brighter; it simply makes everything else vanish.
       ;; (setq package-enable-at-startup nil)
       ;; (setq package-blacklist '(batch-mode))
       ;; (package-initialize)
-      
+
       ;;  (package-refresh-contents)
     #+end_src
 
@@ -225,7 +225,7 @@ brighter; it simply makes everything else vanish.
       #+begin_src emacs-lisp
         ;;(add-to-list 'load-path ssmm/cfg-dir)
         ;; (setq autoload-file (concat ssmm/cfg-dir "loaddefs.el"))
-        ;; (setq package-user-dir (concat ssmm/cfg-dir "elpa"))
+        (setq package-user-dir (concat ssmm/cfg-dir "elpa"))
         ;; (setq custom-file (concat ssmm/cfg-dir "custom.el"))
       #+end_src
 
@@ -250,11 +250,11 @@ brighter; it simply makes everything else vanish.
 ** Universal settings
 *** Set variables
     #+begin_src emacs-lisp
-      ;; (eval-and-compile
-      ;;   (setq use-package-verbose t
-      ;;         use-package-always-ensure t
-      ;;         use-package-expand-minimally nil
-      ;;         use-package-compute-statistics t))
+      (eval-and-compile
+        (setq use-package-verbose t
+              use-package-always-ensure t
+              use-package-expand-minimally nil
+              use-package-compute-statistics t))
       ;; debug-on-error t)
       (defvar ssmm/true-home (file-truename "~/"))
     #+end_src
@@ -735,26 +735,26 @@ brighter; it simply makes everything else vanish.
                ("<C-m> M-d"   . mc/remove-duplicated-cursors)
                ("<C-m> |"     . mc/move-to-column)
                ("<C-m> ~"     . mc/compare-chars)))
-      
+
       ;; (use-package mc-freeze
       ;;   :after multiple-cursors
       ;;   :bind ("<C-m> f" . mc/freeze-fake-cursors-dwim))
-      
+
       ;; (use-package mc-rect
       ;;   :after multiple-cursors
       ;;   :bind ("<C-m> ]" . mc/rect-rectangle-to-multiple-cursors))
-      
+
       (use-package multiple-cursors
         :after phi-search
         :defer 1
-      
+
         ;; - Sometimes you end up with cursors outside of your view. You can scroll
         ;;   the screen to center on each cursor with `C-v` and `M-v`.
         ;;
         ;; - If you get out of multiple-cursors-mode and yank - it will yank only
         ;;   from the kill-ring of main cursor. To yank from the kill-rings of every
         ;;   cursor use yank-rectangle, normally found at C-x r y.
-      
+
         :bind (("<C-m> ^"     . mc/edit-beginnings-of-lines)
                ("<C-m> `"     . mc/edit-beginnings-of-lines)
                ("<C-m> $"     . mc/edit-ends-of-lines)
@@ -783,10 +783,11 @@ brighter; it simply makes everything else vanish.
                ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
                ("<C-m> ["     . mc/vertical-align-with-space)
                ("<C-m> {"     . mc/vertical-align)
-      
-               ("S-<down-mouse-1>")
-               ("S-<mouse-1>" . mc/add-cursor-on-click))
-      
+
+               ;; ("S-<down-mouse-1>")
+               ;; ("S-<mouse-1>" . mc/add-cursor-on-click)
+               )
+
         :bind (:map selected-keymap
                     ("c"   . mc/edit-lines)
                     ("."   . mc/mark-next-like-this)
@@ -799,15 +800,15 @@ brighter; it simply makes everything else vanish.
                     ("Y"   . mc/mark-previous-symbol-like-this)
                     ("w"   . mc/mark-next-word-like-this)
                     ("W"   . mc/mark-previous-word-like-this))
-      
+
         :preface
         (defun reactivate-mark ()
           (interactive)
           (activate-mark)))
-      
+
       (use-package phi-search
         :defer 1)
-      
+
       (use-package phi-search-mc
         :after (phi-search multiple-cursors)
         :config
@@ -864,7 +865,7 @@ brighter; it simply makes everything else vanish.
        :demand
        :config
        (load-library "org")
-       (load-library "org-contacts")
+       ;; (load-library "org-contacts")
        (load-library "org-macs")
        (load-library "org-src")
        (load-library "org-compat")
@@ -876,7 +877,7 @@ brighter; it simply makes everything else vanish.
                     ("S-C-M-d" . org-timestamp-down))
                    )
        )
-     
+
      ;;  (load-library "org")
      ;;  (load-library "org-contacts")
      ;;  (load-library "org-macs")
@@ -892,7 +893,7 @@ brighter; it simply makes everything else vanish.
      (defvar ssmm-org-clippings-file (concat ssmm-orgfiles-dir "clippings.org") "Path to clippings org-mode file")
      (defvar ssmm-org-contacts-file (concat ssmm-orgfiles-dir "contacts.org") "Path to contacts org-mode file")
      (setq org-contacts-files (list ssmm-org-contacts-file))
-     
+
      (defvar ssmm-org-main-buffer (file-name-nondirectory ssmm-org-main-file) "Buffer name for main org-mode file")
      (defvar ssmm-org-roam-dir (concat ssmm-orgfiles-dir "roam/"))
      (defvar ssmm-org-inbox-file (concat ssmm-org-roam-dir "inbox.org") "Path to GTD org-mode file")
@@ -900,7 +901,7 @@ brighter; it simply makes everything else vanish.
      (setq org-src-preserve-indentation nil
            org-edit-src-content-indentation 2)
      (setq org-id-locations-file (expand-file-name ".org-id-locations" ssmm-orgfiles-dir))
-     
+
      (setq org-todo-keywords
            '((sequence "INBOX(i)"
                        "TODO(t)"
@@ -1111,6 +1112,8 @@ brighter; it simply makes everything else vanish.
                 :map org-roam-dailies-map
                 ("F" . org-roam-dailies-goto-last-friday)
                 ("M" . org-roam-dailies-capture-next-monday)
+                ("T" . org-roam-dailies-capture-tomorrow)
+                ("Y" . org-roam-dailies-capture-yesterday)
                 )
          :bind-keymap
          ("C-c n d" . org-roam-dailies-map)
@@ -1275,7 +1278,7 @@ brighter; it simply makes everything else vanish.
       #+begin_src emacs-lisp
         (use-package org-web-tools
           :ensure t
-          ;; :pin "melpa-stable"
+          :pin "melpa-stable"
           :bind (("C-c n u" . org-web-tools-read-url-as-org)))
       #+end_src
 
@@ -2481,7 +2484,8 @@ brighter; it simply makes everything else vanish.
          ))
       (require 'ob-dot)
                                               ; Allow async OB operations
-      (require 'ob-async)
+     (use-package ob-async
+       )
     #+end_src
 
     You are encouraged to add the following to your personal configuration
