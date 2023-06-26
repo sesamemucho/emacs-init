@@ -1070,8 +1070,8 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
             ("S-C-M-d" . org-timestamp-down)
             )
            :map org-roam-dailies-map
-           ("F" . org-roam-dailies-goto-last-friday)
-           ("M" . org-roam-dailies-capture-next-monday)
+           ("F" . ssmm/org-roam-dailies-goto-last-friday)
+           ("M" . ssmm/org-roam-dailies-capture-next-monday)
            ("T" . org-roam-dailies-capture-tomorrow)
            ("Y" . org-roam-dailies-capture-yesterday)
            )
