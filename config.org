@@ -153,6 +153,10 @@ This is for values that should be set before anything else.
    ((string-equal system-type "cygwin")
     (w32-find-non-USB-fonts)
     (set-frame-font "Consolas-14" t t ))
+    (set-fontset-font "fontset-default" nil
+                      (font-xlfd-name
+                       (font-spec :family "Segoe UI Emoji"))
+                      nil 'append)
    )
 #+end_src
 
@@ -843,7 +847,8 @@ git.
   ;; A default name to give context to some of the elisp farther down.
   ;; It generally gets changed in a system or user file.
   (if (ssmm/is-termux-p)
-      (setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
+      (setq ssmm-orgfiles-dir "storage/shared/Documents/org/")
+    ;;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
     )
   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
@@ -908,9 +913,16 @@ For convenience, inside code blocks indent according to the block mode:
 *** org-superstar
 Org-superstar, for pretty
 #+begin_src emacs-lisp
-  (when (eq (window-system) 'x)
-    (use-package org-superstar
-      :hook (org-mode . org-superstar-mode)))
+  (use-package org-superstar
+    :hook (org-mode . org-superstar-mode))
+  (if (string-equal system-type "cygwin")
+      ;; Can't get (?+ . ?➤) to display for cygwin
+      (setq org-superstar-item-bullet-alist
+            '((?* . ?•)
+              (?+ . ?+)
+              (?- . ?–))
+            )
+    )
 #+end_src
 *** Note taking
 org-roam and capture stuff taken largely from https://renatgalimov.github.io/org-basb-code/
@@ -1025,6 +1037,14 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org"
                         "#+title: ${title}\n#+filetags: area\n\n"
+                        )
+             :immediate-finish t
+             :jump-to-captured t
+             :unnarrowed t)
+            ("r" "responsibility" plain "%?"
+             :if-new
+             (file+head "%<%Y%m%d%H%M%S>.org"
+                        "#+title: ${title}\n#+filetags: responsibility\n\n"
                         )
              :immediate-finish t
              :jump-to-captured t

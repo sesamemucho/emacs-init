@@ -39,7 +39,7 @@
 
 ;; (setq package-user-dir (concat ssmm/cfg-dir "elpa"))
 (require 'package)
-;; (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
+;;(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("elpa"   . "https://elpa.gnu.org/packages/"))
 ;; (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -61,7 +61,7 @@
 ;; (require 'use-package)
 ;; (setq use-package-always-ensure nil)
 ;; ;;(load-library 'org)
-(use-package org)
+(use-package org :ensure :pin gnu)
 ;;  "The base name for the .org file to use for Emacs initialization.")
 (setq ssmm/cfg-dir user-emacs-directory)
 (setq ssmm/cfg-file (concat ssmm/cfg-dir "config"))
