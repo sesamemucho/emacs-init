@@ -18,6 +18,12 @@ brighter; it simply makes everything else vanish.
 -- Neal Stephenson, "In the Beginning was the Command Line"
 #+end_quote
 
+#+begin_quote
+"This is the thing you don't understand. No one quits Emacs; they just
+get old and die."
+
+Programmers are also human - https://youtu.be/urcL86UpqZc
+#+end_quote
 
 * Overview
 This is a literate and fairly portable Emacs initialization.
@@ -153,10 +159,7 @@ This is for values that should be set before anything else.
    ((string-equal system-type "cygwin")
     (w32-find-non-USB-fonts)
     (set-frame-font "Consolas-14" t t ))
-    (set-fontset-font "fontset-default" nil
-                      (font-xlfd-name
-                       (font-spec :family "Segoe UI Emoji"))
-                      nil 'append)
+    (set-fontset-font t 'symbol "Segoe UI Symbol")
    )
 #+end_src
 
@@ -848,7 +851,6 @@ git.
   ;; It generally gets changed in a system or user file.
   (if (ssmm/is-termux-p)
       (setq ssmm-orgfiles-dir "storage/shared/Documents/org/")
-    ;;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
     )
   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
@@ -915,14 +917,6 @@ Org-superstar, for pretty
 #+begin_src emacs-lisp
   (use-package org-superstar
     :hook (org-mode . org-superstar-mode))
-  (if (string-equal system-type "cygwin")
-      ;; Can't get (?+ . ?➤) to display for cygwin
-      (setq org-superstar-item-bullet-alist
-            '((?* . ?•)
-              (?+ . ?+)
-              (?- . ?–))
-            )
-    )
 #+end_src
 *** Note taking
 org-roam and capture stuff taken largely from https://renatgalimov.github.io/org-basb-code/
