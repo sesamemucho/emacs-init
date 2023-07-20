@@ -158,8 +158,8 @@ This is for values that should be set before anything else.
     (add-to-list 'default-frame-alist '(font . "Fira Code:pixelsize=18:foundry=CTDB:weight=normal:slant=normal:width=normal:spacing=100:scalable=true" )))
    ((string-equal system-type "cygwin")
     (w32-find-non-USB-fonts)
-    (set-frame-font "Consolas-14" t t ))
-    (set-fontset-font t 'symbol "Segoe UI Symbol")
+    (set-frame-font "Consolas-14" t t )
+    (set-fontset-font t 'symbol "Segoe UI Symbol"))
    )
 #+end_src
 
