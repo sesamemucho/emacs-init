@@ -48,7 +48,8 @@
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
-  (package-install 'use-package))
+  (package-install 'use-package)
+)
 (eval-and-compile
   (setq use-package-always-ensure t
         use-package-expand-minimally t))

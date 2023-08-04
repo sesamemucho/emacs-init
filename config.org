@@ -42,15 +42,11 @@ https://github.com/Atman50/emacs-config.git)
 
 4. Launch Emacs
 
-   One of my constraints for this is that the init directory must be
-   able to be installed and to be run without Internet access. Some of
-   the consequences of this are:
+   One of my constraints for this is that the init directory must be able to be installed and to be run without Internet access. Some of the consequences of this are:
 
 1. All the packages are contained in the elpa/ directory.
 
-2. Packages needed for startup (currently, use-package and bind-key)
-   are kept as static directories under startup/ and must be manually
-   updated occasionally.
+2. Packages needed for startup (currently, use-package and bind-key) are kept as static directories under startup/ and must be manually updated occasionally.
 
 ** Why a literate configuration
 The documentation is in the same place as the code.
@@ -58,8 +54,7 @@ The documentation is in the same place as the code.
 ** The importance of the =init.el= file
 There's a detailed explanation on how this configuration works WRT to =init.el= at the end of this document.
 
-The init.el file is there to tangle this document into the
-configuration to load.
+The init.el file is there to tangle this document into the configuration to load.
 
 * Implementation
 
@@ -77,22 +72,14 @@ First make sure that we are doing lexical scoping for speed. See
 #+end_src
 
 *** Speed up loading
-This is a little piece of code that I picked up that might make
-things faster when downloading and installing all the packages.
-This turns down the garbage collector during the use-package
-loading when it has to do some compiling. Set it back when done
-with init.
+This is a little piece of code that I picked up that might make things faster when downloading and installing all the packages.  This turns down the garbage collector during the use-package loading when it has to do some compiling. Set it back when done with init.
 #+begin_src emacs-lisp
   (setq gc-cons-threshold 64000000)
   (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
 #+end_src
 
 *** Speed up line movement
-I ran into this little tidbit while reading Sacha Chua's posts
-from Emacs. It is described [[https://emacs.stackexchange.com/questions/28736/emacs-pointcursor-movement-lag/28746][here]], but to summarize, the
-=next-line= defun triggers =line-move-partial= which leads to
-excessive processing. By setting the variable here, the speed of
-using =next-line= gets very cut down.
+I ran into this little tidbit while reading Sacha Chua's posts from Emacs. It is described [[https://emacs.stackexchange.com/questions/28736/emacs-pointcursor-movement-lag/28746][here]], but to summarize, the =next-line= defun triggers =line-move-partial= which leads to excessive processing. By setting the variable here, the speed of using =next-line= gets very cut down.
 #+begin_src emacs-lisp
   (setq auto-window-vscroll nil)
 #+end_src
@@ -290,7 +277,7 @@ To distinguish C-m from RET in a GUI Emacs, one could change C-i to C-m in @nisp
 #+begin_src emacs-lisp
   ;;(define-key input-decode-map [?\r] 'newline)
   (define-key input-decode-map [?\r] [?\C-j])
-  ;; (define-key input-decode-map [?\C-m] [C-m])
+  (define-key input-decode-map [?\C-m] [C-m])
 #+end_src
 *** UI setup
 
@@ -448,8 +435,7 @@ From emacswiki
 #+end_src
 
 *** XML
-Defuns to work with XML files, as some operations in nXML mode cause
-Emacs to spin at 100% CPU.
+Defuns to work with XML files, as some operations in nXML mode cause Emacs to spin at 100% CPU.
 #+begin_src emacs-lisp
   (defun ssmm-comment-xml-item ()
     "Puts a comment around an XML tag, and fixes double-hyphens."
@@ -577,23 +563,26 @@ You will probably want to be in the superword minor mode for this.
 #+end_src
 ** Registers
 Registers allow you to jump to a file or other location quickly. Use
-=C-x r j= followed by the letter of the register (i for =init.el=, r
+=C-x r j= followed by the letter of the register (i for =init.el=, I
 for this file) to jump to it.
 
 You should add registers here for the files you edit most often.
 
+ - C-x r j i   for init.el
+ - C-x r j I   for config.org
+
 #+begin_src emacs-lisp :results silent
   (dolist
       (r `((?i (file . ,(concat ssmm/cfg-dir "init.el")))
-           (?I (file . ,(let* ((user user-login-name)
-                               (org (expand-file-name (concat user ".org") ssmm/cfg-dir))
-                               (el  (expand-file-name (concat user ".el") ssmm/cfg-dir))
-                               (dir (expand-file-name user ssmm/cfg-dir)))
-                          (cond
-                           ((file-exists-p org) org)
-                           ((file-exists-p el)  el)
-                           (t dir)))))
-           (?s (file . ,(concat ssmm/cfg-dir "config.org")))
+           ;; (?I (file . ,(let* ((user user-login-name)
+           ;;                     (org (expand-file-name (concat user ".org") ssmm/cfg-dir))
+           ;;                     (el  (expand-file-name (concat user ".el") ssmm/cfg-dir))
+           ;;                     (dir (expand-file-name user ssmm/cfg-dir)))
+           ;;                (cond
+           ;;                 ((file-exists-p org) org)
+           ;;                 ((file-exists-p el)  el)
+           ;;                 (t dir)))))
+           (?I (file . ,(concat ssmm/cfg-dir "config.org")))
            ))
     (set-register (car r) (cadr r)))
 #+end_src
@@ -620,7 +609,8 @@ You should add registers here for the files you edit most often.
   (set-default 'indicate-empty-lines t)
   (set-default 'imenu-auto-rescan t)
 
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  ;; (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  ;; Going to visual-line-mode [2023-07-27 Thu]
   (add-hook 'text-mode-hook 'turn-on-flyspell)
 
   (defvar starter-kit-coding-hook nil
@@ -629,15 +619,6 @@ You should add registers here for the files you edit most often.
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; Seed the random-number generator
   (random t)
-#+end_src
-
-*** Don't clutter up directories with files~
-Rather than saving backup files scattered all over the file system,
-let them live in the =backups/= directory inside of the starter kit.
-Nope; put them in /tmp... Use 'em or lose 'em. If it's important, use
-git.
-#+begin_src emacs-lisp
-  (setq backup-directory-alist `(("/tmp")))
 #+end_src
 
 ** Keymaps
@@ -684,6 +665,34 @@ git.
     :config
     (emms-all)
     (emms-default-players))
+#+end_src
+*** executable
+**** Make script files executable
+#+begin_src emacs-lisp
+  (use-package executable
+    :hook
+    (after-save . executable-make-buffer-file-executable-if-script-p)
+    )
+#+end_src
+
+*** files
+**** Don't confirm killing processes on exit
+**** Don't clutter up directories with files~
+Rather than saving backup files scattered all over the file system,
+let them live in the =backups/= directory inside of the starter kit.
+Nope; put them in /tmp... Use 'em or lose 'em. If it's important, use
+git.
+**** Don't truncate results of eval-expression
+
+#+begin_src emacs-lisp
+  ;; Fails with (error "Package ‘files-’ is unavailable")
+   ;; (use-package files
+   ;;   :custom
+     (setq confirm-kill-processes nil)
+     (setq backup-directory-alist `(("/tmp")))
+     (setq eval-expression-print-length nil)
+     (setq eval-expression-print-level nil)
+     ;; )
 #+end_src
 *** Multiple Cursors
 #+begin_src emacs-lisp
@@ -827,6 +836,9 @@ git.
   (use-package org
     ;; :ensure org-plus-contrib
     :demand
+    :hook
+    (org-mode . visual-line-mode)
+
     :config
     (load-library "org")
     ;; (load-library "org-contacts")
@@ -850,7 +862,7 @@ git.
   ;; A default name to give context to some of the elisp farther down.
   ;; It generally gets changed in a system or user file.
   (if (ssmm/is-termux-p)
-      (setq ssmm-orgfiles-dir "storage/shared/Documents/org/")
+      (setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
     )
   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
@@ -987,7 +999,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-directory ssmm-org-roam-dir)
     (setq org-roam-file-extensions '("org"))
     (setq org-roam-db-location (expand-file-name "~/.org-roam.db"))
-    ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
+<    ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
     (when (ssmm/is-termux-p)
       (setq org-roam-database-connector 'sqlite3)
       )
@@ -1027,9 +1039,17 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
              :empty-lines-before 1
              :jump-to-captured t
              :unnarrowed t)
-            ("A" "area" plain "%?"
+            ("a" "area" plain "%?"
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org"
+                        "#+title: ${title}\n#+filetags: area\n\n"
+                        )
+             :immediate-finish t
+             :jump-to-captured t
+             :unnarrowed t)
+            ("A" "encrypted area" plain "%?"
+             :if-new
+             (file+head "%<%Y%m%d%H%M%S>.org.gpg"
                         "#+title: ${title}\n#+filetags: area\n\n"
                         )
              :immediate-finish t
@@ -1712,33 +1732,15 @@ TODOs, called “habits”.»
         (beginning-of-line)
         (insert " - [ ] "))
 
-      (defun ssmm-org-auto-fill ()
-        (if (string-match-p "^[0-9]+\.org" (buffer-name)) (auto-fill-mode 1))
-        )
+      ;; Going to visual-line-mode [2023-07-27 Thu]
+      ;; (defun ssmm-org-auto-fill ()
+      ;;   (if (string-match-p "^[0-9]+\.org" (buffer-name)) (auto-fill-mode 1))
+      ;;   )
 
       (defun my-org-mode-hook ()
         (local-set-key (kbd "C-c C-<f9>") 'ssmm-org-make-checkbox)
         (local-set-key (kbd "C-<f9>") 'org-metaright)
-        (ssmm-org-auto-fill)
-        )
-
-      (add-hook 'org-mode-hook 'my-org-mode-hook t)
-                                              ;(setq prelude-org-mode-hook nil)
-
-      (defun ssmm-org-make-checkbox ()
-        "Make this line into a checkbox"
-        (interactive)
-        (beginning-of-line)
-        (insert " - [ ] "))
-
-      (defun ssmm-org-auto-fill ()
-        (if (string-match-p "^[0-9]+\.org" (buffer-name)) (auto-fill-mode 1))
-        )
-
-      (defun my-org-mode-hook ()
-        (local-set-key (kbd "C-c C-<f9>") 'ssmm-org-make-checkbox)
-        (local-set-key (kbd "C-<f9>") 'org-metaright)
-        (ssmm-org-auto-fill)
+        ;;(ssmm-org-auto-fill)
         )
 
       (add-hook 'org-mode-hook 'my-org-mode-hook t)
@@ -2761,7 +2763,8 @@ file using the `org-babel-lob-ingest' function.
     (add-to-list 'projectile-project-root-files "PBC.xml")
     :bind (:map projectile-mode-map
                 ("s-p" . projectile-command-map)
-                ("C-c p" . projectile-command-map)))
+                )
+    )
 #+end_src
 ** undo-tree
 #+begin_src emacs-lisp
@@ -2911,13 +2914,7 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 #+begin_src emacs-lisp
   (use-package crux
     :config
-    (defun ssmm/crux-find-user-config-file ()
-      "Edit config.org, in another window."
-      (interactive)
-      (find-file-other-window (concat ssmm/cfg-file ".org"))
-      )
     (global-set-key (kbd "C-c d") #'crux-duplicate-current-line-or-region)
-    (global-set-key (kbd "C-c I") #'ssmm/crux-find-user-config-file)
     (crux-reopen-as-root-mode)
     )
 #+end_src
@@ -2965,6 +2962,30 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 
 #+end_src
 
+** Sonic Pi
+#+begin_src emacs-lisp
+  (use-package sonic-pi
+    :custom
+    (sonic-pi-path "/usr/lib/sonic-pi/")
+    (sonic-pi-server-bin "server/bin/sonic-pi-server.rb")
+    :config
+    (define-key sonic-pi-mode-map (kbd "C-c M-j") nil)
+    (define-key sonic-pi-mode-map (kbd "C-c M-c") nil)
+    (define-key sonic-pi-mode-map (kbd "C-c C-k") nil)
+    (define-key sonic-pi-mode-map (kbd "C-c C-r") nil)
+    (define-key sonic-pi-mode-map (kbd "C-c C-q") nil)
+    (define-key sonic-pi-mode-map (kbd "C-c C-b") nil)
+    (define-key sonic-pi-mode-map (kbd "C-c C-c") nil)
+
+    (define-key sonic-pi-mode-map (kbd "C-c p j") 'sonic-pi-jack-in)
+    (define-key sonic-pi-mode-map (kbd "C-c p c") 'sonic-pi-connect)
+    (define-key sonic-pi-mode-map (kbd "C-c p k") 'sonic-pi-send-buffer)
+    (define-key sonic-pi-mode-map (kbd "C-c p r") 'sonic-pi-send-region)
+    (define-key sonic-pi-mode-map (kbd "C-c p q") 'sonic-pi-quit)
+    (define-key sonic-pi-mode-map (kbd "C-c p b") 'sonic-pi-stop-all)
+    (define-key sonic-pi-mode-map (kbd "C-c p c") 'sonic-pi-send-live-loop)
+    )
+#+end_src
 ** Load user files
 When you want to make an sk-load to load prelude stuff at the
 beginning of this file:

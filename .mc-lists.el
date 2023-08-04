@@ -6,10 +6,13 @@
         counsel-M-x
         disable-mouse--handle
         ignore
+        indent-for-tab-command
         kill-region
+        mc/vertical-align
         org-beginning-of-line
         org-delete-char
         org-end-of-line
+        org-kill-line
         org-self-insert-command
         phi-search
         yaml-electric-backspace
