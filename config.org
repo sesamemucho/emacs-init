@@ -999,7 +999,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-directory ssmm-org-roam-dir)
     (setq org-roam-file-extensions '("org"))
     (setq org-roam-db-location (expand-file-name "~/.org-roam.db"))
-<    ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
+    ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
     (when (ssmm/is-termux-p)
       (setq org-roam-database-connector 'sqlite3)
       )
