@@ -137,23 +137,25 @@ This is for values that should be set before anything else.
       (horizontal-scroll-bar-mode -1))
     (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
 
+  ;; Set reusable font name variables
+  (defvar my/fixed-width-font "Fira Code"
+    "The font to use for monospaced (fixed width) text.")
+
+  (defvar my/variable-width-font "Fira Sans"
+    "The font to use for variable-pitch (document) text.")
+
   (cond
    ((ssmm/is-termux-p)
-    ;; Don't set font
-    )
-   ((string-equal system-type "gnu/linux")
-    ;; Set reusable font name variables
-    (defvar my/fixed-width-font "Fira Code"
-      "The font to use for monospaced (fixed width) text.")
-
-    (defvar my/variable-width-font "Fira Sans"
-      "The font to use for variable-pitch (document) text.")
-
     ;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
     (set-face-attribute 'default nil :font my/fixed-width-font :weight 'light :height 150)
     (set-face-attribute 'fixed-pitch nil :font my/fixed-width-font :weight 'light :height 130)
     (set-face-attribute 'variable-pitch nil :font my/variable-width-font :weight 'light :height 1.3)
-
+    )
+   ((string-equal system-type "gnu/linux")
+    ;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
+    (set-face-attribute 'default nil :font my/fixed-width-font :weight 'light :height 150)
+    (set-face-attribute 'fixed-pitch nil :font my/fixed-width-font :weight 'light :height 130)
+    (set-face-attribute 'variable-pitch nil :font my/variable-width-font :weight 'light :height 1.3)
     )
    ((string-equal system-type "cygwin")
     (w32-find-non-USB-fonts)
@@ -1127,7 +1129,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     )
    ((string-equal system-type "cygwin")
     (setq org-roam-file-exclude-regexp "gpg$")
-   )
+   ))
 
     ;;(org-roam-setup)
 
