@@ -1117,9 +1117,18 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-file-extensions '("org"))
     (setq org-roam-db-location (expand-file-name "~/.org-roam.db"))
     ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
-    (when (ssmm/is-termux-p)
-      (setq org-roam-database-connector 'sqlite3)
-      )
+  (cond
+   ((ssmm/is-termux-p)
+    (setq org-roam-database-connector 'sqlite3)
+    (setq org-roam-file-exclude-regexp "gpg$")
+    )
+   ((string-equal system-type "gnu/linux")
+      (setq org-roam-file-exclude-regexp nil)
+    )
+   ((string-equal system-type "cygwin")
+    (setq org-roam-file-exclude-regexp "gpg$")
+   )
+
     ;;(org-roam-setup)
 
     (setq org-roam-capture-templates
@@ -1135,7 +1144,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
             ("l" "literature" plain "%?"
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org"
-                        "#+title: ${title}\n#+filetags: literature\nSource:"
+                        "#+title: ${title}\n#+filetags: :literature:\nSource:"
                         )
              ;; (file+head "${slug}.org"
              ;;            "#+title: ${title}\n")
@@ -1145,7 +1154,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
             ("p" "project" plain "%?"
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org"
-                        "#+title: ${title}\n#+filetags: project\n"
+                        "#+title: ${title}\n#+filetags: :project:\n"
                         )
              :immediate-finish t
              :jump-to-captured t
@@ -1159,7 +1168,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
             ("a" "area" plain "%?"
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org"
-                        "#+title: ${title}\n#+filetags: area\n\n"
+                        "#+title: ${title}\n#+filetags: :area:\n\n"
                         )
              :immediate-finish t
              :jump-to-captured t
@@ -1167,7 +1176,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
             ("A" "encrypted area" plain "%?"
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org.gpg"
-                        "#+title: ${title}\n#+filetags: area\n\n"
+                        "#+title: ${title}\n#+filetags: :area:\n\n"
                         )
              :immediate-finish t
              :jump-to-captured t
@@ -1175,7 +1184,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
             ("r" "responsibility" plain "%?"
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org"
-                        "#+title: ${title}\n#+filetags: responsibility\n\n"
+                        "#+title: ${title}\n#+filetags: :responsibility:\n\n"
                         )
              :immediate-finish t
              :jump-to-captured t
@@ -1183,7 +1192,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
             ("L" "Library" plain "%?"
              :if-new
              (file+head "%<%Y%m%d%H%M%S>.org"
-                        "#+title: ${title}\n#+filetags: library\n\n"
+                        "#+title: ${title}\n#+filetags: :library:\n\n"
                         )
              :immediate-finish t
              :jump-to-captured t
