@@ -1177,7 +1177,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
              :unnarrowed t)
             ("A" "encrypted area" plain "%?"
              :if-new
-             (file+head "%<%Y%m%d%H%M%S>.org.gpg"
+             (file+head "gpg/%<%Y%m%d%H%M%S>.org.gpg"
                         "#+title: ${title}\n#+filetags: :area:\n\n"
                         )
              :immediate-finish t
