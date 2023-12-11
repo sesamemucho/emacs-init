@@ -91,8 +91,8 @@ This is for values that should be set before anything else.
 **** First, add a function to determine if we're running on Android (under the termux app)
 
 #+begin_src emacs-lisp
-  (defun ssmm/is-termux-p ()
-    (getenv "TERMUX_VERSION")
+  (defun ssmm/is-android-p ()
+    (string-equal system-type "android")
     )
 #+end_src
 
@@ -145,7 +145,7 @@ This is for values that should be set before anything else.
     "The font to use for variable-pitch (document) text.")
 
   (cond
-   ((ssmm/is-termux-p)
+   ((string-equal system-type "android")
     ;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
     (set-face-attribute 'default nil :font my/fixed-width-font :weight 'light :height 150)
     (set-face-attribute 'fixed-pitch nil :font my/fixed-width-font :weight 'light :height 130)
@@ -255,7 +255,7 @@ This code should be executed before any customization files are loaded.
 #+end_src
 *** Disable mouse
 #+begin_src emacs-lisp
-  (unless (ssmm/is-termux-p)
+  (unless (ssmm/is-android-p)
     (use-package disable-mouse
       :config
       (global-disable-mouse-mode)
@@ -876,7 +876,7 @@ git.
   ;; A default name to give context to some of the elisp farther down.
   ;; It generally gets changed in a system or user file.
 
-  (if (ssmm/is-termux-p)
+  (if (ssmm/is-android-p)
       (setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
     )
@@ -1065,7 +1065,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
 **** org-roam
 #+begin_src emacs-lisp
   ;;       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
-  (when (ssmm/is-termux-p)
+  (when (ssmm/is-android-p)
     (use-package emacsql-sqlite3
       :straight (:host github :repo "cireu/emacsql-sqlite3")
       )
@@ -1120,7 +1120,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-db-location (expand-file-name "~/.org-roam.db"))
     ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
   (cond
-   ((ssmm/is-termux-p)
+   ((ssmm/is-android-p)
     (setq org-roam-database-connector 'sqlite3)
     (setq org-roam-file-exclude-regexp "gpg$")
     )
@@ -1573,7 +1573,7 @@ Not trying this for now because agenda wants to open all its files for search.
 **** Org roam UI
 Can't get 'pdf-tools-install' to work under termux
 #+begin_src emacs-lisp
-  (unless (ssmm/is-termux-p)
+  (unless (ssmm/is-android-p)
     (use-package org-roam-ui
       :ensure t
       :after org-roam
@@ -1779,7 +1779,7 @@ annotation of documents (PDF, EPUB etc.) within Org-mode.
 TODO: Is there some problem with pdf-tools (on all
 devices)? It is commented-out [2023-03-20 Mon]
 #+begin_src emacs-lisp
-  ;; (unless (ssmm/is-termux-p)
+  ;; (unless (ssmm/is-android-p)
   ;;   (use-package org-noter
   ;;     :after org
   ;;     :config
