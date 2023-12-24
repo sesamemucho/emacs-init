@@ -1072,11 +1072,11 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
 **** org-roam
 #+begin_src emacs-lisp
   ;;       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
-  ;; (when (ssmm/is-android-p)
-  ;;   (use-package emacsql-sqlite3
-  ;;     ;;:straight (:host github :repo "cireu/emacsql-sqlite3")
-  ;;     )
-  ;;   )
+  (when (ssmm/is-android-p)
+    (use-package emacsql-sqlite-builtin
+      ;;:straight (:host github :repo "cireu/emacsql-sqlite3")
+      )
+    )
 #+end_src
 #+begin_src emacs-lisp
   (defun ssmm/days-back-to-last-friday ()
