@@ -646,7 +646,7 @@ You should add registers here for the files you edit most often.
   (eval-and-compile
     (mapc #'(lambda (entry)
               (define-prefix-command (cdr entry))
-              (bind-key (car entry) (cdr entry)))
+              (bind-key (car entry) (cd<r entry)))
           '(("C-,"   . my-ctrl-comma-map)
             ("<C-m>" . my-ctrl-m-map)
 
@@ -951,6 +951,7 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
   ;; Hide emphasis markers on formatted text
   (setq org-hide-emphasis-markers t)
 
+  (unless (ssmm/is-android-p)
   ;; Resize Org headings
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
@@ -974,7 +975,7 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
   (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-
+)
   ;;; Centering Org Documents --------------------------------
 
   ;; Install visual-fill-column
@@ -1004,6 +1005,7 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
     (org-show-children))
 
   (defun my/org-present-start ()
+    (unless (ssmm/is-android-p)
     ;; Tweak font sizes
     (setq-local face-remapping-alist '((default (:height 1.5) variable-pitch)
                                        (header-line (:height 4.0) variable-pitch)
@@ -1012,7 +1014,7 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
                                        (org-verbatim (:height 1.55) org-verbatim)
                                        (org-block (:height 1.25) org-block)
                                        (org-block-begin-line (:height 0.7) org-block)))
-
+    )
     ;; Set a blank header line string to create blank space at the top
     (setq header-line-format " ")
 
@@ -1024,9 +1026,10 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
     (visual-line-mode 1))
 
   (defun my/org-present-end ()
+    (unless (ssmm/is-android-p)
     ;; Reset font customizations
     (setq-local face-remapping-alist '((default variable-pitch default)))
-
+    )
     ;; Clear the header line string so that it isn't displayed
     (setq header-line-format nil)
 
