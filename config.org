@@ -167,6 +167,7 @@ This is for values that should be set before anything else.
 
 *** Set up straight
 #+begin_src emacs-lisp
+  (unless (string-equal system-type "android")
   (defvar bootstrap-version)
   (unless (boundp 'straight-use-package)
     (let ((bootstrap-file
@@ -181,6 +182,7 @@ This is for values that should be set before anything else.
           (eval-print-last-sexp)))
       (load bootstrap-file nil 'nomessage))
     (straight-use-package 'use-package))
+  )
 #+end_src
 
 *** Basics
@@ -1068,7 +1070,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
   ;;       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
   (when (ssmm/is-android-p)
     (use-package emacsql-sqlite3
-      :straight (:host github :repo "cireu/emacsql-sqlite3")
+      ;;:straight (:host github :repo "cireu/emacsql-sqlite3")
       )
     )
 #+end_src
@@ -1390,12 +1392,19 @@ Images
 To capture we use Pandoc and org-pandoc-import
 
 #+begin_src emacs-lisp
+  (if (string-equal system-type "android")
+      (progn
+  (use-package org-pandoc-import
+    :bind (("C-c n o" . org-pandoc-import-as-org)))
+  )
+    (progn
   (use-package org-pandoc-import
     :straight (:host github
                      :repo "tecosaur/org-pandoc-import"
                      :files ("*.el" "filters" "preprocessors"))
 
     :bind (("C-c n o" . org-pandoc-import-as-org)))
+))
 #+end_src
 
 Pandoc can convert almost any text format to org-mode
