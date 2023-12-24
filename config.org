@@ -145,7 +145,7 @@ This is for values that should be set before anything else.
     "The font to use for variable-pitch (document) text.")
 
   (cond
-   ((string-equal system-type "android")
+   ((ssmm/is-android-p)
     ;;(setq touch-screen-display-keyboard t)
     ;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
     ;; (set-face-attribute 'default nil :font my/fixed-width-font :weight 'light :height 150)
@@ -167,7 +167,7 @@ This is for values that should be set before anything else.
 
 *** Set up straight
 #+begin_src emacs-lisp
-  (unless (string-equal system-type "android")
+  (unless (ssmm/is-android-p)
   (defvar bootstrap-version)
   (unless (boundp 'straight-use-package)
     (let ((bootstrap-file
@@ -1396,14 +1396,14 @@ Images
 To capture we use Pandoc and org-pandoc-import
 
 #+begin_src emacs-lisp
-  (unless (string-equal system-type "android")
-  (use-package org-pandoc-import
-    :straight (:host github
-                     :repo "tecosaur/org-pandoc-import"
-                     :files ("*.el" "filters" "preprocessors"))
+  (unless (ssmm/is-android-p)
+    (use-package org-pandoc-import
+      :straight (:host github
+                       :repo "tecosaur/org-pandoc-import"
+                       :files ("*.el" "filters" "preprocessors"))
 
-    :bind (("C-c n o" . org-pandoc-import-as-org)))
-)
+      :bind (("C-c n o" . org-pandoc-import-as-org)))
+  )
 #+end_src
 
 Pandoc can convert almost any text format to org-mode
