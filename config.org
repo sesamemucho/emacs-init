@@ -1396,19 +1396,14 @@ Images
 To capture we use Pandoc and org-pandoc-import
 
 #+begin_src emacs-lisp
-  (if (string-equal system-type "android")
-      (progn
-  (use-package org-pandoc-import
-    :bind (("C-c n o" . org-pandoc-import-as-org)))
-  )
-    (progn
+  (unless (string-equal system-type "android")
   (use-package org-pandoc-import
     :straight (:host github
                      :repo "tecosaur/org-pandoc-import"
                      :files ("*.el" "filters" "preprocessors"))
 
     :bind (("C-c n o" . org-pandoc-import-as-org)))
-))
+)
 #+end_src
 
 Pandoc can convert almost any text format to org-mode
