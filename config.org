@@ -646,7 +646,7 @@ You should add registers here for the files you edit most often.
   (eval-and-compile
     (mapc #'(lambda (entry)
               (define-prefix-command (cdr entry))
-              (bind-key (car entry) (cd<r entry)))
+              (bind-key (car entry) (cdr entry)))
           '(("C-,"   . my-ctrl-comma-map)
             ("<C-m>" . my-ctrl-m-map)
 
