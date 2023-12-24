@@ -146,7 +146,7 @@ This is for values that should be set before anything else.
 
   (cond
    ((string-equal system-type "android")
-    (setq touch-screen-display-keyboard t)
+    ;;(setq touch-screen-display-keyboard t)
     ;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
     ;; (set-face-attribute 'default nil :font my/fixed-width-font :weight 'light :height 150)
     ;; (set-face-attribute 'fixed-pitch nil :font my/fixed-width-font :weight 'light :height 130)
@@ -880,7 +880,8 @@ git.
   ;; It generally gets changed in a system or user file.
 
   (if (ssmm/is-android-p)
-      (setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
+      ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
+      (setq ssmm-orgfiles-dir "/sdcard/org/")
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
     )
   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
@@ -1071,11 +1072,11 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
 **** org-roam
 #+begin_src emacs-lisp
   ;;       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
-  (when (ssmm/is-android-p)
-    (use-package emacsql-sqlite3
-      ;;:straight (:host github :repo "cireu/emacsql-sqlite3")
-      )
-    )
+  ;; (when (ssmm/is-android-p)
+  ;;   (use-package emacsql-sqlite3
+  ;;     ;;:straight (:host github :repo "cireu/emacsql-sqlite3")
+  ;;     )
+  ;;   )
 #+end_src
 #+begin_src emacs-lisp
   (defun ssmm/days-back-to-last-friday ()
@@ -1123,11 +1124,11 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-v2-ack t)
     (setq org-roam-directory ssmm-org-roam-dir)
     (setq org-roam-file-extensions '("org"))
-    (setq org-roam-db-location (expand-file-name "~/.org-roam.db"))
+    (setq org-roam-db-location (expand-file-name "~//.org-roam.db"))
     ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
   (cond
    ((ssmm/is-android-p)
-    (setq org-roam-database-connector 'sqlite3)
+    ;(setq org-roam-database-connector 'sqlite3)
     (setq org-roam-file-exclude-regexp "gpg$")
     )
    ((string-equal system-type "gnu/linux")
