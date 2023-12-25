@@ -884,7 +884,7 @@ git.
 
   (if (ssmm/is-android-p)
       ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
-      (setq ssmm-orgfiles-dir "/sdcard/org/")
+      (setq ssmm-orgfiles-dir "/sdcard/Documents/org/")
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
     )
   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
