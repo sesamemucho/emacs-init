@@ -171,21 +171,21 @@ This is for values that should be set before anything else.
 *** Set up straight
 #+begin_src emacs-lisp
   (unless (ssmm/is-android-p)
-  (defvar bootstrap-version)
-  (unless (boundp 'straight-use-package)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage))
-    (straight-use-package 'use-package))
-  )
+    (defvar bootstrap-version)
+    (unless (boundp 'straight-use-package)
+      (let ((bootstrap-file
+             (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+            (bootstrap-version 5))
+        (unless (file-exists-p bootstrap-file)
+          (with-current-buffer
+              (url-retrieve-synchronously
+               "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+               'silent 'inhibit-cookies)
+            (goto-char (point-max))
+            (eval-print-last-sexp)))
+        (load bootstrap-file nil 'nomessage))
+      (straight-use-package 'use-package))
+    )
 #+end_src
 
 *** Basics
@@ -883,7 +883,7 @@ git.
   ;; It generally gets changed in a system or user file.
 
   (if (ssmm/is-android-p)
-      ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
+                                          ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
       (setq ssmm-orgfiles-dir "/sdcard/Documents/org/")
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/"))
     )
@@ -957,31 +957,31 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
   (setq org-hide-emphasis-markers t)
 
   (unless (ssmm/is-android-p)
-  ;; Resize Org headings
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font my/variable-width-font :weight 'medium :height (cdr face)))
+    ;; Resize Org headings
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil :font my/variable-width-font :weight 'medium :height (cdr face)))
 
-  ;; Make the document title a bit bigger
-  (set-face-attribute 'org-document-title nil :font my/variable-width-font :weight 'bold :height 1.3)
+    ;; Make the document title a bit bigger
+    (set-face-attribute 'org-document-title nil :font my/variable-width-font :weight 'bold :height 1.3)
 
-  ;; Make sure certain org faces use the fixed-pitch face when variable-pitch-mode is on
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-)
-  ;;; Centering Org Documents --------------------------------
+    ;; Make sure certain org faces use the fixed-pitch face when variable-pitch-mode is on
+    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+    )
+    ;;; Centering Org Documents --------------------------------
 
   ;; Install visual-fill-column
   (use-package visual-fill-column
@@ -1011,15 +1011,15 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
 
   (defun my/org-present-start ()
     (unless (ssmm/is-android-p)
-    ;; Tweak font sizes
-    (setq-local face-remapping-alist '((default (:height 1.5) variable-pitch)
-                                       (header-line (:height 4.0) variable-pitch)
-                                       (org-document-title (:height 1.75) org-document-title)
-                                       (org-code (:height 1.55) org-code)
-                                       (org-verbatim (:height 1.55) org-verbatim)
-                                       (org-block (:height 1.25) org-block)
-                                       (org-block-begin-line (:height 0.7) org-block)))
-    )
+      ;; Tweak font sizes
+      (setq-local face-remapping-alist '((default (:height 1.5) variable-pitch)
+                                         (header-line (:height 4.0) variable-pitch)
+                                         (org-document-title (:height 1.75) org-document-title)
+                                         (org-code (:height 1.55) org-code)
+                                         (org-verbatim (:height 1.55) org-verbatim)
+                                         (org-block (:height 1.25) org-block)
+                                         (org-block-begin-line (:height 0.7) org-block)))
+      )
     ;; Set a blank header line string to create blank space at the top
     (setq header-line-format " ")
 
@@ -1032,9 +1032,9 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
 
   (defun my/org-present-end ()
     (unless (ssmm/is-android-p)
-    ;; Reset font customizations
-    (setq-local face-remapping-alist '((default variable-pitch default)))
-    )
+      ;; Reset font customizations
+      (setq-local face-remapping-alist '((default variable-pitch default)))
+      )
     ;; Clear the header line string so that it isn't displayed
     (setq header-line-format nil)
 
@@ -1130,17 +1130,17 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-file-extensions '("org"))
     (setq org-roam-db-location (expand-file-name "~//.org-roam.db"))
     ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
-  (cond
-   ((ssmm/is-android-p)
-    ;(setq org-roam-database-connector 'sqlite3)
-    (setq org-roam-file-exclude-regexp "gpg$")
-    )
-   ((string-equal system-type "gnu/linux")
+    (cond
+     ((ssmm/is-android-p)
+                                          ;(setq org-roam-database-connector 'sqlite3)
+      (setq org-roam-file-exclude-regexp "gpg$")
+      )
+     ((string-equal system-type "gnu/linux")
       (setq org-roam-file-exclude-regexp nil)
-    )
-   ((string-equal system-type "cygwin")
-    (setq org-roam-file-exclude-regexp "gpg$")
-   ))
+      )
+     ((string-equal system-type "cygwin")
+      (setq org-roam-file-exclude-regexp "gpg$")
+      ))
 
     ;;(org-roam-setup)
 
@@ -1865,9 +1865,9 @@ Common org tags.
 *** Notifications
 #+begin_src emacs-lisp
   (use-package alert
-  :ensure t
-  :after org
-  )
+    :ensure t
+    :after org
+    )
 
   (defun dc/alert-android-notifications-notify (info)
     "Send notifications using `android-notifications-notify'.
@@ -1912,6 +1912,16 @@ Common org tags.
 
     ;; Enable org-alert
     (org-alert-enable)
+    )
+#+end_src
+*** Calendar
+#+begin_src emacs-lisp
+  (use-package calfw
+    :ensure t
+    )
+  (use-package calfw-org
+    :ensure t
+    :after calfw
     )
 #+end_src
 *** habits
