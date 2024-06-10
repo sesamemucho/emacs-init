@@ -1923,6 +1923,12 @@ Common org tags.
     :ensure t
     :after calfw
     )
+  (use-package org-gcal
+    :ensure t
+    )
+(setq org-gcal-client-id "your-id-foo.apps.googleusercontent.com"
+      org-gcal-client-secret "your-secret"
+      org-gcal-fetch-file-alist '(("sesamemucho@gmail.com" .  "~/org/schedule.org")))
 #+end_src
 *** habits
 
@@ -2885,59 +2891,77 @@ file using the `org-babel-lob-ingest' function.
 #+end_src
 ** Python mode
 #+begin_src emacs-lisp
-  (use-package sphinx-doc
-    :defer t)
+    (use-package sphinx-doc
+      :defer t)
 
-  (use-package python-mode
-    ;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-    ;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
-    :preface
+    (use-package python-mode
+      ;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+      ;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+      :preface
 
-    (defun my-python-mode-hook ()
-      (setq indent-tabs-mode nil)
-      (setq py-indent-offset 4)
-      (setq whitespace-style '(face trailing lines space-before-tab indentation space-after-tab))
-      (whitespace-mode t)
-      (pyenv-mode)
+      (defun my-python-mode-hook ()
+        (setq indent-tabs-mode nil)
+        (setq py-indent-offset 4)
+        (setq whitespace-style '(face trailing lines space-before-tab indentation space-after-tab))
+        (whitespace-mode t)
+        (pyenv-mode)
+        )
+
+      :hook (python-mode (my-python-mode-hook . blacken-mode))
+      ;; make sure we have lsp-imenu everywhere we have LSP
+                                            ;  (require 'lsp-imenu)
+                                            ;  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
+      ;; get lsp-python-enable defined
+      ;; NB: use either projectile-project-root or ffip-get-project-root-directory
+      ;;     or any other function that can be used to find the root directory of a project
+                                            ;  (lsp-define-stdio-client lsp-python "python"
+                                            ;                           #'projectile-project-root
+                                            ;                           '("pyls"))
+
+      ;; make sure this is activated when python-mode is activated
+      ;; lsp-python-enable is created by macro above
+                                            ;  (add-hook 'python-mode-hook
+                                            ;            (lambda ()
+                                            ;              (lsp-python-enable)))
+      :after sphinx-doc
       )
 
-    :hook (python-mode (my-python-mode-hook . blacken-mode))
-    ;; make sure we have lsp-imenu everywhere we have LSP
-                                          ;  (require 'lsp-imenu)
-                                          ;  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
-    ;; get lsp-python-enable defined
-    ;; NB: use either projectile-project-root or ffip-get-project-root-directory
-    ;;     or any other function that can be used to find the root directory of a project
-                                          ;  (lsp-define-stdio-client lsp-python "python"
-                                          ;                           #'projectile-project-root
-                                          ;                           '("pyls"))
-
-    ;; make sure this is activated when python-mode is activated
-    ;; lsp-python-enable is created by macro above
-                                          ;  (add-hook 'python-mode-hook
-                                          ;            (lambda ()
-                                          ;              (lsp-python-enable)))
-    :after sphinx-doc
-    )
-
-  (use-package elpy
+  (use-package treesit-auto
     :ensure t
-    :init
-    (advice-add 'python-mode :before 'elpy-enable)
-    ;; (add-hook 'python-mode-hook 'jedi:setup)
-    ;; (setq jedi:complete-on-dot t) ; optional
+    :custom
+    (treesit-auto-install 'prompt)
     :config
-    (setq elpy-rpc-python-command "/usr/bin/python3")
-    (put 'pyvenv-activate 'safe-local-variable #'stringp)
-    )
+    (treesit-auto-add-to-auto-mode-alist 'all)
+    (global-treesit-auto-mode))
+
+(setq major-mode-remap-alist
+      '((python-mode . python-ts-mode)))
+
+  (use-package eglot
+    :hook (prog-mode . eglot-ensure))
+
+    ;; (use-package elpy
+    ;;   :ensure t
+    ;;   :init
+    ;;   (elpy-enable)
+    ;;   ;; (advice-add 'python-mode :before 'elpy-enable)
+    ;;   ;; ;; (add-hook 'python-mode-hook 'jedi:setup)
+    ;;   ;; ;; (setq jedi:complete-on-dot t) ; optional
+    ;;   ;; :config
+    ;;   ;; (setq elpy-rpc-python-command "/usr/bin/python3")
+    ;;   ;; (put 'pyvenv-activate 'safe-local-variable #'stringp)
+    ;;   )
 #+end_src
 
 #+begin_src emacs-lisp
-  ;; (use-package pyvenv
-  ;; :defer t
-  ;; :config
-  ;;   (add-hook 'pyvenv-post-activate-hooks 'pyvenv-restart-python)
-  ;; )
+    (use-package pyvenv
+    :ensure t
+    :defer t
+    :init
+    (setenv "WORKON_HOME" "~/.pyenv/versions")
+    :config
+      (add-hook 'pyvenv-post-activate-hooks 'pyvenv-restart-python)
+    )
 #+end_src
 #+begin_src emacs-lisp
                                           ;    (with-package elpy
