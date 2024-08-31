@@ -165,6 +165,8 @@ This is for values that should be set before anything else.
     (w32-find-non-USB-fonts)
     (set-frame-font "Consolas-14" t t )
     (set-fontset-font t 'symbol "Segoe UI Symbol"))
+   (setq my/fixed-width-font "Consolas-14")
+   (setq my/variable-width-font "Consolas-14")
    )
 #+end_src
 
@@ -882,11 +884,11 @@ git.
   ;; A default name to give context to some of the elisp farther down.
   ;; It generally gets changed in a system or user file.
 
-  (if (ssmm/is-android-p)
-                                          ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
-      (setq ssmm-orgfiles-dir "/sdcard/Documents/org/roam/")
+  ;; (if (ssmm/is-android-p)
+  ;;                                         ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
+  ;;     (setq ssmm-orgfiles-dir "/sdcard/Documents/org/roam/")
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/roam"))
-    )
+;;     )
 
   (setq diary-file (concat ssmm-orgfiles-dir "diary"))
   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
@@ -1134,7 +1136,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
     (cond
      ((ssmm/is-android-p)
-                                          ;(setq org-roam-database-connector 'sqlite3)
+      (setq org-roam-database-connector 'sqlite-builtin)
       (setq org-roam-file-exclude-regexp "gpg$")
       )
      ((string-equal system-type "gnu/linux")
@@ -1403,7 +1405,7 @@ Vulpea: [[https://github.com/d12frosted/vulpea]]
     :ensure t
     :commands vulpea-buffer-prop-get
     ;; hook into org-roam-db-autosync-mode you wish to enable
-    ;; persistence of meta values (see respective section in README to
+    ;; persisttence of meta values (see respective section in README to
     ;; find out what meta means)
     :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
 #+end_src
