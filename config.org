@@ -91,9 +91,9 @@ This is for values that should be set before anything else.
 **** First, add a function to determine if we're running on Android (under the termux app)
 
 #+begin_src emacs-lisp
-  (defun ssmm/is-android-p ()
-    (string-equal system-type "android")
-    )
+  ;; (defun ssmm/is-android-p ()
+  ;;   (string-equal system-type "android")
+  ;;   )
 #+end_src
 
 **** Set configuration variables for everything.
@@ -172,22 +172,22 @@ This is for values that should be set before anything else.
 
 *** Set up straight
 #+begin_src emacs-lisp
-  (unless (ssmm/is-android-p)
-    (defvar bootstrap-version)
-    (unless (boundp 'straight-use-package)
-      (let ((bootstrap-file
-             (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-            (bootstrap-version 5))
-        (unless (file-exists-p bootstrap-file)
-          (with-current-buffer
-              (url-retrieve-synchronously
-               "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-               'silent 'inhibit-cookies)
-            (goto-char (point-max))
-            (eval-print-last-sexp)))
-        (load bootstrap-file nil 'nomessage))
-      (straight-use-package 'use-package))
-    )
+  ;; (unless (ssmm/is-android-p)
+  ;;   (defvar bootstrap-version)
+  ;;   (unless (boundp 'straight-use-package)
+  ;;     (let ((bootstrap-file
+  ;;            (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+  ;;           (bootstrap-version 5))
+  ;;       (unless (file-exists-p bootstrap-file)
+  ;;         (with-current-buffer
+  ;;             (url-retrieve-synchronously
+  ;;              "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+  ;;              'silent 'inhibit-cookies)
+  ;;           (goto-char (point-max))
+  ;;           (eval-print-last-sexp)))
+  ;;       (load bootstrap-file nil 'nomessage))
+  ;;     (straight-use-package 'use-package))
+  ;;   )
 #+end_src
 
 *** Basics
@@ -2608,25 +2608,25 @@ From
 From https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/:
 With
 #+begin_src emacs-lisp
-  (use-package org-capture
-    :ensure nil
-    :demand
-    :after org
-    :preface
-    (setq my/org-contacts-template "* %(org-contacts-template-name)
-  :PROPERTIES:
-  :ADDRESS: %^{14217 Tyler Rd, Valley Center, CA 92082, USA}
-  :BIRTHDAY: %^{yyyy-mm-dd}
-  :EMAIL: %(org-contacts-template-email)
-  :NOTE: %^{NOTE}
-  :END:")
-    :config
-    (add-to-list 'org-capture-templates
-                 `("C" "Contact" entry (file+headline ssmm-org-contacts-file "Friends"),
-                   my/org-contacts-template
-                   :empty-lines 1))
+  ;; (use-package org-capture
+  ;;   :ensure t
+  ;;   :demand
+  ;;   :after org
+  ;;   :preface
+  ;;   (setq my/org-contacts-template "* %(org-contacts-template-name)
+  ;; :PROPERTIES:
+  ;; :ADDRESS: %^{14217 Tyler Rd, Valley Center, CA 92082, USA}
+  ;; :BIRTHDAY: %^{yyyy-mm-dd}
+  ;; :EMAIL: %(org-contacts-template-email)
+  ;; :NOTE: %^{NOTE}
+  ;; :END:")
+  ;;   :config
+  ;;   (add-to-list 'org-capture-templates
+  ;;                `("C" "Contact" entry (file+headline ssmm-org-contacts-file "Friends"),
+  ;;                  my/org-contacts-template
+  ;;                  :empty-lines 1))
 
-    )
+  ;;   )
 
 #+end_src
 *** Org-Mode Hook -- Keybindings
@@ -2939,8 +2939,8 @@ file using the `org-babel-lob-ingest' function.
 (setq major-mode-remap-alist
       '((python-mode . python-ts-mode)))
 
-  (use-package eglot
-    :hook (prog-mode . eglot-ensure))
+  ;(use-package eglot
+  ;  :hook (prog-mode . eglot-ensure))
 
     ;; (use-package elpy
     ;;   :ensure t
@@ -3209,6 +3209,13 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 
 #+end_src
 
+** Chatgpt
+#+begin_src emacs-lisp
+(use-package openai
+  :straight (openai :type git :host github :repo "emacs-openai/openai"))
+(use-package chatgpt
+  :straight (chatgpt :type git :host github :repo "emacs-openai/chatgpt"))
+#+end_src
 ** Sonic Pi
 #+begin_src emacs-lisp
   (use-package sonic-pi

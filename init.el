@@ -38,12 +38,33 @@
 ;; (setq ssmm/cfg-file (concat ssmm/cfg-dir "config"))
 
 ;; (setq package-user-dir (concat ssmm/cfg-dir "elpa"))
+  (defun ssmm/is-android-p ()
+    (string-equal system-type "android")
+    )
+  (unless (ssmm/is-android-p)
+    (defvar bootstrap-version)
+    (unless (boundp 'straight-use-package)
+      (let ((bootstrap-file
+             (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+            (bootstrap-version 5))
+        (unless (file-exists-p bootstrap-file)
+          (with-current-buffer
+              (url-retrieve-synchronously
+               "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+               'silent 'inhibit-cookies)
+            (goto-char (point-max))
+            (eval-print-last-sexp)))
+        (load bootstrap-file nil 'nomessage))
+      (straight-use-package 'use-package))
+    (setq straight-use-package-by-default t)
+    )
 (require 'package)
 ;;(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("elpa"   . "https://elpa.gnu.org/packages/"))
 ;; (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '( "jcs-elpa" . "https://jcs-emacs.github.io/jcs-elpa/packages/") t)
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -62,7 +83,11 @@
 ;; (require 'use-package)
 ;; (setq use-package-always-ensure nil)
 ;; ;;(load-library 'org)
-(use-package org :ensure :pin gnu)
+;;; remove references to older org in path
+;(setq load-path (cl-remove-if (lambda (x) (string-match-p "org$" x)) load-path))
+(use-package org
+  :ensure t
+  :pin elpa)
 ;;  "The base name for the .org file to use for Emacs initialization.")
 (setq ssmm/cfg-dir user-emacs-directory)
 (setq ssmm/cfg-file (concat ssmm/cfg-dir "config"))
