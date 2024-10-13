@@ -91,9 +91,9 @@ This is for values that should be set before anything else.
 **** First, add a function to determine if we're running on Android (under the termux app)
 
 #+begin_src emacs-lisp
-  ;; (defun ssmm/is-android-p ()
-  ;;   (string-equal system-type "android")
-  ;;   )
+  (defun ssmm/is-android-p ()
+    (string-equal system-type "android")
+    )
 #+end_src
 
 **** Set configuration variables for everything.
@@ -172,22 +172,22 @@ This is for values that should be set before anything else.
 
 *** Set up straight
 #+begin_src emacs-lisp
-  ;; (unless (ssmm/is-android-p)
-  ;;   (defvar bootstrap-version)
-  ;;   (unless (boundp 'straight-use-package)
-  ;;     (let ((bootstrap-file
-  ;;            (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-  ;;           (bootstrap-version 5))
-  ;;       (unless (file-exists-p bootstrap-file)
-  ;;         (with-current-buffer
-  ;;             (url-retrieve-synchronously
-  ;;              "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-  ;;              'silent 'inhibit-cookies)
-  ;;           (goto-char (point-max))
-  ;;           (eval-print-last-sexp)))
-  ;;       (load bootstrap-file nil 'nomessage))
-  ;;     (straight-use-package 'use-package))
-  ;;   )
+  (unless (ssmm/is-android-p)
+    (defvar bootstrap-version)
+    (unless (boundp 'straight-use-package)
+      (let ((bootstrap-file
+             (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+            (bootstrap-version 5))
+        (unless (file-exists-p bootstrap-file)
+          (with-current-buffer
+              (url-retrieve-synchronously
+               "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+               'silent 'inhibit-cookies)
+            (goto-char (point-max))
+            (eval-print-last-sexp)))
+        (load bootstrap-file nil 'nomessage))
+      (straight-use-package 'use-package))
+    )
 #+end_src
 
 *** Basics
@@ -884,11 +884,11 @@ git.
   ;; A default name to give context to some of the elisp farther down.
   ;; It generally gets changed in a system or user file.
 
-  ;; (if (ssmm/is-android-p)
-  ;;                                         ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
-  ;;     (setq ssmm-orgfiles-dir "/sdcard/Documents/org/roam/")
+  (if (ssmm/is-android-p)
+                                          ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
+      (setq ssmm-orgfiles-dir "//storage/emulated/0/Documents/org/roam/")
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/roam"))
-;;     )
+    )
 
   (setq diary-file (concat ssmm-orgfiles-dir "diary"))
   (defvar ssmm-org-main-file (concat ssmm-orgfiles-dir "organizer.org") "Path to main org-mode file")
@@ -1136,7 +1136,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
     (cond
      ((ssmm/is-android-p)
-      (setq org-roam-database-connector 'sqlite-builtin)
+      ;(setq org-roam-database-connector 'sqlite-builtin)
       (setq org-roam-file-exclude-regexp "gpg$")
       )
      ((string-equal system-type "gnu/linux")
@@ -1405,7 +1405,7 @@ Vulpea: [[https://github.com/d12frosted/vulpea]]
     :ensure t
     :commands vulpea-buffer-prop-get
     ;; hook into org-roam-db-autosync-mode you wish to enable
-    ;; persisttence of meta values (see respective section in README to
+    ;; persistence of meta values (see respective section in README to
     ;; find out what meta means)
     :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
 #+end_src
