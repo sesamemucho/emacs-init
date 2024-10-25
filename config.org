@@ -3211,10 +3211,16 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 
 ** Chatgpt
 #+begin_src emacs-lisp
-(use-package openai
-  :straight (openai :type git :host github :repo "emacs-openai/openai"))
-(use-package chatgpt
-  :straight (chatgpt :type git :host github :repo "emacs-openai/chatgpt"))
+  (if (ssmm/is-android-p)
+      (prog
+       (use-package openai)
+       (use-package chatgpt)
+       )
+    (use-package openai
+      :straight (openai :type git :host github :repo "emacs-openai/openai"))
+    (use-package chatgpt
+      :straight (chatgpt :type git :host github :repo "emacs-openai/chatgpt"))
+    )
 #+end_src
 ** Sonic Pi
 #+begin_src emacs-lisp
