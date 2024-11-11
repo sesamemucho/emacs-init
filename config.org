@@ -1763,7 +1763,7 @@ brew install glib
   ;;   :hook (org-mode . org-pdftools-setup-link))
 #+end_src
 
-**** Org-journal
+**** org-journal
 
 [[https://github.com/bastibe/org-journal][Org-journal]] is a more powerful alternative to the simple function org-roam-today. It provides better journaling capabilities, and a nice calendar interface to see all dated entries.
 
@@ -1776,11 +1776,10 @@ brew install glib
   (org-journal-file-format "%Y-%m-%d.org")
   (org-journal-dir (concat ssmm-orgfiles-dir "/reference/journal"))
   (org-journal-date-format "%A, %d %B %Y"))
-#+end_export
+#+end_src
 
-**** Org-download
-
-[[https://github.com/abo-abo/org-download][Org-download]] lets you screenshot and yank images from the web into your notes:
+**** org-download
+[[Org-download]] lets you screenshot and yank images from the web into your notes:
 
 #+begin_src emacs-lisp
   (use-package org-download
@@ -1789,6 +1788,10 @@ brew install glib
     (:map org-mode-map
           (("s-Y" . org-download-screenshot)
            ("s-y" . org-download-yank))))
+#+end_src
+**** Org-download
+
+[[https://github.com/abo-abo/org-download][#+begin_src emacs-lisp
 #+end_src
 
 **** mathpix.el
