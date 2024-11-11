@@ -1080,9 +1080,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
 #+begin_src emacs-lisp
   ;;       (add-to-list 'load-path "~/Projects/readonly-repos/org-roam")
   (when (ssmm/is-android-p)
-    (use-package emacsql-sqlite-builtin
-      ;;:straight (:host github :repo "cireu/emacsql-sqlite3")
-      )
+    (use-package emacsql)
     )
 #+end_src
 #+begin_src emacs-lisp
@@ -1769,14 +1767,14 @@ brew install glib
 
 [[https://github.com/bastibe/org-journal][Org-journal]] is a more powerful alternative to the simple function org-roam-today. It provides better journaling capabilities, and a nice calendar interface to see all dated entries.
 
-#+begin_export emacs-lisp
+#+begin_src emacs-lisp
 (use-package org-journal
   :bind
   ("C-c n j" . org-journal-new-entry)
   :custom
   (org-journal-date-prefix "#+TITLE: ")
   (org-journal-file-format "%Y-%m-%d.org")
-  (org-journal-dir (concat ssmm-orgfiles-dir "reference/"))
+  (org-journal-dir (concat ssmm-orgfiles-dir "/reference/journal"))
   (org-journal-date-format "%A, %d %B %Y"))
 #+end_export
 
@@ -3003,6 +3001,7 @@ file using the `org-babel-lob-ingest' function.
 #+end_src
 ** Projectile
 #+begin_src emacs-lisp
+  (unless (ssmm/is-android-p)
   (use-package projectile
     :init
     (projectile-mode +1)
@@ -3012,6 +3011,7 @@ file using the `org-babel-lob-ingest' function.
                 ("s-p" . projectile-command-map)
                 )
     )
+  )
 #+end_src
 ** undo-tree
 #+begin_src emacs-lisp
