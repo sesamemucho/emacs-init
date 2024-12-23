@@ -25,3 +25,4 @@ elpy
 /mastodon.plstore
 /persist/
 /request/
+.mc-lists.el
