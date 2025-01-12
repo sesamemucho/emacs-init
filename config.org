@@ -2978,7 +2978,7 @@ file using the `org-babel-lob-ingest' function.
     (use-package mastodon
       :ensure t
       :config
-      (setq mastodon-instance-url "https://emacs.ch"
+      (setq mastodon-instance-url "https://mastodon.social"
             mastodon-active-user "sesamemucho")
       ))
 #+end_src
