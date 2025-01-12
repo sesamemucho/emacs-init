@@ -3211,7 +3211,8 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
   ;;     #'lsp-ui-peek-find-references))
 
 #+end_src
-** Sonic Pi
+** Media
+*** Sonic Pi
 #+begin_src emacs-lisp
   (use-package sonic-pi
     :custom
@@ -3234,6 +3235,19 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
     (define-key sonic-pi-mode-map (kbd "C-c p b") 'sonic-pi-stop-all)
     (define-key sonic-pi-mode-map (kbd "C-c p c") 'sonic-pi-send-live-loop)
     )
+#+end_src
+*** mpv
+#+begin_src emacs-lisp
+      (use-package mpv
+        :config
+        (org-add-link-type "mpv" #'mpv-play)
+        (defun org-mpv-complete-link (&optional arg)
+          (replace-regexp-in-string
+           "file:" "mpv:"
+           (org-file-complete-link arg)
+           t t))
+        (add-hook 'org-open-at-point-functions #'mpv-seek-to-position-at-point)
+        )
 #+end_src
 ** Load user files
 When you want to make an sk-load to load prelude stuff at the
