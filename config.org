@@ -851,6 +851,12 @@ git.
 
 
 #+end_src
+** Mediawiki
+#+begin_src emacs-lisp
+  (use-package mediawiki
+    :ensure t
+    )
+#+end_src
 ** Org mode
 *** Overall org-mode stuff
 #+begin_src emacs-lisp
@@ -999,8 +1005,8 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
 # Also from https://systemcrafters.net/emacs-tips/presentations-with-org-present/
 #+begin_src emacs-lisp
   ;; Install org-present if needed
-  (unless (package-installed-p 'org-present)
-    (package-install 'org-present))
+  (use-package org-present
+    :ensure t)
 
   (defun my/org-present-prepare-slide (buffer-name heading)
     ;; Show only top-level headlines
@@ -2000,7 +2006,48 @@ TODOs, called “habits”.»
 *** Blogging
 Still thinking
 #+begin_src emacs-lisp
-  (use-package ox-hugo)
+    (use-package ox-hugo
+      :ensure t   ;Auto-install the package from Melpa
+      :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+      :after ox
+      )
+#+end_src
+
+For use with "C-c l" to insert links for Hugo work.
+From https://weblog.masukomi.org/2024/07/19/using-org-mode-with-hugo/
+
+#+begin_src emacs-lisp
+;; New link type for Org-Hugo internal links
+(with-eval-after-load 'ox-hugo
+  (org-link-set-parameters
+   "relref"
+   :complete (lambda ()
+               (concat
+                "relref:"
+                (file-name-nondirectory (read-file-name "File: "))
+                )
+               )
+
+   :export (lambda (path description backend)
+             (format "[%s]({{< relref %s >}})" description path  )
+        )
+   )
+
+  (org-link-set-parameters
+   "ref"
+   :complete (lambda ()
+               (concat
+                "ref:"
+                (file-name-nondirectory (read-file-name "File: "))
+                )
+               )
+
+   :export (lambda (path description backend)
+             (format "[%s]({{< ref %s >}})" description path  )
+        )
+   )
+
+)
 #+end_src
 *** Org agenda
 org agenda stuff is from
@@ -2685,16 +2732,18 @@ contains an up to date list of the currently supported languages.
    'org-babel-load-languages
    '((emacs-lisp . t)
      (C . t)
+     (dot . t)
      (plantuml . t)
      (python . t)
-     (dot . t)
-     (shell . t)
      (screen . t)
+     (shell . t)
+     (sqlite . t)
      ))
   (require 'ob-dot)
                                           ; Allow async OB operations
-  (use-package ob-async
-    )
+  ;; (use-package ob-async
+  ;;   :ensure t
+  ;;   )
 #+end_src
 
 You are encouraged to add the following to your personal configuration
@@ -2742,12 +2791,14 @@ file using the `org-babel-lob-ingest' function.
 ** Ag
 #+begin_src emacs-lisp
   (use-package ag
+    :ensure t
     :commands ag
     )
 #+end_src
 
 #+begin_src emacs-lisp
   (use-package iedit
+    :ensure t
     :defer t
     )
 #+end_src
@@ -2755,6 +2806,7 @@ file using the `org-babel-lob-ingest' function.
 ** C mode
 #+begin_src emacs-lisp
   (use-package cc-mode
+    :ensure t
     :preface
     (defun my-c-mode-hook ()
       (setq indent-tabs-mode nil)
@@ -2853,6 +2905,7 @@ file using the `org-babel-lob-ingest' function.
 ** Make modes
 #+begin_src emacs-lisp
   (use-package make-mode
+    :ensure t
     :preface
     (defun my-makefile-mode-hook()
       (remove-hook 'before-save-hook 'whitespace-cleanup)
@@ -2894,66 +2947,67 @@ file using the `org-babel-lob-ingest' function.
 #+end_src
 ** Python mode
 #+begin_src emacs-lisp
-    (use-package sphinx-doc
-      :defer t)
+      (use-package sphinx-doc
+        :defer t)
 
-    (use-package python-mode
-      ;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-      ;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
-      :preface
+      (use-package python-mode
+        :ensure t
+        ;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+        ;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+        :preface
 
-      (defun my-python-mode-hook ()
-        (setq indent-tabs-mode nil)
-        (setq py-indent-offset 4)
-        (setq whitespace-style '(face trailing lines space-before-tab indentation space-after-tab))
-        (whitespace-mode t)
-        (pyenv-mode)
+        (defun my-python-mode-hook ()
+          (setq indent-tabs-mode nil)
+          (setq py-indent-offset 4)
+          (setq whitespace-style '(face trailing lines space-before-tab indentation space-after-tab))
+          (whitespace-mode t)
+          (pyenv-mode)
+          )
+
+        :hook (python-mode (my-python-mode-hook . blacken-mode))
+        ;; make sure we have lsp-imenu everywhere we have LSP
+                                              ;  (require 'lsp-imenu)
+                                              ;  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
+        ;; get lsp-python-enable defined
+        ;; NB: use either projectile-project-root or ffip-get-project-root-directory
+        ;;     or any other function that can be used to find the root directory of a project
+                                              ;  (lsp-define-stdio-client lsp-python "python"
+                                              ;                           #'projectile-project-root
+                                              ;                           '("pyls"))
+
+        ;; make sure this is activated when python-mode is activated
+        ;; lsp-python-enable is created by macro above
+                                              ;  (add-hook 'python-mode-hook
+                                              ;            (lambda ()
+                                              ;              (lsp-python-enable)))
+        :after sphinx-doc
         )
 
-      :hook (python-mode (my-python-mode-hook . blacken-mode))
-      ;; make sure we have lsp-imenu everywhere we have LSP
-                                            ;  (require 'lsp-imenu)
-                                            ;  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
-      ;; get lsp-python-enable defined
-      ;; NB: use either projectile-project-root or ffip-get-project-root-directory
-      ;;     or any other function that can be used to find the root directory of a project
-                                            ;  (lsp-define-stdio-client lsp-python "python"
-                                            ;                           #'projectile-project-root
-                                            ;                           '("pyls"))
+    (use-package treesit-auto
+      :ensure t
+      :custom
+      (treesit-auto-install 'prompt)
+      :config
+      (treesit-auto-add-to-auto-mode-alist 'all)
+      (global-treesit-auto-mode))
 
-      ;; make sure this is activated when python-mode is activated
-      ;; lsp-python-enable is created by macro above
-                                            ;  (add-hook 'python-mode-hook
-                                            ;            (lambda ()
-                                            ;              (lsp-python-enable)))
-      :after sphinx-doc
-      )
+  (setq major-mode-remap-alist
+        '((python-mode . python-ts-mode)))
 
-  (use-package treesit-auto
-    :ensure t
-    :custom
-    (treesit-auto-install 'prompt)
-    :config
-    (treesit-auto-add-to-auto-mode-alist 'all)
-    (global-treesit-auto-mode))
+    ;(use-package eglot
+    ;  :hook (prog-mode . eglot-ensure))
 
-(setq major-mode-remap-alist
-      '((python-mode . python-ts-mode)))
-
-  ;(use-package eglot
-  ;  :hook (prog-mode . eglot-ensure))
-
-    ;; (use-package elpy
-    ;;   :ensure t
-    ;;   :init
-    ;;   (elpy-enable)
-    ;;   ;; (advice-add 'python-mode :before 'elpy-enable)
-    ;;   ;; ;; (add-hook 'python-mode-hook 'jedi:setup)
-    ;;   ;; ;; (setq jedi:complete-on-dot t) ; optional
-    ;;   ;; :config
-    ;;   ;; (setq elpy-rpc-python-command "/usr/bin/python3")
-    ;;   ;; (put 'pyvenv-activate 'safe-local-variable #'stringp)
-    ;;   )
+      ;; (use-package elpy
+      ;;   :ensure t
+      ;;   :init
+      ;;   (elpy-enable)
+      ;;   ;; (advice-add 'python-mode :before 'elpy-enable)
+      ;;   ;; ;; (add-hook 'python-mode-hook 'jedi:setup)
+      ;;   ;; ;; (setq jedi:complete-on-dot t) ; optional
+      ;;   ;; :config
+      ;;   ;; (setq elpy-rpc-python-command "/usr/bin/python3")
+      ;;   ;; (put 'pyvenv-activate 'safe-local-variable #'stringp)
+      ;;   )
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2985,6 +3039,7 @@ file using the `org-babel-lob-ingest' function.
 ** Yaml
 #+begin_src emacs-lisp
   (use-package yaml-mode
+    :ensure t
     :mode
     ("\\.yml$" . yaml-mode)
     )
@@ -3006,6 +3061,7 @@ file using the `org-babel-lob-ingest' function.
 #+begin_src emacs-lisp
   (unless (ssmm/is-android-p)
   (use-package projectile
+    :ensure t
     :init
     (projectile-mode +1)
     (add-to-list 'projectile-project-root-files ".gitignore")
@@ -3145,6 +3201,7 @@ file using the `org-babel-lob-ingest' function.
 ** Magit, etc.
 #+begin_src emacs-lisp
   (use-package magit
+    :ensure t
     :bind ("C-x g" . magit-status)
     )
 #+end_src
@@ -3163,6 +3220,7 @@ to have (e.g. crux-open-with and crux-reopen-as-root).
 From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 #+begin_src emacs-lisp
   (use-package crux
+    :ensure t
     :config
     (global-set-key (kbd "C-c d") #'crux-duplicate-current-line-or-region)
     (crux-reopen-as-root-mode)
@@ -3171,6 +3229,7 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 ** Key chord
 #+begin_src emacs-lisp
   (use-package key-chord
+    :ensure t
     :defer t
     :config
     (key-chord-mode 1)
@@ -3215,6 +3274,7 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 *** Sonic Pi
 #+begin_src emacs-lisp
   (use-package sonic-pi
+    :ensure t
     :custom
     (sonic-pi-path "/usr/lib/sonic-pi/")
     (sonic-pi-server-bin "server/bin/sonic-pi-server.rb")
@@ -3238,16 +3298,17 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 #+end_src
 *** mpv
 #+begin_src emacs-lisp
-      (use-package mpv
-        :config
-        (org-add-link-type "mpv" #'mpv-play)
-        (defun org-mpv-complete-link (&optional arg)
-          (replace-regexp-in-string
-           "file:" "mpv:"
-           (org-file-complete-link arg)
-           t t))
-        (add-hook 'org-open-at-point-functions #'mpv-seek-to-position-at-point)
-        )
+    (use-package mpv
+      :ensure t
+      :config
+      (org-add-link-type "mpv" #'mpv-play)
+      (defun org-mpv-complete-link (&optional arg)
+        (replace-regexp-in-string
+         "file:" "mpv:"
+         (org-file-complete-link arg)
+         t t))
+      (add-hook 'org-open-at-point-functions #'mpv-seek-to-position-at-point)
+      )
 #+end_src
 ** Load user files
 When you want to make an sk-load to load prelude stuff at the
