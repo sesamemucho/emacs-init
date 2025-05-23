@@ -162,11 +162,12 @@ This is for values that should be set before anything else.
     (set-face-attribute 'variable-pitch nil :font my/variable-width-font :weight 'light :height 1.3)
     )
    ((string-equal system-type "cygwin")
-    (w32-find-non-USB-fonts)
+    ;; (w32-find-non-USB-fonts)
     (set-frame-font "Consolas-14" t t )
-    (set-fontset-font t 'symbol "Segoe UI Symbol"))
-   (setq my/fixed-width-font "Consolas-14")
-   (setq my/variable-width-font "Consolas-14")
+    (set-fontset-font t 'symbol "Segoe UI Symbol")
+    (setq my/fixed-width-font "Consolas-14")
+    (setq my/variable-width-font "Consolas-14")
+    )
    )
 #+end_src
 
@@ -207,11 +208,6 @@ This code should be executed before any customization files are loaded.
     ;;(byte-recompile-directory "~/.emacs.d/etc/" 0)
   #+end_src
 
-*** Basic packages
-#+begin_src emacs-lisp
-  (use-package f)
-  (use-package s)
-#+end_src
 *** Local emacs package
 #+begin_src emacs-lisp
   ;; (require 'elpa-mirror)
@@ -222,11 +218,10 @@ This code should be executed before any customization files are loaded.
 ** Universal settings
 *** Set variables
 #+begin_src emacs-lisp
-  (eval-and-compile
-    (setq use-package-verbose t
-          use-package-always-ensure t
-          use-package-expand-minimally nil
-          use-package-compute-statistics t))
+  (setq use-package-verbose t
+        use-package-always-ensure t
+        use-package-expand-minimally nil
+        use-package-compute-statistics t)
   ;; debug-on-error t)
   (defvar ssmm/true-home (file-truename "~/"))
 #+end_src
@@ -248,6 +243,11 @@ This code should be executed before any customization files are loaded.
   (global-set-key (kbd "\C-r") 'isearch-backward-regexp)
   (global-set-key (kbd "C-M-s") 'isearch-forward)
   (global-set-key (kbd "C-M-r") 'isearch-backward)
+#+end_src
+*** Basic packages
+#+begin_src emacs-lisp
+  (use-package f)
+  (use-package s)
 #+end_src
 
 *** Window switching. (C-x o goes to the next window)
@@ -857,6 +857,15 @@ git.
     :ensure t
     )
 #+end_src
+** csv mode
+#+begin_src emacs-lisp
+  (use-package csv-mode
+    :init
+    (add-to-list 'auto-mode-alist '("\\.[Cc][Ss][Vv]\\'" . csv-mode))
+    :config
+    (add-hook 'csv-mode-hook 'csv-guess-set-separator)
+    )
+#+end_src
 ** Org mode
 *** Overall org-mode stuff
 #+begin_src emacs-lisp
@@ -955,6 +964,24 @@ globally for later insertion into an Org-mode buffer.  See
 For convenience, inside code blocks indent according to the block mode:
 #+begin_src emacs-lisp
   (setq org-src-tab-acts-natively t)
+#+end_src
+** Misc defs
+#+begin_src emacs-lisp
+  (defun ssmm/get-key ()
+    (string-to-number (org-entry-get (point) "Task_ID")))
+
+  (defun ssmm/cmp (t1 t2)
+    (< t1 t2))
+
+  (defun ssmm/org-sort-entries ()
+    (interactive)
+    (org-sort-entries nil ?f #'ssmm/get-key #'ssmm/cmp))
+
+  (defun ssmm/todo-insert-date ()
+    (interactive)
+    (insert (concat (format-time-string "%m/%d/%Y" (current-time)) " RSF: ")))
+
+  (define-key org-mode-map (kbd "C-c s d") 'ssmm/todo-insert-date)
 #+end_src
 *** Appearance
 Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-present/
@@ -2651,7 +2678,25 @@ From
 
 
 #+end_src
+*** org tidy
+How to edit property drawers in org-tidy-mode?
+If you need to edit only one drawer temporarily, you can simply M-x org-tidy-untidy-buffer. When you save the buffer, it will be tidied again.
 
+If you need to edit a lot of drawers, you can M-x org-tidy-toggle. Then the buffer will not be tidied on save, until M-x org-tidy-toggle again.
+#+begin_src emacs-lisp
+  (use-package org-tidy
+    :hook
+    (org-mode . org-tidy-mode)
+    :bind (:map org-mode-map
+                ("C-c s t" . org-tidy-untidy-buffer)
+                ("C-c s T" . org-tidy-toggle)
+                )
+    )
+#+end_src
+*** org transform tree table
+#+begin_src emacs-lisp
+  (use-package org-transform-tree-table)
+#+end_src
 *** Contacts
 From https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/:
 With
@@ -2983,6 +3028,7 @@ file using the `org-babel-lob-ingest' function.
         :after sphinx-doc
         )
 
+  (unless (eq system-type 'cygwin)
     (use-package treesit-auto
       :ensure t
       :custom
@@ -2990,6 +3036,7 @@ file using the `org-babel-lob-ingest' function.
       :config
       (treesit-auto-add-to-auto-mode-alist 'all)
       (global-treesit-auto-mode))
+  )
 
   (setq major-mode-remap-alist
         '((python-mode . python-ts-mode)))
@@ -3375,8 +3422,10 @@ also.
 This is the last section to be run during startup.
 
 #+begin_src emacs-lisp
-  
-  (server-start)
+
+  (unless (eq system-type 'cygwin)
+    (server-start)
+    )
   (require 'ivy)
   (require 'counsel)
 
