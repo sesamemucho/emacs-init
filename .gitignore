@@ -26,3 +26,6 @@ elpy
 /persist/
 /request/
 .mc-lists.el
+/eln-cache/
+/tree-sitter/
+/.org-generic-id-locations
