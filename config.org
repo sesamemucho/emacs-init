@@ -1,4 +1,4 @@
-#+OPTIONS: toc:3 h:3
+>#+OPTIONS: toc:3 h:3
 #+OPTIONS: ^:nil
 #+PROPERTY: header-args :tangle yes
 #+HTML_HEAD: <style>
@@ -208,13 +208,73 @@ This code should be executed before any customization files are loaded.
     ;;(byte-recompile-directory "~/.emacs.d/etc/" 0)
   #+end_src
 
-*** Local emacs package
+- Variables that may or may not be changed in prelude files
+#+begin_src emacs-lisp
+(defvar ssmm/use-gcal-p nil)
+
+#+end_src
+** Load user files
+When you want to make an sk-load to load prelude stuff at the
+beginning of this file:
+(cl-delete-if (lambda (f) (string-match-p "prelude"f)) foo)
+So, load files that have "prelude" in there names there, and don't
+load them here.
+Come to think about it, it would probably be OK to load them here
+also.
+
+Only load files with 'prelude' in the name.
 #+begin_src emacs-lisp
   ;; (require 'elpa-mirror)
   ;; (setq elpamr-default-output-directory "~/myelpa")
   ;; (add-to-list 'package-archives
   ;;                '("myelpa" . "~/myelpa/"))
+
+  (cl-flet ((sk-load (base)
+              (let* ((path          (expand-file-name base ssmm/cfg-dir))
+                     (literate      (concat path ".org"))
+                     (encrypted-org (concat path ".org.gpg"))
+                     (plain         (concat path ".el"))
+                     (encrypted-el  (concat path ".el.gpg")))
+                (cond
+                 ((and (file-exists-p encrypted-org) (string-match "prelude" encrypted-org)) (org-babel-load-file encrypted-org))
+                 ((and (file-exists-p encrypted-el) (string-match "prelude" encrypted-el))   (load encrypted-el))
+                 ((and (file-exists-p literate) (string-match "prelude" literate))           (org-babel-load-file literate))
+                 ((and (file-exists-p plain) (string-match "prelude" plain))                 (load plain)))))
+            (remove-extension (name)
+              (string-match "\\(.*?\\)\.\\(org\\(\\.el\\)?\\|el\\)\\(\\.gpg\\)?$" name)
+              (match-string 1 name)))
+    (let ((elisp-dir (expand-file-name "src" ssmm/cfg-dir))
+          (user-dir (expand-file-name user-login-name ssmm/cfg-dir))
+          (user-local-dir (expand-file-name "~/.emacs-local"))
+          )
+      ;; add the src directory to the load path
+      (add-to-list 'load-path elisp-dir)
+      ;; load specific files
+      (when (file-exists-p elisp-dir)
+        (let ((default-directory elisp-dir))
+          (normal-top-level-add-subdirs-to-load-path)))
+      ;; load system-specific config
+      (sk-load (system-name))
+      ;; load user-specific config
+      (sk-load user-login-name)
+      ;; load any files in the user's directory
+      (when (file-exists-p user-dir)
+        (add-to-list 'load-path user-dir)
+        (mapc #'sk-load
+              (cl-remove-duplicates
+               (mapcar #'remove-extension
+                       (directory-files user-dir t ".*\.\\(org\\|el\\)\\(\\.gpg\\)?$"))
+               :test #'string=)))
+      (when (file-exists-p user-local-dir)
+        (add-to-list 'load-path user-local-dir)
+        (mapc #'sk-load
+              (cl-remove-duplicates
+               (mapcar #'remove-extension
+                       (directory-files user-local-dir t ".*\.\\(org\\|el\\)\\(\\.gpg\\)?$"))
+               :test #'string=)))
+      ))
 #+end_src
+
 ** Universal settings
 *** Set variables
 #+begin_src emacs-lisp
@@ -246,7 +306,8 @@ This code should be executed before any customization files are loaded.
 #+end_src
 *** Basic packages
 #+begin_src emacs-lisp
-  (use-package f)
+  (use-package f
+    :ensure t)
   (use-package s)
 #+end_src
 
@@ -966,6 +1027,8 @@ For convenience, inside code blocks indent according to the block mode:
   (setq org-src-tab-acts-natively t)
 #+end_src
 ** Misc defs
+From https://emacs.stackexchange.com/a/62004
+To sort an org list by the property "Task_ID", put the cursor at the containing heading and run 'ssmm/org-sort-entries'.
 #+begin_src emacs-lisp
   (defun ssmm/get-key ()
     (string-to-number (org-entry-get (point) "Task_ID")))
@@ -1032,8 +1095,8 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
 # Also from https://systemcrafters.net/emacs-tips/presentations-with-org-present/
 #+begin_src emacs-lisp
   ;; Install org-present if needed
-  (use-package org-present
-    :ensure t)
+  (unless (package-installed-p 'org-present)
+    (package-install 'org-present))
 
   (defun my/org-present-prepare-slide (buffer-name heading)
     ;; Show only top-level headlines
@@ -1205,10 +1268,18 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
               :immediate-finish t
               :jump-to-captured t
               :unnarrowed t)
-
              ("p" "project" plain
+              :if-new
               (file+head "projects/%<%Y%m%d%H%M%S>.org"
-                         "#+title: ${title}\n#+filetags: :project:\n"
+                         "#+title: ${title}\n#+filetags: :project:\n\n"
+                         )
+              :immediate-finish t
+              :jump-to-captured t
+              :unnarrowed t)
+             ("P" "process" plain
+              :if-new
+              (file+head "${slug}.org"
+                         "#+title: ${title}\n#+filetags: :area:\n\n"
                          )
               :immediate-finish t
               :jump-to-captured t
@@ -1972,12 +2043,16 @@ Common org tags.
     :ensure t
     :after calfw
     )
-  (use-package org-gcal
-    :ensure t
+  (if ssmm/use-gcal-p
+      (progn
+        (use-package org-gcal
+          :ensure t
+          )
+        (setq org-gcal-client-id "your-id-foo.apps.googleusercontent.com"
+              org-gcal-client-secret "your-secret"
+              org-gcal-fetch-file-alist '(("sesamemucho@gmail.com" .  "~/org/roam/schedule.org")))
+        )
     )
-(setq org-gcal-client-id "your-id-foo.apps.googleusercontent.com"
-      org-gcal-client-secret "your-secret"
-      org-gcal-fetch-file-alist '(("sesamemucho@gmail.com" .  "~/org/schedule.org")))
 #+end_src
 *** habits
 
@@ -2615,6 +2690,31 @@ From
         (insert "[/] ")
         )
       )
+    )
+#+end_src
+
+*** Org-tidy
+From: https://github.com/jxq0/org-tidy#how-to-edit-property-drawers-in-org-tidy-mode
+How to edit property drawers in org-tidy-mode?
+If you need to edit only one drawer temporarily, you can simply M-x org-tidy-untidy-buffer. When you save the buffer, it will be tidied again.
+
+If you need to edit a lot of drawers, you can M-x org-tidy-toggle. Then the buffer will not be tidied on save, until M-x org-tidy-toggle again.
+#+begin_src emacs-lisp
+  (use-package org-tidy
+    :ensure t
+    :hook
+    (org-mode . org-tidy-mode)
+    :bind (:map org-mode-map
+                ("C-c s t" . org-tidy-untidy-buffer)
+                ("C-c s T" . org-tidy-toggle)
+                )
+    )
+#+end_src
+
+*** org-transform-tree-table
+#+begin_src emacs-lisp
+  (use-package org-transform-tree-table
+    :ensure t
     )
 #+end_src
 *** Capturing
