@@ -1,4 +1,4 @@
->#+OPTIONS: toc:3 h:3
+#+OPTIONS: toc:3 h:3
 #+OPTIONS: ^:nil
 #+PROPERTY: header-args :tangle yes
 #+HTML_HEAD: <style>
@@ -214,20 +214,8 @@ This code should be executed before any customization files are loaded.
 
 #+end_src
 ** Load user files
-When you want to make an sk-load to load prelude stuff at the
-beginning of this file:
-(cl-delete-if (lambda (f) (string-match-p "prelude"f)) foo)
-So, load files that have "prelude" in there names there, and don't
-load them here.
-Come to think about it, it would probably be OK to load them here
-also.
-
 Only load files with 'prelude' in the name.
 #+begin_src emacs-lisp
-  ;; (require 'elpa-mirror)
-  ;; (setq elpamr-default-output-directory "~/myelpa")
-  ;; (add-to-list 'package-archives
-  ;;                '("myelpa" . "~/myelpa/"))
 
   (cl-flet ((sk-load (base)
               (let* ((path          (expand-file-name base ssmm/cfg-dir))
@@ -1246,42 +1234,30 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-capture-templates
           '(
             ("d" "default" plain "%?"
-             :if-new
-             (file+head "zettels/%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n")
-             ;; (file+head "${slug}.org"
-             ;;            "#+title: ${title}\n")
-             :immediate-finish t
+             :target (file+head "zettels/%<%Y%m%d%H%M%S>.org" "#+title: ${title}\n")
              :jump-to-captured t
              :unnarrowed t)
             ("D" "default with title" plain "%?"
-             :if-new
-             (file+head "zettels/${slug}.org"
+             :target (file+head "zettels/${slug}.org"
                         "#+title: ${title}\n")
-             :immediate-finish t
              :jump-to-captured t
              :unnarrowed t)
             ("l" "literature" plain "%?"
-             :if-new
-             (file+head "zettels/%<%Y%m%d%H%M%S>.org"
+             :target (file+head "zettels/%<%Y%m%d%H%M%S>.org"
                         "#+title: ${title}\n#+filetags: :literature:\nSource:"
                         )
-              :immediate-finish t
               :jump-to-captured t
               :unnarrowed t)
-             ("p" "project" plain
-              :if-new
-              (file+head "projects/%<%Y%m%d%H%M%S>.org"
+             ("p" "project" plain "%?"
+              :target (file+head "projects/%<%Y%m%d%H%M%S>.org"
                          "#+title: ${title}\n#+filetags: :project:\n\n"
                          )
-              :immediate-finish t
               :jump-to-captured t
               :unnarrowed t)
-             ("P" "process" plain
-              :if-new
-              (file+head "${slug}.org"
+             ("P" "process" plain "%?"
+              :target (file+head "${slug}.org"
                          "#+title: ${title}\n#+filetags: :area:\n\n"
                          )
-              :immediate-finish t
               :jump-to-captured t
               :unnarrowed t)
              ("e" "email" plain "%?"
@@ -1291,11 +1267,9 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
               :jump-to-captured t
               :unnarrowed t)
              ("a" "area" plain "%?"
-              :if-new
-              (file+head "areas/%<%Y%m%d%H%M%S>.org"
+              :target (file+head "areas/%<%Y%m%d%H%M%S>.org"
                          "#+title: ${title}\n#+filetags: :area:\n\n"
                          )
-              :immediate-finish t
               :jump-to-captured t
               :unnarrowed t)
              ("A" "encrypted area" plain "%?"
@@ -1307,20 +1281,18 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
               :jump-to-captured t
               :unnarrowed t)
              ("r" "reference" plain "%?"
-              :if-new
-              (file+head "reference/%<%Y%m%d%H%M%S>.org"
+              :target (file+head "reference/%<%Y%m%d%H%M%S>.org"
                          "#+title: ${title}\n#+filetags: :reference:\n\n"
                          )
-              :immediate-finish t
               :jump-to-captured t
               :unnarrowed t)
              ("Q" "quote org capture" entry
-              (file+headline ssmm-org-inbox-file "Unsorted")
+              :targe4t (file+headline ssmm-org-inbox-file "Unsorted")
               "* %?%:description Added %U
   ,#+BEGIN_QUOTE
   %x
   ,#+END_QUOTE"
-            :immediate-finish t
+            ;;;:immediate-finish t
             :jump-to-captured t
             :unnarrowed t)
           ;; ("L" "Library" plain "%?"
