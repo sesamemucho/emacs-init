@@ -3319,9 +3319,12 @@ file using the `org-babel-lob-ingest' function.
 
 ** Magit, etc.
 #+begin_src emacs-lisp
-  (use-package magit
-    :ensure t
-    :bind ("C-x g" . magit-status)
+Not on android atm (2025-08) because of Termux issues.
+  (unless (ssmm/is-android-p)
+    (use-package magit
+      :ensure t
+      :bind ("C-x g" . magit-status)
+      )
     )
 #+end_src
 
