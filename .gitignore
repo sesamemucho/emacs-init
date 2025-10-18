@@ -29,3 +29,4 @@ elpy
 /eln-cache/
 /tree-sitter/
 /.org-generic-id-locations
+/custom.el

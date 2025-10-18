@@ -40,6 +40,8 @@
 ;; (setq package-user-dir (concat ssmm/cfg-dir "elpa"))
   (defun ssmm/is-android-p ()
     (string-equal system-type "android")
+    ;; Debugging git
+    ;; t
     )
   (unless (ssmm/is-android-p)
     (defvar bootstrap-version)

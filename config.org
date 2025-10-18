@@ -950,7 +950,8 @@ git.
 
   (if (ssmm/is-android-p)
                                           ;(setq ssmm-orgfiles-dir (concat ssmm/true-home "storage/shared/Documents/org/"))
-      (setq ssmm-orgfiles-dir "//storage/emulated/0/Documents/org/roam/")
+     ;; (setq ssmm-orgfiles-dir "//storage/emulated/0/Documents/org/roam/")
+      (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/roam"))
     (setq ssmm-orgfiles-dir (concat ssmm/true-home "org/roam"))
     )
 
@@ -1133,7 +1134,7 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
     (visual-line-mode 0))
 
   ;; Turn on variable pitch fonts in Org Mode buffers
-  (add-hook 'org-mode-hook 'variable-pitch-mode)
+  ;;(add-hook 'org-mode-hook 'variable-pitch-mode)
 
   ;; Register hooks with org-present
   (add-hook 'org-present-mode-hook 'my/org-present-start)
@@ -1215,18 +1216,18 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     (setq org-roam-directory ssmm-orgfiles-dir)
     (setq org-roam-file-extensions '("org"))
     (setq org-roam-db-location (expand-file-name "~//.org-roam.db"))
-    ;; (setq org-roam-list-files-commands '(find fd fdfind rg))
+    (setq org-roam-list-files-commands '(find fd fdfind rg))
+    ;;(setq org-roam-node-display-template "${tags:20} ${title}")
+    ;;(setq org-roam-node-display-template "${title}")
     (cond
      ((ssmm/is-android-p)
       ;(setq org-roam-database-connector 'sqlite-builtin)
-      (setq org-roam-file-exclude-regexp "gpg$")
+      ;(setq org-roam-file-exclude-regexp "gpg$")
       )
-     ((string-equal system-type "gnu/linux")
+     ((string-equal (system-name) "kaga")
       (setq org-roam-file-exclude-regexp nil)
       )
-     ((string-equal system-type "cygwin")
-      (setq org-roam-file-exclude-regexp "gpg$")
-      ))
+     )
 
     ;;(org-roam-setup)
 
@@ -1469,7 +1470,7 @@ https://magnus.therning.org/2021-07-23-keeping-todo-items-in-org-roam-v2.html
     "Update the value of `org-agenda-files'."
     (setq org-agenda-files (roam-extra:todo-files)))
 
-  (add-hook 'find-file-hook #'roam-extra:update-todo-tag)
+  ;;(add-hook 'find-file-hook #'roam-extra:update-todo-tag) debugging
   (add-hook 'before-save-hook #'roam-extra:update-todo-tag)
   (advice-add 'org-agenda :before #'roam-extra:update-todo-files)
 #+end_src
@@ -1986,9 +1987,11 @@ Common org tags.
     :after org
     :custom
     ;; Use different backends depending on the platform
-    (alert-default-style (if (eq system-type 'android)
-                             'android-notifications
-                           'libnotify))
+    ;; (alert-default-style (if (eq system-type 'android)
+    ;;                          'android-notifications
+    ;;                        'libnotify))
+    ;; debugging
+    (alert-default-style 'libnotify)
     :config
     ;; Setup timing
     (setq org-alert-interval 300
@@ -3205,7 +3208,7 @@ file using the `org-babel-lob-ingest' function.
   (use-package counsel
     :after ivy
     :demand t
-    :diminish
+    ;;:diminish
     :custom (counsel-find-file-ignore-regexp
              (concat "\\(\\`\\.[^.]\\|"
                      (regexp-opt completion-ignored-extensions)
@@ -3237,15 +3240,17 @@ file using the `org-babel-lob-ingest' function.
       :config
       (counsel-projectile-mode 1))
 
+  (unless (ssmm/is-android-p)
     (use-package counsel-tramp
       :commands counsel-tramp)
+    )
 
 #+end_src
 
 ** Ivy
 #+begin_src emacs-lisp
   (use-package ivy
-    :diminish
+    ;;:diminish
     :demand t
 
     :bind (("C-x b" . ivy-switch-buffer)
@@ -3318,8 +3323,8 @@ file using the `org-babel-lob-ingest' function.
 #+end_src
 
 ** Magit, etc.
-#+begin_src emacs-lisp
 Not on android atm (2025-08) because of Termux issues.
+#+begin_src emacs-lisp
   (unless (ssmm/is-android-p)
     (use-package magit
       :ensure t
