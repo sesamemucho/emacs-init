@@ -1216,7 +1216,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
     ;;     :build (:not compile))
     :after org
     :config
-    ;; (require 'org-roam-dailies) ;; ensure keymap is available
+    (require 'org-roam-dailies) ;; ensure keymap is available
     (setq org-roam-v2-ack t)
     (setq org-roam-directory ssmm-orgfiles-dir)
     (setq org-roam-file-extensions '("org"))
@@ -1324,13 +1324,22 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
           ;; :unnarrowed t)
           )
           )
-  ;; (setq org-roam-dailies-capture-templates
-  ;;       '(
-  ;;         ("D" "default" plain
-  ;;          "* Tasks\n\n* Happenings\n%?"
-  ;;          :target (file+head "%<%Y-%m-%d>.org"
-  ;;                             "#+title: %<%Y-%m-%d>\n"))
-  ;;         ))
+  ;; For personal journaling
+    (setq org-roam-dailies-capture-templates
+          '(
+            ("D" "encrypted" plain
+             "* Entries\n\n%?"
+             :target (file+head "areas/gpg/journal/%<%Y-%m-%d>.org.gpg"
+                                "#+title: %<%Y-%m-%d>\n")
+             )
+            ("d" "default" plain
+             "* Entries\n\n%?"
+             :target (file+head "areas/gpg/journal/%<%Y-%m-%d>.org"
+                                "#+title: %<%Y-%m-%d>\n")
+             )
+            )
+          )
+
   (org-roam-db-autosync-mode)
   (defun ssmm/org-roam-filter-ignore-archive ()
     (lambda (node)
@@ -1354,15 +1363,15 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
           ("S-C-M-d" . org-timestamp-down)
           )
          ;; Use journal
-         ;; :map org-roam-dailies-map
+         :map org-roam-dailies-map
          ;; ("F" . ssmm/org-roam-dailies-goto-last-friday)
          ;; ("M" . ssmm/org-roam-dailies-capture-next-monday)
-         ;; ("T" . org-roam-dailies-capture-tomorrow)
-         ;; ("Y" . org-roam-dailies-capture-yesterday)
+         ("T" . org-roam-dailies-capture-tomorrow)
+         ("Y" . org-roam-dailies-capture-yesterday)
          )
   ;; Use journal
-  ;; :bind-keymap
-  ;; ("C-c n d" . org-roam-dailies-map)
+  :bind-keymap
+  ("C-c n d" . org-roam-dailies-map)
   )
   ;; (require 'org-roam-emacs)
   ;; (("C-c n l" . org-roam)
@@ -3184,13 +3193,15 @@ file using the `org-babel-lob-ingest' function.
 
 ** Mastodon
 #+begin_src emacs-lisp
-  ;; (when (not (version< emacs-version "27.1"))
-  ;;   (use-package mastodon
-  ;;     :ensure t
-  ;;     :config
-  ;;     (setq mastodon-instance-url "https://mastodon.social"
-  ;;           mastodon-active-user "sesamemucho")
-  ;;     ))
+  (when (not (version< emacs-version "27.1"))
+    (straight-use-package 'tp
+                          )
+    (use-package mastodon
+      :ensure t
+      :config
+      (setq mastodon-instance-url "https://mastodon.social"
+            mastodon-active-user "sesamemucho")
+      ))
 #+end_src
 ** Yaml
 #+begin_src emacs-lisp

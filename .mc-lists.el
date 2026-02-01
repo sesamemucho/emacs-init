@@ -20,5 +20,6 @@
 
 (setq mc/cmds-to-run-once
       '(
+        ivy-backward-delete-char
         yaml-electric-dash-and-dot
         ))
