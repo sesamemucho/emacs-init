@@ -1244,13 +1244,13 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
              :jump-to-captured t
              :unnarrowed t)
             ("l" "literature" plain "%?"
-             :target (file+head "zettels/%<%Y%m%d%H%M%S>.org"
+             :target (file+head "zettels/${slug}-%<%Y%m%d%H%M%S>.org"
                         "#+title: ${title}\n#+filetags: :literature:\nSource:"
                         )
               :jump-to-captured t
               :unnarrowed t)
              ("p" "project" plain "%?"
-              :target (file+head "projects/%<%Y%m%d%H%M%S>.org"
+              :target (file+head "projects/${slug}-%<%Y%m%d%H%M%S>.org"
                          "#+title: ${title}\n#+filetags: :project:\n\n"
                          )
               :jump-to-captured t
@@ -1268,7 +1268,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
               :jump-to-captured t
               :unnarrowed t)
              ("a" "area" plain "%?"
-              :target (file+head "areas/%<%Y%m%d%H%M%S>.org"
+              :target (file+head "areas/$slug-%<%Y%m%d%H%M%S>.org"
                          "#+title: ${title}\n#+filetags: :area:\n\n"
                          )
               :jump-to-captured t
@@ -1282,7 +1282,7 @@ org-roam and capture stuff taken largely from https://renatgalimov.github.io/org
               :jump-to-captured t
               :unnarrowed t)
              ("r" "reference" plain "%?"
-              :target (file+head "reference/%<%Y%m%d%H%M%S>.org"
+              :target (file+head "reference/$slug-%<%Y%m%d%H%M%S>.org"
                          "#+title: ${title}\n#+filetags: :reference:\n\n"
                          )
               :jump-to-captured t
@@ -1690,12 +1690,13 @@ Can't get 'pdf-tools-install' to work under termux
       ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
       ;;         a hookable mode anymore, you're advised to pick something yourself
       ;;         if you don't care about startup time, use
-      :hook (after-init . org-roam-ui-mode)
-      :config
-      (setq org-roam-ui-sync-theme t
-            org-roam-ui-follow t
-            org-roam-ui-update-on-save t
-            org-roam-ui-open-on-start t))
+      ;; :hook (after-init . org-roam-ui-mode)
+      ;; :config
+      ;; (setq org-roam-ui-sync-theme t
+      ;;       org-roam-ui-follow t
+      ;;       org-roam-ui-update-on-save t
+      ;;       org-roam-ui-open-on-start t)
+      )
     )
 #+end_src
 **** Distill
@@ -2126,6 +2127,51 @@ From https://weblog.masukomi.org/2024/07/19/using-org-mode-with-hugo/
 
 )
 #+end_src
+
+Helper functions for exporting org to Hugo
+#+begin_src emacs-lisp
+    ;; From https://kitchingroup.cheme.cmu.edu/blog/2013/05/05/Getting-keyword-options-in-org-files/
+    ;; Note that arguments to jk-org-kwd must be in all CAPS.
+    (defun jk-org-kwds ()
+      "parse the buffer and return a cons list of (property . value)
+    from lines like:
+    ,#+PROPERTY: value"
+      (org-element-map (org-element-parse-buffer 'element) 'keyword
+                       (lambda (keyword) (cons (org-element-property :key keyword)
+                                               (org-element-property :value keyword)))))
+
+    (defun jk-org-kwd (KEYWORD)
+      "get the value of a KEYWORD in the form of #+KEYWORD: value"
+      (cdr (assoc KEYWORD (jk-org-kwds))))
+
+    ;; Based on 
+  (defun ssmm/most-org-roam-files ()
+    "Returns a list of non-gpg org roam files."
+    (interactive)
+    (seq-remove
+     (lambda (x) (string-match "\.gpg$" x))
+     (org-roam--list-files org-roam-directory)))
+
+  (defun benmezger/org-roam-export-all ()
+    "Re-exports all Org-roam files to Hugo markdown."
+    (interactive)
+    (dolist (f (ssmm/most-org-roam-files))
+      (with-current-buffer (find-file f)
+        (when (s-contains? "TO_HUGO" (buffer-string))
+          (setq org-hugo-auto-set-lastmod t
+                org-hugo-base-dir "/home/bob/Projects/web/eddie.bic.grumpydogconsulting.com"
+                org-hugo-export-with-toc 3
+                )
+          ;; Set the various org-hugo- vars (instead of org frontmatter)
+          ;; Eventually, this should come from a list (indexed by website (?)), but hard-code for now
+          (beginning-of-buffer)
+          (message (format "Processing %s" buffer-file-name))
+          (org-hugo-export-wim-to-md)
+          )
+          (kill-buffer)
+          )))
+#+end_src
+
 *** Org agenda
 org agenda stuff is from
 [[https://raw.githubusercontent.com/novoid/dot-emacs/master/config.org][Karl Voit's config file]] and
@@ -2675,15 +2721,15 @@ If you need to edit only one drawer temporarily, you can simply M-x org-tidy-unt
 
 If you need to edit a lot of drawers, you can M-x org-tidy-toggle. Then the buffer will not be tidied on save, until M-x org-tidy-toggle again.
 #+begin_src emacs-lisp
-  (use-package org-tidy
-    :ensure t
-    :hook
-    (org-mode . org-tidy-mode)
-    :bind (:map org-mode-map
-                ("C-c s t" . org-tidy-untidy-buffer)
-                ("C-c s T" . org-tidy-toggle)
-                )
-    )
+  ;; (use-package org-tidy
+  ;;   :ensure t
+  ;;   ;; :hook
+  ;;   ;; (org-mode . org-tidy-mode)
+  ;;   :bind (:map org-mode-map
+  ;;               ("C-c s t" . org-tidy-untidy-buffer)
+  ;;               ("C-c s T" . org-tidy-toggle)
+  ;;               )
+  ;;   )
 #+end_src
 
 *** org-transform-tree-table
@@ -2752,25 +2798,6 @@ If you need to edit a lot of drawers, you can M-x org-tidy-toggle. Then the buff
     )
 
 
-#+end_src
-*** org tidy
-How to edit property drawers in org-tidy-mode?
-If you need to edit only one drawer temporarily, you can simply M-x org-tidy-untidy-buffer. When you save the buffer, it will be tidied again.
-
-If you need to edit a lot of drawers, you can M-x org-tidy-toggle. Then the buffer will not be tidied on save, until M-x org-tidy-toggle again.
-#+begin_src emacs-lisp
-  (use-package org-tidy
-    :hook
-    (org-mode . org-tidy-mode)
-    :bind (:map org-mode-map
-                ("C-c s t" . org-tidy-untidy-buffer)
-                ("C-c s T" . org-tidy-toggle)
-                )
-    )
-#+end_src
-*** org transform tree table
-#+begin_src emacs-lisp
-  (use-package org-transform-tree-table)
 #+end_src
 *** Contacts
 From https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/:
@@ -3378,6 +3405,7 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
   (setq epa-pinentry-mode 'loopback)
 #+end_src
 ** LSP
+#      ;HEY - WORKING HERE
 #+begin_src emacs-lisp
   ;; (use-package company-lsp
   ;;   :after lsp-mode
