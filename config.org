@@ -294,6 +294,11 @@ Only load files with 'prelude' in the name.
 #+end_src
 *** Basic packages
 #+begin_src emacs-lisp
+
+  ;; This needs to be early, or eglot freaks out
+  (use-package project
+    )
+
   (use-package f
     :ensure t)
   (use-package s)
@@ -3130,44 +3135,46 @@ file using the `org-babel-lob-ingest' function.
         :after sphinx-doc
         )
 
-  (unless (eq system-type 'cygwin)
-    (use-package treesit-auto
-      :ensure t
-      :custom
-      (treesit-auto-install 'prompt)
-      :config
-      (treesit-auto-add-to-auto-mode-alist 'all)
-      (global-treesit-auto-mode))
-  )
+  ;; (unless (eq system-type 'cygwin)
+  ;;   (use-package treesit-auto
+  ;;     :ensure t
+  ;;     :custom
+  ;;     (treesit-auto-install 'prompt)
+  ;;     :config
+  ;;     (treesit-auto-add-to-auto-mode-alist 'all)
+  ;;     (global-treesit-auto-mode))
+  ;; )
 
   (setq major-mode-remap-alist
         '((python-mode . python-ts-mode)))
 
-    ;(use-package eglot
-    ;  :hook (prog-mode . eglot-ensure))
+  (use-package eglot
+    :hook (python-mode-hook . eglot-ensure))
 
-      ;; (use-package elpy
-      ;;   :ensure t
-      ;;   :init
-      ;;   (elpy-enable)
-      ;;   ;; (advice-add 'python-mode :before 'elpy-enable)
-      ;;   ;; ;; (add-hook 'python-mode-hook 'jedi:setup)
-      ;;   ;; ;; (setq jedi:complete-on-dot t) ; optional
-      ;;   ;; :config
-      ;;   ;; (setq elpy-rpc-python-command "/usr/bin/python3")
-      ;;   ;; (put 'pyvenv-activate 'safe-local-variable #'stringp)
-      ;;   )
+  ;; (use-package jedi
+  ;;   )
+  ;;     (use-package elpy
+  ;;       ;;:ensure t
+  ;;       :init
+  ;;       (elpy-enable)
+  ;;       (advice-add 'python-mode :before 'elpy-enable)
+  ;;       (add-hook 'python-mode-hook 'jedi:setup)
+  ;;       (setq jedi:complete-on-dot t) ; optional
+  ;;       :config
+  ;;       (setq elpy-rpc-python-command "/usr/bin/python3")
+  ;;       (put 'pyvenv-activate 'safe-local-variable #'stringp)
+  ;;       )
 #+end_src
 
 #+begin_src emacs-lisp
-    (use-package pyvenv
-    :ensure t
-    :defer t
-    :init
-    (setenv "WORKON_HOME" "~/.pyenv/versions")
-    :config
-      (add-hook 'pyvenv-post-activate-hooks 'pyvenv-restart-python)
-    )
+  ;; (use-package pyvenv
+  ;; ;;:ensure t
+  ;; :defer t
+  ;; :init
+  ;; (setenv "WORKON_HOME" "~/.pyenv/versions")
+  ;; :config
+  ;;   (add-hook 'pyvenv-post-activate-hooks 'pyvenv-restart-python)
+  ;; )
 #+end_src
 #+begin_src emacs-lisp
                                           ;    (with-package elpy
@@ -3177,13 +3184,13 @@ file using the `org-babel-lob-ingest' function.
 
 ** Mastodon
 #+begin_src emacs-lisp
-  (when (not (version< emacs-version "27.1"))
-    (use-package mastodon
-      :ensure t
-      :config
-      (setq mastodon-instance-url "https://mastodon.social"
-            mastodon-active-user "sesamemucho")
-      ))
+  ;; (when (not (version< emacs-version "27.1"))
+  ;;   (use-package mastodon
+  ;;     :ensure t
+  ;;     :config
+  ;;     (setq mastodon-instance-url "https://mastodon.social"
+  ;;           mastodon-active-user "sesamemucho")
+  ;;     ))
 #+end_src
 ** Yaml
 #+begin_src emacs-lisp
@@ -3407,6 +3414,21 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 ** LSP
 #      ;HEY - WORKING HERE
 #+begin_src emacs-lisp
+      (use-package company
+        :config
+      (setq company-idle-delay 0)
+        (setq company-minimum-prefix-length 2)
+        (setq company-show-numbers t)
+        ;; To prevent default down-casing.
+        ;; https://emacs.stackexchange.com/questions/10837/how-to-make-company-mode-be-case-sensitive-on-plain-text
+        (setq company-dabbrev-downcase nil)
+        ;; 2023-01-13 From a Reddit post on mixed case issue.
+        (setq company-dabbrev-ignore-case nil)
+        (setq company-dabbrev-code-ignore-case nil))
+
+      ;; Use `company' everywhere.
+      (add-hook 'after-init-hook 'global-company-mode)
+
   ;; (use-package company-lsp
   ;;   :after lsp-mode
   ;;   :config
@@ -3424,6 +3446,11 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
   ;;   (define-key lsp-ui-mode-map [remap xref-find-references]
   ;;     #'lsp-ui-peek-find-references))
 
+      ;:config (treesit-fold-mode)
+      ;:bind
+      ;(("C-`" . treesit-fold-toggle)
+      ; ("C-€" . treesit-fold-close-all) ;; I remap S-` to € using `keyd` so can't use C-S-`
+      ; ("M-C-€" . treesit-fold-open-all))
 #+end_src
 ** Media
 *** Sonic Pi
