@@ -300,8 +300,11 @@ Only load files with 'prelude' in the name.
     )
 
   (use-package f
-    :ensure t)
+    ; :ensure t
+    )
   (use-package s)
+
+  (straight-use-package 'async)
 #+end_src
 
 *** Window switching. (C-x o goes to the next window)
@@ -908,7 +911,7 @@ git.
 ** Mediawiki
 #+begin_src emacs-lisp
   (use-package mediawiki
-    :ensure t
+    ; :ensure t
     )
 #+end_src
 ** csv mode
@@ -1089,8 +1092,8 @@ Mostly, from https://systemcrafters.net/emacs-tips/presentations-with-org-presen
 # Also from https://systemcrafters.net/emacs-tips/presentations-with-org-present/
 #+begin_src emacs-lisp
   ;; Install org-present if needed
-  (unless (package-installed-p 'org-present)
-    (package-install 'org-present))
+  (use-package org-present
+    )
 
   (defun my/org-present-prepare-slide (buffer-name heading)
     ;; Show only top-level headlines
@@ -1490,13 +1493,7 @@ https://magnus.therning.org/2021-07-23-keeping-todo-items-in-org-roam-v2.html
 #+end_src
 Vulpea: [[https://github.com/d12frosted/vulpea]]
 #+begin_src emacs-lisp
-  (use-package vulpea
-    :ensure t
-    :commands vulpea-buffer-prop-get
-    ;; hook into org-roam-db-autosync-mode you wish to enable
-    ;; persistence of meta values (see respective section in README to
-    ;; find out what meta means)
-    :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
+  (use-package vulpea)
 #+end_src
 
 **** Capture documents
@@ -1533,7 +1530,7 @@ org-web-tools offers org-web-tools-read-url-as-org function, which can download 
 
 #+begin_src emacs-lisp
   (use-package org-web-tools
-    :ensure t
+    ; :ensure t
     :pin "melpa-stable"
     :bind (("C-c n u" . org-web-tools-read-url-as-org)))
 #+end_src
@@ -1594,7 +1591,7 @@ brew install ripgrep
 
 
 # (use-package helm-rg
-#   :ensure t
+#   ; :ensure t
 #   :after org-roam
 #   :pin "melpa-stable"
 #   :config
@@ -1615,7 +1612,8 @@ This one is good. It gives you an idea about the context. But it’s not orderin
 
 I find org-rifle too slow at the moment. But its output is exacly what I want.
 
-# (use-package helm-org-rifle :ensure t
+# (use-package helm-org-rifle
+#   ; :ensure t
 #   :after org-roam
 #   :pin "melpa-stable"
 #   :config
@@ -1631,13 +1629,14 @@ Helm implementation didn’t work for me. So I set a default version here.
 
 One of the drawbacks here is that you can’t see the text you matched. From my point of view - helm-rg gives more precise information about the context.
 
-# (use-package deft :ensure t
+# (use-package deft
+#   ; :ensure t
 #   :after org-roam
 #   :config (setq deft-directory org-roam-directory
 #                 deft-recursive t)
 #   :bind (("C-c n d" . deft)))
 # ;; (use-package helm-deft
-# ;;   :ensure t
+# ;;   ; :ensure t
 # ;;   :straight (:host github
 # ;;                    :repo "dfeich/helm-deft"
 # ;;                    :files ("*.el"))
@@ -1652,13 +1651,15 @@ org-qlGitHub - alphapapa/org-ql: An Org-mode query language, including search co
 
 Doesn’t look suitable for large filesets, but helm implementation is good for medium-sized collections.
 
-(use-package org-ql :ensure t
+(use-package org-ql
+; :ensure t
 :after org
 :config
 (setq org-ql-search-directories-files-recursive t
 org-ql-search-directories-files-regexp ".org\\(_archive\\)?$"))
 
-# (use-package helm-org-ql :ensure t
+# (use-package helm-org-ql
+#   ; :ensure t
 #   :after org-ql
 #   :config
 #   (setq helm-org-ql-recursive-paths t)x#   :bind (("C-c n q" . helm-org-ql-org-directory)))
@@ -1699,7 +1700,7 @@ Can't get 'pdf-tools-install' to work under termux
 #+begin_src emacs-lisp
   (unless (ssmm/is-android-p)
     (use-package org-roam-ui
-      :ensure t
+      ; :ensure t
       :after org-roam
       ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
       ;;         a hookable mode anymore, you're advised to pick something yourself
@@ -1737,7 +1738,8 @@ When working with plain text buffers, like org-mode or markdown, you can use enr
   ;; uncommenting this.
   ;; (setq facemenu-menu nil)
 
-  (use-package highlight :ensure t
+  (use-package highlight
+    ; :ensure t
     :config
     (defun hlt-general()
       (interactive)
@@ -1835,7 +1837,7 @@ brew install glib
 
 #+begin_src emacs-lisp
   ;; (use-package pdf-tools
-  ;;   :ensure t
+  ;;   ; :ensure t
 
   ;;   :straight (:host github
   ;;                    :repo "matthew-piziak/pdf-tools"
@@ -1851,7 +1853,7 @@ brew install glib
 
 
   ;; (use-package org-pdftools
-  ;;   :ensure t
+  ;;   ; :ensure t
   ;;   :hook (org-mode . org-pdftools-setup-link))
 #+end_src
 
@@ -1937,30 +1939,31 @@ number of files. Other alternatives include org-drill, and pamparam.
 
 Enable misc org modules:
 #+begin_src emacs-lisp
+;                      ol-mew
+;                      ol-vm
+;                      ol-wl
+
   (setq org-modules (quote
-                     (org-bbdb
-                      org-bibtex
+                     (ol-bbdb
+                      ol-bibtex
+                      ol-gnus
+                      ol-info
+                      ol-irc
+                      ol-mhe
+                      ol-rmail
+                      ol-w3m
                       org-crypt
-                      org-gnus
-                      org-id
-                      org-info
                       org-habit
+                      org-id
                       org-inlinetask
-                      org-irc
-                      org-mew
-                      org-mhe
                       org-protocol
-                      org-rmail
-                      org-vm
-                      org-wl
-                      org-w3m
                       )
                      )
         )
 #+end_src
 Common org tags.
 #+begin_src emacs-lisp
-  ;; (setq org-tag-alist '(("project" . ?p)
+  ;; (setq ol-tag-alist '(("project" . ?p)
   ;;                       (:startgrouptag)
   ;;                       ("GTD")
   ;;                       (:grouptags)
@@ -1973,7 +1976,7 @@ Common org tags.
 *** Notifications
 #+begin_src emacs-lisp
   (use-package alert
-    :ensure t
+    ; :ensure t
     :after org
     )
 
@@ -1998,7 +2001,7 @@ Common org tags.
                       :notifier #'dc/alert-android-notifications-notify)
 
   (use-package org-alert
-    :ensure t
+    ; :ensure t
     :after org
     :custom
     ;; Use different backends depending on the platform
@@ -2027,16 +2030,16 @@ Common org tags.
 *** Calendar
 #+begin_src emacs-lisp
   (use-package calfw
-    :ensure t
+    ; :ensure t
     )
   (use-package calfw-org
-    :ensure t
+    ; :ensure t
     :after calfw
     )
   (if ssmm/use-gcal-p
       (progn
         (use-package org-gcal
-          :ensure t
+          ; :ensure t
           )
         (setq org-gcal-client-id "your-id-foo.apps.googleusercontent.com"
               org-gcal-client-secret "your-secret"
@@ -2099,7 +2102,7 @@ TODOs, called “habits”.»
 Still thinking
 #+begin_src emacs-lisp
     (use-package ox-hugo
-      :ensure t   ;Auto-install the package from Melpa
+      ; :ensure t   ;Auto-install the package from Melpa
       :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
       :after ox
       )
@@ -2736,7 +2739,7 @@ If you need to edit only one drawer temporarily, you can simply M-x org-tidy-unt
 If you need to edit a lot of drawers, you can M-x org-tidy-toggle. Then the buffer will not be tidied on save, until M-x org-tidy-toggle again.
 #+begin_src emacs-lisp
   ;; (use-package org-tidy
-  ;;   :ensure t
+  ;;   ; :ensure t
   ;;   ;; :hook
   ;;   ;; (org-mode . org-tidy-mode)
   ;;   :bind (:map org-mode-map
@@ -2749,7 +2752,7 @@ If you need to edit a lot of drawers, you can M-x org-tidy-toggle. Then the buff
 *** org-transform-tree-table
 #+begin_src emacs-lisp
   (use-package org-transform-tree-table
-    :ensure t
+    ; :ensure t
     )
 #+end_src
 *** Capturing
@@ -2818,7 +2821,7 @@ From https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_conta
 With
 #+begin_src emacs-lisp
   ;; (use-package org-capture
-  ;;   :ensure t
+  ;;   ; :ensure t
   ;;   :demand
   ;;   :after org
   ;;   :preface
@@ -2903,7 +2906,7 @@ contains an up to date list of the currently supported languages.
   (require 'ob-dot)
                                           ; Allow async OB operations
   ;; (use-package ob-async
-  ;;   :ensure t
+  ;;   ; :ensure t
   ;;   )
 #+end_src
 
@@ -2952,14 +2955,14 @@ file using the `org-babel-lob-ingest' function.
 ** Ag
 #+begin_src emacs-lisp
   (use-package ag
-    :ensure t
+    ; :ensure t
     :commands ag
     )
 #+end_src
 
 #+begin_src emacs-lisp
   (use-package iedit
-    :ensure t
+    ; :ensure t
     :defer t
     )
 #+end_src
@@ -2967,7 +2970,7 @@ file using the `org-babel-lob-ingest' function.
 ** C mode
 #+begin_src emacs-lisp
   (use-package cc-mode
-    :ensure t
+    ; :ensure t
     :preface
     (defun my-c-mode-hook ()
       (setq indent-tabs-mode nil)
@@ -3066,7 +3069,7 @@ file using the `org-babel-lob-ingest' function.
 ** Make modes
 #+begin_src emacs-lisp
   (use-package make-mode
-    :ensure t
+    ; :ensure t
     :preface
     (defun my-makefile-mode-hook()
       (remove-hook 'before-save-hook 'whitespace-cleanup)
@@ -3112,7 +3115,7 @@ file using the `org-babel-lob-ingest' function.
         :defer t)
 
       (use-package python-mode
-        :ensure t
+        ; :ensure t
         ;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
         ;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
         :preface
@@ -3146,7 +3149,7 @@ file using the `org-babel-lob-ingest' function.
 
   ;; (unless (eq system-type 'cygwin)
   ;;   (use-package treesit-auto
-  ;;     :ensure t
+  ;;     ; :ensure t
   ;;     :custom
   ;;     (treesit-auto-install 'prompt)
   ;;     :config
@@ -3163,7 +3166,7 @@ file using the `org-babel-lob-ingest' function.
   ;; (use-package jedi
   ;;   )
   ;;     (use-package elpy
-  ;;       ;;:ensure t
+  ;;       ; :ensure t
   ;;       :init
   ;;       (elpy-enable)
   ;;       (advice-add 'python-mode :before 'elpy-enable)
@@ -3177,7 +3180,7 @@ file using the `org-babel-lob-ingest' function.
 
 #+begin_src emacs-lisp
   ;; (use-package pyvenv
-  ;; ;;:ensure t
+  ;; ; :ensure t
   ;; :defer t
   ;; :init
   ;; (setenv "WORKON_HOME" "~/.pyenv/versions")
@@ -3197,7 +3200,7 @@ file using the `org-babel-lob-ingest' function.
     (straight-use-package 'tp
                           )
     (use-package mastodon
-      :ensure t
+      ; :ensure t
       :config
       (setq mastodon-instance-url "https://mastodon.social"
             mastodon-active-user "sesamemucho")
@@ -3206,7 +3209,7 @@ file using the `org-babel-lob-ingest' function.
 ** Yaml
 #+begin_src emacs-lisp
   (use-package yaml-mode
-    :ensure t
+    ; :ensure t
     :mode
     ("\\.yml$" . yaml-mode)
     )
@@ -3215,7 +3218,7 @@ file using the `org-babel-lob-ingest' function.
 ** Snippets
 #+begin_src emacs-lisp
   (use-package yasnippet
-    :ensure t
+    ; :ensure t
     :config
     (yas-global-mode)
                                           ;(add-to-list 'yas/root-directory "~/.emacs.d/snippets")
@@ -3228,7 +3231,7 @@ file using the `org-babel-lob-ingest' function.
 #+begin_src emacs-lisp
   (unless (ssmm/is-android-p)
   (use-package projectile
-    :ensure t
+    ; :ensure t
     :init
     (projectile-mode +1)
     (add-to-list 'projectile-project-root-files ".gitignore")
@@ -3372,7 +3375,7 @@ Not on android atm (2025-08) because of Termux issues.
 #+begin_src emacs-lisp
   (unless (ssmm/is-android-p)
     (use-package magit
-      :ensure t
+      ; :ensure t
       :bind ("C-x g" . magit-status)
       )
     )
@@ -3392,7 +3395,7 @@ to have (e.g. crux-open-with and crux-reopen-as-root).
 From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 #+begin_src emacs-lisp
   (use-package crux
-    :ensure t
+    ; :ensure t
     :config
     (global-set-key (kbd "C-c d") #'crux-duplicate-current-line-or-region)
     (crux-reopen-as-root-mode)
@@ -3401,7 +3404,7 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 ** Key chord
 #+begin_src emacs-lisp
   (use-package key-chord
-    :ensure t
+    ; :ensure t
     :defer t
     :config
     (key-chord-mode 1)
@@ -3467,7 +3470,7 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 *** Sonic Pi
 #+begin_src emacs-lisp
   (use-package sonic-pi
-    :ensure t
+    ; :ensure t
     :custom
     (sonic-pi-path "/usr/lib/sonic-pi/")
     (sonic-pi-server-bin "server/bin/sonic-pi-server.rb")
@@ -3492,7 +3495,7 @@ From the awesome Bozhidar Batsov (https://github.com/bbatsov/crux)
 *** mpv
 #+begin_src emacs-lisp
     (use-package mpv
-      :ensure t
+      ; :ensure t
       :config
       (org-add-link-type "mpv" #'mpv-play)
       (defun org-mpv-complete-link (&optional arg)
