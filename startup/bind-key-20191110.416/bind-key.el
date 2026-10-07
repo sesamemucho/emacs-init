@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;;; bind-key.el --- A simple way to manage personal keybindings
 
 ;; Copyright (c) 2012-2017 John Wiegley

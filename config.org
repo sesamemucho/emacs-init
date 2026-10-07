@@ -64,8 +64,8 @@ The init.el file is there to tangle this document into the configuration to load
 First make sure that we are doing lexical scoping for speed. See
 [[https://nullprogram.com/blog/2016/12/22/][Some Performance Advantages of Lexical Scope blog]].
 #+begin_src emacs-lisp
+  ;;; -*- lexical-binding: t -*-
   ;;; README.el --- a file generated from README.org - do not edit by hand!!!!
-  ;; -*- lexical-binding: t; -*-
   ;;; Commentary:
   ;;;     Org tangled from README.org. Edit the org file to chnage this configuration
   ;;; Code:
